@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#174e47"><title>QR 청음평가 관리</title>
+  <link rel="icon" href="data:,"><link rel="stylesheet" href="css/survey.css">
+  <script type="module" src="js/survey-admin.js"></script>
+</head>
+<body><main class="survey-shell">
+  <header class="survey-header"><a class="survey-brand" href="./">현장 음성 연구</a><a href="./#listening-test">청음평가</a><a href="./#listening">청음결과표</a></header>
+  <h1>QR 청음평가 관리</h1><p>회차별 QR 하나로 참가자를 연결하고, 같은 음원을 함께 들으며 평가합니다.</p>
+  <div id="survey-message" class="survey-message" role="status" aria-live="polite" hidden></div>
+  <section id="create-panel" class="survey-card">
+    <h2>새 평가 회차</h2>
+    <form id="create-session">
+      <label class="survey-field">회차 이름<input id="session-title" required maxlength="100" placeholder="예: 공사 소음 청음평가 1차"></label>
+      <div class="survey-filters">
+        <label class="survey-field">처리 방식<select id="select-algorithm"><option value="all">전체 방식</option></select></label>
+        <label class="survey-field">소음<select id="select-noise"><option value="all">전체 소음</option></select></label>
+        <label class="survey-field">SNR<select id="select-snr"><option value="all">전체 SNR</option></select></label>
+      </div>
+      <div class="survey-actions"><button id="select-visible" class="survey-button secondary" type="button">표시한 음원 모두 선택</button><button id="clear-selection" class="survey-button secondary" type="button">선택 비우기</button><span id="selected-count" class="survey-muted"></span></div>
+      <p class="survey-muted">음원 이름 → 소음 종류(단일 · 복합 · 변화) → 처리 방식(무처리 우선) → SNR 0 · 5 · 10 · 20 dB 순으로 정렬합니다.</p>
+      <div class="survey-table-wrap"><table class="survey-table"><thead><tr><th>음원 선택</th><th>소음</th><th>SNR</th><th>처리 방식</th></tr></thead><tbody id="audio-choices"></tbody></table></div>
+      <details><summary>선택한 음원과 재생 순서</summary><ol id="selected-queue" class="selected-queue"></ol></details>
+      <label class="survey-option"><input id="shuffle-order" type="checkbox" checked><span>회차를 만들 때 재생 순서 섞기<small>모든 참가자는 확정된 같은 순서로 평가합니다.</small></span></label>
+      <div class="survey-actions"><button id="create-button" class="survey-button" type="submit" disabled>회차 생성 · QR 발급</button></div>
+    </form>
+  </section>
+  <section id="control-panel" class="survey-card" hidden>
+    <div class="survey-actions"><span id="session-phase" class="survey-status"></span><a href="survey-admin.html">다른 회차 관리</a></div>
+    <h2 id="control-title"></h2>
+    <div class="session-layout">
+      <div class="session-qr"><div id="session-qr"></div><a id="participant-link" class="survey-link" target="_blank" rel="noopener">참가자 질문지</a><button id="download-qr" type="button" class="survey-button secondary">QR 저장</button></div>
+      <div>
+        <p id="current-trial" class="trial-progress"></p>
+        <div class="session-stats"><div><strong id="participant-count">0</strong><span>접속한 참가자</span></div><div><strong id="submitted-count">0</strong><span>현재 음원 제출</span></div></div>
+        <audio id="session-audio" class="session-player" controls preload="none" aria-label="진행자용 현재 평가 음원"></audio>
+        <div class="survey-actions"><button id="start-session" type="button" class="survey-button">평가 시작</button><button id="open-responses" type="button" class="survey-button">응답 시작</button><button id="next-trial" type="button" class="survey-button secondary">다음 음원</button><button id="close-session" type="button" class="survey-button secondary">회차 종료</button></div>
+        <p id="control-help" class="survey-muted"></p>
+        <details><summary>현재 음원 정보</summary><p id="current-source" class="survey-muted"></p></details>
+      </div>
+    </div>
+    <details><summary>진행자 전용 링크 보관</summary><p class="survey-muted">이 링크로 다른 기기에서 회차 진행을 이어갈 수 있습니다.</p><a id="control-link" class="survey-link"></a><button id="copy-control-link" class="survey-button secondary" type="button">진행 링크 복사</button></details>
+  </section>
+  <section class="survey-card"><h2>평가 회차 목록</h2><div id="session-list" class="session-list"></div></section>
+</main></body></html>

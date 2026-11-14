@@ -1,0 +1,1 @@
+ALTER TABLE `survey_sessions` ADD `deleted_at` text;
