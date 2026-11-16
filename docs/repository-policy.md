@@ -5,12 +5,12 @@
 | 자료 | 보관 위치·공유 방식 | GitHub |
 | --- | --- | --- |
 | 운영 사이트·알고리즘·계산 코드 | `site/`, `algorithms/`, `metrics/` | 공유 |
-| 연구·협업 문서 | 루트 Markdown, `docs/` | 공유 |
+| 연구·협업 문서 | 루트 Markdown, `docs/`, site/·metrics/·results/의 안내 문서 | 공유 |
 | 음원 경로 정의 | `data/metadata/dataset.json`, 사이트용 메타데이터 | 공유 |
 | API 키·계정·환경 설정 | `.env*`, `.dev.vars*`, `.aws/`, `.ssh/` 등 | 제외 |
 | 배포 프로젝트 연결 정보 | `site/.openai/hosting.json` 등 `.openai/` | 제외, 로컬 원본 유지 |
 | 원음·소음·혼합 음원 | `data/clean/`, `data/noise/`, `data/mixed/` | 제외 |
-| 알고리즘 출력·계산 결과 | `outputs/`, `metrics/results/` | 제외 |
+| 알고리즘 출력·계산 결과 | `outputs/`, `results/metrics/` | 제외 |
 | 사이트에 복사된 음원·계산 결과 | `site/public/research-audio/`, `site/public/metrics/results/` | 제외 |
 | 참가자 자료·종이 평가·원응답 | `evaluations/` | 제외 |
 | 개인 메모·비공개 중요문서 | `private/`, `docs/private/`, `docs/personal/`, `*.local.md`, `*.private.md` | 제외 |
@@ -31,4 +31,4 @@ git diff --cached
 
 코드를 받는 PC마다 `git config core.hooksPath .githooks`를 한 번 실행하면 커밋 전 검사가 자동 실행된다. 공개된 비밀을 발견하면 먼저 해당 키를 폐기·재발급하고 저장소 이력 처리도 확인한다.
 
-Git 제외와 운영 배포는 별개다. 기존 빌드는 로컬 WAV와 지표를 사이트 배포 파일에 포함한다. 이 설정은 GitHub 업로드 범위만 제한하며 운영 사이트의 공개 범위는 바꾸지 않는다.
+Git 제외와 운영 배포는 별개다. 웹 빌드는 로컬 WAV와 검증된 완료 지표 JSON을 사이트 배포 파일에 포함하며 Python 계산은 별도로 수행한다. 이 설정은 GitHub 업로드 범위만 제한하며 운영 사이트의 공개 범위는 바꾸지 않는다.

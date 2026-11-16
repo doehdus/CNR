@@ -1,4 +1,8 @@
 import { copyFile, mkdir } from 'node:fs/promises';
-const target = new URL('../public/website/vendor/', import.meta.url);
-await mkdir(target, { recursive: true });
-await copyFile(new URL('../node_modules/qrcode-generator/dist/qrcode.mjs', import.meta.url), new URL('qrcode.mjs', target));
+import path from 'node:path';
+
+export async function prepareSurvey(publicRoot) {
+  const target = path.join(publicRoot, 'website/vendor');
+  await mkdir(target, { recursive: true });
+  await copyFile(new URL('../node_modules/qrcode-generator/dist/qrcode.mjs', import.meta.url), path.join(target, 'qrcode.mjs'));
+}

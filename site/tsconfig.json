@@ -25,7 +25,13 @@
     ],
     "paths": {
       "@/*": [
-        "./*"
+        "./frontend/*"
+      ],
+      "@backend/*": [
+        "./backend/*"
+      ],
+      "@shared/*": [
+        "./shared/*"
       ]
     },
     "types": [
@@ -43,7 +49,6 @@
   ],
   "exclude": [
     "node_modules",
-    "examples",
     "dist",
     ".vinext",
     ".wrangler",

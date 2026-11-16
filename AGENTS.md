@@ -6,7 +6,8 @@
 - npm은 같은 Node.js 폴더의 `node_modules/npm/bin/npm-cli.js`를 사용한다.
 - Python은 `.venv/Scripts/python.exe`를 사용한다. 기반 Python도 `.tools/python/` 안에 있다.
 - 사이트 의존성은 `site/node_modules/`, 도구 캐시는 `.cache/`를 사용한다.
-- 프로젝트 루트의 `build-site.cmd`가 현재 무처리·초기 고정형 SS 72개의 지표 계산, 사이트에 결과 반영, 테스트, 타입 검사, 음원 수집, 빌드를 수행한다.
+- `calculate-metrics.cmd`는 Python 계산만 수행하고 결과 JSON·CSV를 `results/metrics/`에 저장한다. 기본 대상은 무처리·초기 고정형 SS 72개다.
+- `build-site.cmd`는 완료된 결과 JSON을 검증·반영하고 사이트 테스트, 타입 검사, 음원 수집, 빌드를 수행한다. 홈페이지 빌드는 Python이나 STOI·ESTOI 계산 코드를 실행하지 않는다.
 - 개별 Node.js 명령을 실행할 때는 프로젝트 내부 Node.js 폴더를 해당 프로세스의 PATH 앞에 추가한다.
 
 운영 사이트 소스는 `site/`이며, 배포 시 `.openai/hosting.json`의 기존 프로젝트 ID를 유지한다.

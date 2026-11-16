@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { access, mkdir, mkdtemp, readFile, readdir, realpath, rename, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { localPath, normalizeManifest, normalizeNoiseSources } from '../public/website/js/dataset.js';
+import { localPath, normalizeManifest, normalizeNoiseSources } from '../shared/research/dataset.js';
 
 const defaultSiteRoot = fileURLToPath(new URL('../', import.meta.url));
 const MAX_ASSET_SIZE = 25 * 1024 * 1024;

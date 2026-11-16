@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#174e47"><title>청음평가 질문지</title>
+  <link rel="icon" href="data:,"><link rel="stylesheet" href="css/survey.css">
+  <script type="module" src="js/survey-participant.js"></script>
+</head>
+<body><main class="survey-shell participant-shell">
+  <header class="survey-header"><span class="survey-brand">현장 음성 연구</span><span id="participant-label" class="participant-id"></span></header>
+  <h1 id="survey-title">청음평가 질문지</h1>
+  <div id="survey-message" class="survey-message" role="status" aria-live="polite" hidden></div>
+  <section id="join-panel" class="survey-card" hidden>
+    <h2>진행자의 안내에 따라 참여해 주세요.</h2>
+    <p>같은 장비로 재생하는 음원을 듣고, 들은 내용 3문항과 소음 방해·자연스러움에 응답합니다. 이해도는 핵심정보 정답률로 측정합니다. 답변은 음원마다 저장됩니다.</p>
+    <button id="join-survey" class="survey-button" type="button">평가 참가</button>
+  </section>
+  <section id="waiting-panel" class="survey-card survey-wait" aria-live="polite">
+    <h2 id="waiting-title">질문지를 확인하고 있습니다.</h2><p id="waiting-description"></p>
+  </section>
+  <section id="response-panel" class="survey-card" hidden>
+    <div id="trial-progress" class="trial-progress"></div>
+    <form id="response-form">
+      <h2>들은 내용에 답해 주세요.</h2><div id="key-questions"></div>
+      <h2>소음 방해와 자연스러움을 평가해 주세요.</h2><p class="survey-muted">각 항목은 5단계입니다. 점수가 높을수록 소음 방해가 적고 자연스럽습니다.</p><div id="rating-questions"></div>
+      <button id="submit-response" type="submit" class="survey-button survey-submit">응답 제출</button>
+    </form>
+  </section>
+  <button id="retry-survey" type="button" class="survey-button secondary" hidden>연결 다시 확인</button>
+</main></body></html>

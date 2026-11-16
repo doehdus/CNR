@@ -4,7 +4,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 export function sqliteD1() {
   const sqlite = new DatabaseSync(':memory:');
   sqlite.exec('PRAGMA foreign_keys = ON');
-  const directory = new URL('../../drizzle/', import.meta.url);
+  const directory = new URL('../../backend/migrations/', import.meta.url);
   for (const name of readdirSync(directory).filter(name => name.endsWith('.sql')).sort()) sqlite.exec(readFileSync(new URL(name, directory), 'utf8'));
   function prepare(sql, values = []) {
     const execute = () => {

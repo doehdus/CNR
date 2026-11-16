@@ -21,7 +21,7 @@ export async function catalogFiles(projectRoot) {
   await walk(path.join(root, 'data')); await walk(path.join(root, 'outputs'));
   const requested = new Set(), fingerprints = {};
   try {
-    const text = (await readFile(path.join(root, 'metrics/results/stoi_estoi.json'), 'utf8')).replace(/^\uFEFF/, '');
+    const text = (await readFile(path.join(root, 'results/metrics/stoi_estoi.json'), 'utf8')).replace(/^\uFEFF/, '');
     const payload = JSON.parse(text), rows = Array.isArray(payload) ? payload : payload.metrics;
     for (const row of rows || []) for (const key of ['reference_path', 'compared_path']) if (typeof row?.[key] === 'string' && files.includes(row[key])) requested.add(row[key]);
   } catch { /* Unavailable results do not validate any input. */ }

@@ -1,0 +1,6 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": { "tsBuildInfoFile": "../.sites-runtime/types/backend.tsbuildinfo" },
+  "include": ["**/*.ts", "../shared/**/*.mts", "../cloudflare-env.d.ts", "../next-env.d.ts"],
+  "exclude": ["../node_modules"]
+}

@@ -16,7 +16,7 @@ const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 const managedLinux = readExecutionProfile() === "managed-linux";
 
 const localBindingConfig = {
-  main: "./worker/index.ts",
+  main: "./worker.ts",
   compatibility_flags: ["nodejs_compat"],
   assets: { binding: "ASSETS" },
   d1_databases: d1
@@ -45,6 +45,7 @@ export default defineConfig(async ({ command }) => {
   const { cloudflare } = await import("@cloudflare/vite-plugin");
 
   return {
+    publicDir: ".sites-runtime/public",
     server: {
       ...(managedLinux
         ? { host: "0.0.0.0", allowedHosts: ["terminal.local"] }
@@ -54,7 +55,7 @@ export default defineConfig(async ({ command }) => {
         : {}),
     },
     plugins: [
-      vinext(),
+      vinext({ appDir: "frontend" }),
       sites({ mockAuth: !managedLinux }),
       connectorPreview(),
       cloudflare({

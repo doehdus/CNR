@@ -2,11 +2,14 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { readExecutionProfile } from "./execution-profile.mjs";
 import { prepareAudio } from "./prepare-audio.mjs";
-import "./prepare-survey.mjs";
+import { prepareFrontend } from "./prepare-frontend.mjs";
+import { prepareBackend } from "./prepare-backend.mjs";
 
 const [command, ...args] = process.argv.slice(2);
 if (!["dev", "build"].includes(command)) throw new Error("Expected dev or build.");
 const audioCatalog = await prepareAudio();
+await prepareBackend();
+await prepareFrontend();
 console.log(`Prepared ${audioCatalog.files.length} local WAV files for ${command}.`);
 const managedLinux = readExecutionProfile() === "managed-linux";
 

@@ -1,4 +1,4 @@
-# 내부 STOI·ESTOI 계산
+# 독립 STOI·ESTOI 계산 도구
 
 기준 음성과 무처리·처리 WAV를 공통 샘플레이트로 리샘플링하고 고정 지연을 보정한 뒤 STOI·ESTOI를 계산한다. 현재 준비된 무처리 36개와 초기 고정형 SS 36개를 계산할 수 있다.
 
@@ -70,14 +70,14 @@ STOI·ESTOI는 일반·확장 명료도 예측 지표이며 단어 정답률이 
 from metrics.calculate_metrics import calculate_dataset, write_results
 
 rows = calculate_dataset()  # 다섯 방식의 전체 180개 음원이 준비된 경우
-write_results(rows, "metrics/results")
+write_results(rows, "results/metrics")
 ```
 
 배치는 음원 ID·녹음자·문장·소음·SNR·처리 방식과 경로를 검사한다. 기준 음성은 문장에 고정된 원음에 대응시킨다. 소음 원본 3개는 청취용이며 평가 대상에서 제외한다. 하나라도 실패하면 `BatchCalculationError`에 음원별 오류를 담고 기본 명령은 결과를 저장하지 않은 채 종료한다. 기존 결과 파일은 덮어쓰지 않는다.
 
 `calculate_dataset(..., sample_ids=[...])`로 계산할 음원 ID를 선택할 수 있다. CLI의 `--algorithm`은 여러 번 지정할 수 있으며, 생략하면 무처리와 네 가지 처리 방식의 전체 180개를 계산한다.
 
-결과는 `metrics/results/stoi_estoi.csv`와 `stoi_estoi.json`에 기록한다. 두 파일을 먼저 임시 파일로 준비하고 CSV, 홈페이지 기본 입력인 JSON 순서로 교체한다.
+결과는 계산 코드와 분리된 `results/metrics/stoi_estoi.csv`와 `stoi_estoi.json`에 기록한다. 두 파일을 먼저 임시 파일로 준비하고 CSV, 홈페이지 기본 입력인 JSON 순서로 교체한다.
 
 실제 음원과 계산 결과는 GitHub에서 제외한다. 경로 정의와 계산 코드만 공유하므로 다른 PC에서는 원본을 별도 전달받아 계산한다.
 
@@ -91,9 +91,20 @@ alignment_correlation,reference_trim_start,reference_trim_end,
 compared_trim_start,compared_trim_end,calculated_at
 ```
 
-`sample_rate`와 `samples`는 실제 계산 구간의 공통 샘플레이트와 샘플 수다. `reference_sample_rate`와 `compared_sample_rate`는 원본 파일의 샘플레이트다. 지연과 앞·뒤 제외량은 모두 공통 샘플레이트의 샘플 단위다. `alignment_delay_samples`가 양수이면 비교 음성이 기준 음성보다 늦고, 음수이면 빠르다. `alignment_correlation`은 정렬된 구간의 Pearson 상관계수다. 계산 도구 버전은 `cnr/2`로 기록한다.
+`sample_rate`와 `samples`는 실제 계산 구간의 공통 샘플레이트와 샘플 수다. `reference_sample_rate`와 `compared_sample_rate`는 원본 파일의 샘플레이트다. 지연과 앞·뒤 제외량은 모두 공통 샘플레이트의 샘플 단위다. `alignment_delay_samples`가 양수이면 비교 음성이 기준 음성보다 늦고, 음수이면 빠르다. `alignment_correlation`은 정렬된 구간의 Pearson 상관계수다. `tool_version`에는 pystoi·NumPy·SciPy·soundfile의 버전과 계산 도구 버전 `cnr/2`를 함께 기록한다.
 
 두 점수·버전과 함께 실제 읽은 원본 파일 바이트의 SHA-256과 경로를 기록한다. 홈페이지에 결과 파일을 가져오면 지표 표·개선량·상관분석이 같은 음원 ID로 연결된다. 계산 후 원음이나 처리 음원을 변경했거나 다른 경로·임시 WAV로 바꾼 경우 해당 점수를 표시하지 않는다. 다시 계산해야 한다.
+
+## 홈페이지에 결과 전달
+
+`calculate-metrics.cmd`는 준비된 무처리·초기 SS 72개를 계산하는 단독 진입점이다. 별도 CLI 옵션을 전달하면 그 옵션으로 계산한다. 계산 코드는 웹사이트·DB·Node.js에 의존하지 않는다.
+
+```powershell
+.\calculate-metrics.cmd
+.\build-site.cmd
+```
+
+두 번째 명령은 완료된 `results/metrics/stoi_estoi.json`을 검증해 홈페이지에 반영하고 웹사이트를 빌드한다. Python 계산은 다시 실행하지 않는다. 별도 계산 환경에서는 JSON만 전달할 수 있으며, 재생할 WAV는 따로 준비한다. 결과 파일 계약과 DB 역할은 [결과 데이터 안내](../results/README.md)를 따른다.
 
 ## 검증 범위
 
@@ -101,6 +112,6 @@ compared_trim_start,compared_trim_end,calculated_at
 .\.venv\Scripts\python.exe -m unittest discover -s metrics/tests -v
 ```
 
-검증용 신호·임시 WAV로 일반·확장 참조 호출과의 일치, 44.1/48 kHz에서 16 kHz로의 변환, 비교 음성의 8 kHz 변환, 양·음의 지연, 같은 길이 파일의 지연, 소음·극성 반전, 보정값·실제 계산 구간의 기록, 형식·무음·짧은 발화 오류, 180개 기준 대응, CSV·JSON 저장, 실패 시 기존 결과 보존을 검사한다. 홈페이지 테스트에는 Python이 만든 임시 결과를 실제로 읽어 파일 지문·개선량 연결까지 확인하는 검사가 있다.
+검증용 신호·임시 WAV로 일반·확장 참조 호출과의 일치, 44.1/48 kHz에서 16 kHz로의 변환, 비교 음성의 8 kHz 변환, 양·음의 지연, 같은 길이 파일의 지연, 소음·극성 반전, 보정값·실제 계산 구간의 기록, 형식·무음·짧은 발화 오류, 180개 기준 대응, CSV·JSON 저장, 실패 시 기존 결과 보존을 검사한다. `metrics/tests/website-bridge.test.mjs`는 Python 임시 결과가 전달 단계와 홈페이지 파일 지문·개선량까지 연결되는지 별도로 검사한다. 프로젝트 내부 Node.js를 PATH 앞에 둔 뒤 `node --test metrics/tests/website-bridge.test.mjs`로 실행한다.
 
 시험 데이터와 검증 결과는 임시 폴더에 보관한다. 실제 연구 음원의 측정 SNR과 보정 후 발화 구간은 별도로 확인한다.

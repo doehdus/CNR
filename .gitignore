@@ -50,6 +50,7 @@ service-account*.json
 /outputs/
 /evaluations/
 /metrics/results/
+/results/metrics/
 /site/public/research-audio/
 /site/public/metrics/results/
 *.wav

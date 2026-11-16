@@ -1,6 +1,15 @@
 # 초기 웹사이트 요구사항
 
-> 이전 설계 기록이다. 현재 메뉴·QR 청음평가·D1/R2 저장 기준은 [PROJECT_CONTEXT](../PROJECT_CONTEXT.md)와 [사이트 안내](../site/README.md)를 따른다. 아래의 종이 전용 수집·초기 대시보드 구성은 최신 운영 명세가 아니다.
+> 2026-11-15 검토: 이 문서의 아래 본문은 이전 설계·검토 기록이다. 현재 실행 지침은 [협업 안내](../CONTRIBUTING.md), 화면·데이터 구조는 [사이트 구조](../site/ARCHITECTURE.md), 평가는 [평가 프로토콜](evaluation-protocol.md)을 따른다. 과거 폴더·시작 파일·브라우저 저장·종이 전용 수집·미완료 표시는 당시 기록으로 보존한다.
+
+## 현재 기준 요약
+
+현재 운영 소스는 `site/frontend/`·`site/backend/`·`site/shared/`로 분리돼 있고 일곱 메뉴·QR/D1 수집을 사용한다. 계산은 독립 `metrics/`, 완료 JSON·CSV는 `results/metrics/`다. `calculate-metrics.cmd`로 계산하고 `build-site.cmd`로 결과 검증·반영·웹 빌드를 실행한다. 웹 빌드는 계산기를 호출하지 않으며 운영 배포는 별도다. 자동 지표 전달에는 DB가 필요하지 않고 D1은 공유 청음 응답·설정 등에 사용한다.
+
+로컬 검증 기준은 WAV 78개와 무처리·초기 SS 지표 72개다. 실제 청음 응답 건수는 운영 DB에서 확인한다. 과거 로컬 홈페이지·시작 파일과 미사용 UI·D1 예제는 현재 저장소에 포함하지 않는다.
+
+## 아래는 과거 기록
+
 
 WEBSITE_REQUIREMENTS — 연구용 음성 평가 웹사이트
 1. 목적과 제외 범위
@@ -33,14 +42,14 @@ WEBSITE_REQUIREMENTS — 연구용 음성 평가 웹사이트
 2.5 Evaluation Entry — 발표자 종이 평가 전사
 - 청취자에게는 종이 평가지 배포. 발표자는 홈페이지에서 음원을 재생하고, 수거한 용지를 그대로 입력.
 - 입력 키: session_id, participant_id(익명), audio_id(또는 블라인드 코드)
-- 입력값: 이해도/소음 방해/자연스러움 점수(각 0/2.5/5/7.5/10), 청취 기록 또는 핵심 정보 정답 여부, 필요시 메모
+- 입력값: 소음 방해/자연스러움 점수(각 0/2.5/5/7.5/10), 핵심 정보 정답 여부와 청취 기록, 필요시 메모. 이해도는 핵심정보 정답률로 대체한다.
 - 같은 음원을 여러 명이 채점하면 평가자 행 여러 개로 입력. 빠른 표 형식 일괄 입력 지원
 - 필수값 검증, 저장, 수정, 미입력 표시, 중복 입력 방지, CSV 내보내기
 - 읽은 문장 정답과 객관적 점수는 입력 화면에서 연구자 전용으로 처리, 평가자에게 공개하지 않음
 - 저장 성공을 확인할 수 있는 지속성 필요: 브라우저 로컬스토리지(단일 장치) + JSON/CSV 백업, 또는 경량 백엔드/DB 중 선택. UI에서 ‘저장’ 표시만 하는 가짜 저장 금지
 2.6 Correlation Analysis
-- 같은 audio_id에 대해 STOI, ESTOI, mean_human_understanding, mean_keyword_accuracy 연결
-- 주분석: Spearman ρ(STOI, 사람 이해도), Spearman ρ(ESTOI, 사람 이해도)
+- 같은 audio_id에 대해 STOI, ESTOI, keyword_accuracy, mean_noise_interference, mean_naturalness 연결
+- 주분석: Spearman ρ(STOI, 핵심정보 정답률), Spearman ρ(ESTOI, 핵심정보 정답률). 소음 방해·자연스러움 평균은 보조 분석으로 비교한다.
 - 보조분석: 각 지표 ↔ 핵심 정보 정답률, 소음/SNR별 하위 분석
 - 유효 쌍의 개수 N, 제외된 음원 수와 이유, 동률 여부, 계산 불가 이유 표시
 - 막대차트·산점도/점수 순위표, CSV 내보내기
@@ -51,7 +60,7 @@ audio_files	audio_id, type, noise_type, snr_db, sentence_id, method, path, statu
 objective_scores	audio_id, stoi, estoi, reference_id, calculated_at	객관적 측정
 participants	participant_id	익명 평가자
 sessions	session_id, date, notes	발표/평가 세션
-ratings	session_id, participant_id, audio_id, understanding, noise_interference, naturalness, keyword_correct_count, keyword_total_count	종이 평가 전사
+ratings	session_id, participant_id, audio_id, noise_interference, naturalness, keyword_correct_count, keyword_total_count	종이 평가 전사
 
 
 - audio_id는 모든 표의 조인 기준.
