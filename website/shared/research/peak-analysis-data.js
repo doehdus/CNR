@@ -24,6 +24,14 @@ export function normalizePeakAnalysis(data) {
   for (const source of data.sources) {
     if (!noises.includes(source.noise) || !files.has(`data/noise/${source.noise}.wav`) || !Array.isArray(source.peaks) || source.peaks.length > 8 || new Set(source.peaks.map(p => p.id)).size !== source.peaks.length) fail();
     vector(source.psd_db);
+    // Optional completed summaries are validated before rendering, older exports remain readable.
+    if (source.before_psd_db !== undefined || source.after_psd_db !== undefined) {
+      vector(source.before_psd_db); vector(source.after_psd_db);
+    }
+    if (source.band_energy !== undefined) {
+      const bands = [[0,100],[100,300],[300,1000],[1000,2000],[2000,4000],[4000,8000]];
+      if (!Array.isArray(source.band_energy) || source.band_energy.length !== bands.length || source.band_energy.some((b,i) => b.low_hz !== bands[i][0] || b.high_hz !== bands[i][1] || !finite(b.energy_percent) || b.energy_percent < 0 || b.energy_percent > 100) || Math.abs(source.band_energy.reduce((s,b) => s+b.energy_percent,0)-100) > .01) fail();
+    }
     for (const peak of source.peaks) if (!/^p[1-8]$/.test(peak.id) || ![peak.frequency_hz, peak.low_hz, peak.high_hz, peak.magnitude_db, peak.prominence_db, peak.bandwidth_hz, peak.time_change_db].every(finite) || peak.low_hz < 0 || peak.high_hz > 8000 || peak.low_hz >= peak.high_hz || peak.frequency_hz < peak.low_hz || peak.frequency_hz > peak.high_hz || peak.prominence_db < 6 || peak.bandwidth_hz <= 0) fail();
   }
   if (!Array.isArray(data.conditions) || data.conditions.length !== 144) fail();
