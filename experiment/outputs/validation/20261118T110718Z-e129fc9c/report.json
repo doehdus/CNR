@@ -1,0 +1,922 @@
+{
+  "version": 1,
+  "inspected_at": "2026-11-18T11:07:18.571445+00:00",
+  "status": "awaiting_files",
+  "source_directory": "experiment/mixtures",
+  "expected_mixtures": 144,
+  "received_files": 0,
+  "matched_conditions": 0,
+  "missing_count": 144,
+  "missing_conditions": [
+    {
+      "noise": "changing",
+      "declared_snr_db": 0,
+      "statement": "instruction01"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 0,
+      "statement": "instruction02"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 0,
+      "statement": "instruction03"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 0,
+      "statement": "instruction04"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 0,
+      "statement": "instruction05"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 0,
+      "statement": "instruction06"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 0,
+      "statement": "warning01"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 0,
+      "statement": "warning02"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 0,
+      "statement": "warning03"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 0,
+      "statement": "warning04"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 0,
+      "statement": "warning05"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 0,
+      "statement": "warning06"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 5,
+      "statement": "instruction01"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 5,
+      "statement": "instruction02"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 5,
+      "statement": "instruction03"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 5,
+      "statement": "instruction04"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 5,
+      "statement": "instruction05"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 5,
+      "statement": "instruction06"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 5,
+      "statement": "warning01"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 5,
+      "statement": "warning02"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 5,
+      "statement": "warning03"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 5,
+      "statement": "warning04"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 5,
+      "statement": "warning05"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 5,
+      "statement": "warning06"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 10,
+      "statement": "instruction01"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 10,
+      "statement": "instruction02"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 10,
+      "statement": "instruction03"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 10,
+      "statement": "instruction04"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 10,
+      "statement": "instruction05"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 10,
+      "statement": "instruction06"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 10,
+      "statement": "warning01"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 10,
+      "statement": "warning02"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 10,
+      "statement": "warning03"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 10,
+      "statement": "warning04"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 10,
+      "statement": "warning05"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 10,
+      "statement": "warning06"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 20,
+      "statement": "instruction01"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 20,
+      "statement": "instruction02"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 20,
+      "statement": "instruction03"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 20,
+      "statement": "instruction04"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 20,
+      "statement": "instruction05"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 20,
+      "statement": "instruction06"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 20,
+      "statement": "warning01"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 20,
+      "statement": "warning02"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 20,
+      "statement": "warning03"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 20,
+      "statement": "warning04"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 20,
+      "statement": "warning05"
+    },
+    {
+      "noise": "changing",
+      "declared_snr_db": 20,
+      "statement": "warning06"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 0,
+      "statement": "instruction01"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 0,
+      "statement": "instruction02"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 0,
+      "statement": "instruction03"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 0,
+      "statement": "instruction04"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 0,
+      "statement": "instruction05"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 0,
+      "statement": "instruction06"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 0,
+      "statement": "warning01"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 0,
+      "statement": "warning02"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 0,
+      "statement": "warning03"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 0,
+      "statement": "warning04"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 0,
+      "statement": "warning05"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 0,
+      "statement": "warning06"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 5,
+      "statement": "instruction01"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 5,
+      "statement": "instruction02"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 5,
+      "statement": "instruction03"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 5,
+      "statement": "instruction04"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 5,
+      "statement": "instruction05"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 5,
+      "statement": "instruction06"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 5,
+      "statement": "warning01"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 5,
+      "statement": "warning02"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 5,
+      "statement": "warning03"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 5,
+      "statement": "warning04"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 5,
+      "statement": "warning05"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 5,
+      "statement": "warning06"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 10,
+      "statement": "instruction01"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 10,
+      "statement": "instruction02"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 10,
+      "statement": "instruction03"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 10,
+      "statement": "instruction04"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 10,
+      "statement": "instruction05"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 10,
+      "statement": "instruction06"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 10,
+      "statement": "warning01"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 10,
+      "statement": "warning02"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 10,
+      "statement": "warning03"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 10,
+      "statement": "warning04"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 10,
+      "statement": "warning05"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 10,
+      "statement": "warning06"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 20,
+      "statement": "instruction01"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 20,
+      "statement": "instruction02"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 20,
+      "statement": "instruction03"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 20,
+      "statement": "instruction04"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 20,
+      "statement": "instruction05"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 20,
+      "statement": "instruction06"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 20,
+      "statement": "warning01"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 20,
+      "statement": "warning02"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 20,
+      "statement": "warning03"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 20,
+      "statement": "warning04"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 20,
+      "statement": "warning05"
+    },
+    {
+      "noise": "complex",
+      "declared_snr_db": 20,
+      "statement": "warning06"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 0,
+      "statement": "instruction01"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 0,
+      "statement": "instruction02"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 0,
+      "statement": "instruction03"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 0,
+      "statement": "instruction04"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 0,
+      "statement": "instruction05"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 0,
+      "statement": "instruction06"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 0,
+      "statement": "warning01"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 0,
+      "statement": "warning02"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 0,
+      "statement": "warning03"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 0,
+      "statement": "warning04"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 0,
+      "statement": "warning05"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 0,
+      "statement": "warning06"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 5,
+      "statement": "instruction01"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 5,
+      "statement": "instruction02"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 5,
+      "statement": "instruction03"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 5,
+      "statement": "instruction04"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 5,
+      "statement": "instruction05"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 5,
+      "statement": "instruction06"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 5,
+      "statement": "warning01"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 5,
+      "statement": "warning02"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 5,
+      "statement": "warning03"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 5,
+      "statement": "warning04"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 5,
+      "statement": "warning05"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 5,
+      "statement": "warning06"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 10,
+      "statement": "instruction01"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 10,
+      "statement": "instruction02"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 10,
+      "statement": "instruction03"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 10,
+      "statement": "instruction04"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 10,
+      "statement": "instruction05"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 10,
+      "statement": "instruction06"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 10,
+      "statement": "warning01"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 10,
+      "statement": "warning02"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 10,
+      "statement": "warning03"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 10,
+      "statement": "warning04"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 10,
+      "statement": "warning05"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 10,
+      "statement": "warning06"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 20,
+      "statement": "instruction01"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 20,
+      "statement": "instruction02"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 20,
+      "statement": "instruction03"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 20,
+      "statement": "instruction04"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 20,
+      "statement": "instruction05"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 20,
+      "statement": "instruction06"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 20,
+      "statement": "warning01"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 20,
+      "statement": "warning02"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 20,
+      "statement": "warning03"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 20,
+      "statement": "warning04"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 20,
+      "statement": "warning05"
+    },
+    {
+      "noise": "single",
+      "declared_snr_db": 20,
+      "statement": "warning06"
+    }
+  ],
+  "duplicate_conditions": [],
+  "unmapped_files": [],
+  "invalid_files": [],
+  "snr_status": "not_measured",
+  "full_scale_note": "PCM full-scale touches are observations, not proof of clipping.",
+  "clean_formats": [
+    {
+      "sample_rate_hz": 16000,
+      "channels": 1,
+      "bits": 16,
+      "files": 6
+    },
+    {
+      "sample_rate_hz": 48000,
+      "channels": 1,
+      "bits": 16,
+      "files": 6
+    }
+  ],
+  "clean": [
+    {
+      "path": "experiment/data/clean/instruction01.wav",
+      "valid": true,
+      "sha256": "2c92056b25eaa98efdbbf427fd6df2cb9f0cf8fa993445b96bf0c3e3036410fe",
+      "size": 163798,
+      "sample_rate_hz": 16000,
+      "sample_count": 79851,
+      "channels": 1,
+      "bits": 16,
+      "duration_seconds": 4.9906875,
+      "pcm16_full_scale_samples": 0,
+      "c_fft_format_supported": true,
+      "speaker": "유채원"
+    },
+    {
+      "path": "experiment/data/clean/instruction02.wav",
+      "valid": true,
+      "sha256": "c3f9324db3c552dd6570a79a6870ff9c72a265e242175e8d549ef68152183a4d",
+      "size": 158336,
+      "sample_rate_hz": 16000,
+      "sample_count": 77120,
+      "channels": 1,
+      "bits": 16,
+      "duration_seconds": 4.82,
+      "pcm16_full_scale_samples": 0,
+      "c_fft_format_supported": true,
+      "speaker": "유채원"
+    },
+    {
+      "path": "experiment/data/clean/instruction03.wav",
+      "valid": true,
+      "sha256": "7d3e2a7ade47f3477dab7decadbb7504cebb2b24ee37213f914a846f846f34b6",
+      "size": 156970,
+      "sample_rate_hz": 16000,
+      "sample_count": 76437,
+      "channels": 1,
+      "bits": 16,
+      "duration_seconds": 4.7773125,
+      "pcm16_full_scale_samples": 0,
+      "c_fft_format_supported": true,
+      "speaker": "유채원"
+    },
+    {
+      "path": "experiment/data/clean/instruction04.wav",
+      "valid": true,
+      "sha256": "a45d413ba1f969ebd9228e41d16b94896f34f2ae70ba5c657aa512093806b16d",
+      "size": 550956,
+      "sample_rate_hz": 48000,
+      "sample_count": 275456,
+      "channels": 1,
+      "bits": 16,
+      "duration_seconds": 5.738666666666667,
+      "pcm16_full_scale_samples": 0,
+      "c_fft_format_supported": true,
+      "speaker": "김도연"
+    },
+    {
+      "path": "experiment/data/clean/instruction05.wav",
+      "valid": true,
+      "sha256": "4afc6c4bc53ef084a424786a3353cecc792ecdea5744256c0f4a6b898b69eda1",
+      "size": 522284,
+      "sample_rate_hz": 48000,
+      "sample_count": 261120,
+      "channels": 1,
+      "bits": 16,
+      "duration_seconds": 5.44,
+      "pcm16_full_scale_samples": 0,
+      "c_fft_format_supported": true,
+      "speaker": "김도연"
+    },
+    {
+      "path": "experiment/data/clean/instruction06.wav",
+      "valid": true,
+      "sha256": "1a9bb57e8a9d7e0306d148f153202855b70eb88a0ef58f6c4364d3cc213f26a7",
+      "size": 528428,
+      "sample_rate_hz": 48000,
+      "sample_count": 264192,
+      "channels": 1,
+      "bits": 16,
+      "duration_seconds": 5.504,
+      "pcm16_full_scale_samples": 0,
+      "c_fft_format_supported": true,
+      "speaker": "김도연"
+    },
+    {
+      "path": "experiment/data/clean/warning01.wav",
+      "valid": true,
+      "sha256": "9e42eab12628de1ff69c26b69e124ab80d69d9d6897322b32e71a24c1fb13311",
+      "size": 147414,
+      "sample_rate_hz": 16000,
+      "sample_count": 71659,
+      "channels": 1,
+      "bits": 16,
+      "duration_seconds": 4.4786875,
+      "pcm16_full_scale_samples": 0,
+      "c_fft_format_supported": true,
+      "speaker": "유채원"
+    },
+    {
+      "path": "experiment/data/clean/warning02.wav",
+      "valid": true,
+      "sha256": "66116b6e71c5ea20d4bd3762dcaaf5b67563e8fdee96e7b87a508225e127d152",
+      "size": 149462,
+      "sample_rate_hz": 16000,
+      "sample_count": 72683,
+      "channels": 1,
+      "bits": 16,
+      "duration_seconds": 4.5426875,
+      "pcm16_full_scale_samples": 0,
+      "c_fft_format_supported": true,
+      "speaker": "유채원"
+    },
+    {
+      "path": "experiment/data/clean/warning03.wav",
+      "valid": true,
+      "sha256": "4c49c9a398c2746ea1324207d7347419c9fb78ae4914971f022e24c42573bb75",
+      "size": 183594,
+      "sample_rate_hz": 16000,
+      "sample_count": 89749,
+      "channels": 1,
+      "bits": 16,
+      "duration_seconds": 5.6093125,
+      "pcm16_full_scale_samples": 0,
+      "c_fft_format_supported": true,
+      "speaker": "유채원"
+    },
+    {
+      "path": "experiment/data/clean/warning04.wav",
+      "valid": true,
+      "sha256": "bdb33fb71c8e56358975d605fbb9535782f9c60a4945460df959bdf46cb9a406",
+      "size": 514092,
+      "sample_rate_hz": 48000,
+      "sample_count": 257024,
+      "channels": 1,
+      "bits": 16,
+      "duration_seconds": 5.354666666666667,
+      "pcm16_full_scale_samples": 0,
+      "c_fft_format_supported": true,
+      "speaker": "김도연"
+    },
+    {
+      "path": "experiment/data/clean/warning05.wav",
+      "valid": true,
+      "sha256": "132ed14e5ee4c5ee9a2be12a8885542c318d673a9d560dc141a8b278468d442e",
+      "size": 499756,
+      "sample_rate_hz": 48000,
+      "sample_count": 249856,
+      "channels": 1,
+      "bits": 16,
+      "duration_seconds": 5.205333333333333,
+      "pcm16_full_scale_samples": 0,
+      "c_fft_format_supported": true,
+      "speaker": "김도연"
+    },
+    {
+      "path": "experiment/data/clean/warning06.wav",
+      "valid": true,
+      "sha256": "1f422206acb28c853e091997a1330adf5255b1a77b7549bb888a893c5505c386",
+      "size": 438316,
+      "sample_rate_hz": 48000,
+      "sample_count": 219136,
+      "channels": 1,
+      "bits": 16,
+      "duration_seconds": 4.565333333333333,
+      "pcm16_full_scale_samples": 0,
+      "c_fft_format_supported": true,
+      "speaker": "김도연"
+    }
+  ],
+  "mixtures": []
+}

@@ -9,6 +9,10 @@
 *.json text eol=lf
 *.sql text eol=lf
 *.sh text eol=lf
+*.wav binary
+*.png binary
+# Preserve calculated file bytes so recorded SHA-256 values survive checkout.
+experiment/outputs/** -text whitespace=cr-at-eol
 .githooks/* text eol=lf
 *.cmd text eol=crlf
 *.ps1 text eol=crlf

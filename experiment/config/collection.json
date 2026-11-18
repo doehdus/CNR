@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "source_root": "experiment/data/clean",
+  "recordings": [
+    {"id":"instruction01","category":"instruction","speaker":"유채원","text":"굴착기 작업을 중단하고 오른쪽으로 이동해주세요"},
+    {"id":"instruction02","category":"instruction","speaker":"유채원","text":"크레인을 정지하고 작업 구역 밖으로 이동해 주세요."},
+    {"id":"instruction03","category":"instruction","speaker":"유채원","text":"자재 세 개를 옮기고 왼쪽 적재장에 내려 주세요."},
+    {"id":"instruction04","category":"instruction","speaker":"김도연","text":"굴착기를 뒤로 이동하고 작업 위치를 조정해 주세요."},
+    {"id":"instruction05","category":"instruction","speaker":"김도연","text":"작업 장비를 정지하고 안전거리를 확보해 주세요."},
+    {"id":"instruction06","category":"instruction","speaker":"김도연","text":"철근 다섯 개를 확인하고 지정된 장소로 옮겨 주세요."},
+    {"id":"warning01","category":"warning","speaker":"유채원","text":"정지하세요! 굴착기 뒤쪽에 작업자가 있습니다!"},
+    {"id":"warning02","category":"warning","speaker":"유채원","text":"조심하세요! 위쪽에서 자재가 떨어지고 있습니다!"},
+    {"id":"warning03","category":"warning","speaker":"유채원","text":"대피하세요! 작업 구역에서 가스가 누출되고 있습니다!"},
+    {"id":"warning04","category":"warning","speaker":"김도연","text":"멈추세요! 크레인 아래쪽에 사람이 지나가고 있습니다!"},
+    {"id":"warning05","category":"warning","speaker":"김도연","text":"위험합니다! 굴착기 옆쪽에서 토사가 무너지고 있습니다!"},
+    {"id":"warning06","category":"warning","speaker":"김도연","text":"물러나세요! 작업 장비가 갑자기 움직이고 있습니다!"}
+  ]
+}

@@ -1,0 +1,19 @@
+name: macOS local collaboration
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  local-web:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - name: Verify installation is optional
+        run: |
+          if bash scripts/dev-local.sh --prepare-only; then exit 1; fi
+          test ! -d .tools
+          test ! -d website/node_modules
+      - name: Prepare, build, and check local execution
+        run: bash scripts/dev-local.sh --install --check
+      - name: Reuse prepared tools without installing
+        run: bash scripts/dev-local.sh --prepare-only

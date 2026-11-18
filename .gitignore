@@ -27,22 +27,14 @@ service-account*.json
 .wrangler/
 .sites-runtime/
 
-# Private documents and personal notes
+# Local archives and temporary documents
 /private/
-/docs/private/
-/docs/personal/
 *.local.md
 *.private.md
 ~$*
-*.doc
-*.docx
-*.xls
-*.xlsx
-*.ppt
-*.pptx
-*.pdf
 
-# Research source data: only the shared dataset definition is versioned
+# Retired paths; current experiment inputs and completed results are shared
+/before261116/
 /data/*
 !/data/metadata/
 /data/metadata/*
@@ -51,8 +43,11 @@ service-account*.json
 /evaluations/
 /metrics/results/
 /results/metrics/
-/site/public/research-audio/
-/site/public/metrics/results/
+/website/public/research-audio/
+/website/public/metrics/results/
+/website/public/dataset/
+/website/public/.dataset-stage-*/
+/website/public/.dataset-backup-*/
 *.wav
 *.flac
 *.mp3
@@ -79,14 +74,22 @@ service-account*.json
 *.gz
 
 # Generated output and machine-specific files
-/site/dist/
-/site/.next/
-/site/.vinext/
-/site/out/
-/site/coverage/
+/website/dist/
+/website/.next/
+/website/.vinext/
+/website/out/
+/website/coverage/
 *.log
 .DS_Store
 Thumbs.db
 Desktop.ini
 .idea/
 .vscode/
+
+# Research audio belongs to the team alongside the source and completed analysis.
+!/experiment/**/*.wav
+!/experiment/**/*.flac
+!/experiment/**/*.mp3
+!/experiment/**/*.m4a
+!/experiment/**/*.ogg
+!/experiment/**/*.aac

@@ -1,0 +1,49 @@
+# Latest research design. null values require analysis or validation before execution.
+# This file records the expanded design; the existing 72-file calculator uses paths.json.
+version: 1
+mode: offline_wav
+dataset:
+  clean_root: experiment/data/clean
+  mixtures_root: experiment/mixtures
+  noise_root: experiment/data/noise
+  expected_clean: 12
+  expected_mixtures: 144
+  input_snr_db: [20, 10, 5, 0]
+  snr_status: new_mixtures_not_received_measurements_pending
+  noise_train: experiment/data/noise_train
+  noise_test: experiment/data/noise_test
+  split_status: pending
+dsp:
+  sample_rate_hz: null
+  current_metric_sample_rate_hz: 16000
+  frame_length: null
+  hop_length: null
+  window: null
+prefilter:
+  compare: [false, true]
+  filter_type: null
+  target_bands_hz: null
+  q: null
+  attenuation_db: null
+  parameter_source: noise_train
+algorithms:
+  - id: initial_fixed_ss
+    legacy_id: ss_fixed
+    noise_estimator: initial_non_speech_fixed
+  - id: pattern_fixed_ss
+    legacy_id: ss_pattern_fixed
+    noise_estimator: registered_pattern_scaled_fixed
+  - id: pattern_adaptive_ss
+    legacy_id: ss_pattern_update
+    noise_estimator: registered_pattern_updated_during_non_speech
+  - id: wiener
+    noise_estimator: null
+  - id: logmmse
+    noise_estimator: null
+evaluation:
+  baselines: [noisy_baseline, prefilter_only]
+  metrics: [stoi, estoi]
+  target_conditions_per_mixture: 12
+  target_evaluation_wavs: null
+  human_primary: key_information_accuracy
+  comparison_keys: [noise, snr, statement, speaker]

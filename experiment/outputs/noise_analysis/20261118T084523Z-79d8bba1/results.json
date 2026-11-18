@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "noise": "single",
+      "inputs": [
+        {
+          "sample_id": "noise_single",
+          "sha256": "bb5d4c839f1075ac37538e0818aa0501c09641fc880b477e3f8dd6556a624d31"
+        }
+      ],
+      "analysis": {
+        "method": "full_fft",
+        "sample_rate_hz": 16000,
+        "sample_count": 87360,
+        "fft_size": 131072,
+        "window_function": "hann_periodic",
+        "magnitude_reference": "One-sided peak amplitude / PCM full scale 1.0; coherent-gain corrected, dBFS",
+        "peak_rule": "주요 피크 검출 대기"
+      },
+      "spectrum_image": "graphs/20261118T084523Z-79d8bba1/single.png",
+      "peaks_image": null,
+      "peaks": null,
+      "candidates": [],
+      "summary": "전체 5.46초에 Hann 창을 적용한 단일 FFT입니다. C 계산 CSV 전체를 그렸으며 주요 피크 검출은 대기 중입니다."
+    },
+    {
+      "noise": "complex",
+      "inputs": [
+        {
+          "sample_id": "noise_complex",
+          "sha256": "51b57ef12d1b5d63f87473d606b03a008046046bb694f40ced9df6c7b0550889"
+        }
+      ],
+      "analysis": {
+        "method": "full_fft",
+        "sample_rate_hz": 16000,
+        "sample_count": 87360,
+        "fft_size": 131072,
+        "window_function": "hann_periodic",
+        "magnitude_reference": "One-sided peak amplitude / PCM full scale 1.0; coherent-gain corrected, dBFS",
+        "peak_rule": "주요 피크 검출 대기"
+      },
+      "spectrum_image": "graphs/20261118T084523Z-79d8bba1/complex.png",
+      "peaks_image": null,
+      "peaks": null,
+      "candidates": [],
+      "summary": "전체 5.46초에 Hann 창을 적용한 단일 FFT입니다. C 계산 CSV 전체를 그렸으며 주요 피크 검출은 대기 중입니다."
+    },
+    {
+      "noise": "changing",
+      "inputs": [
+        {
+          "sample_id": "noise_changing",
+          "sha256": "1a6af6c85e8961398311c845a5e7501e355faeb114ccc079bfeb52a1221beef0"
+        }
+      ],
+      "analysis": {
+        "method": "full_fft",
+        "sample_rate_hz": 16000,
+        "sample_count": 87360,
+        "fft_size": 131072,
+        "window_function": "hann_periodic",
+        "magnitude_reference": "One-sided peak amplitude / PCM full scale 1.0; coherent-gain corrected, dBFS",
+        "peak_rule": "주요 피크 검출 대기"
+      },
+      "spectrum_image": "graphs/20261118T084523Z-79d8bba1/changing.png",
+      "peaks_image": null,
+      "peaks": null,
+      "candidates": [],
+      "summary": "전체 5.46초에 Hann 창을 적용한 단일 FFT입니다. C 계산 CSV 전체를 그렸으며 주요 피크 검출은 대기 중입니다."
+    }
+  ],
+  "mixtures": [],
+  "artifacts": {
+    "graphs/20261118T084523Z-79d8bba1/changing.png": "ef5375b49176b1cdaccd7d76f14705dd9e87b3fe9947465e78eff34f89d8faf9",
+    "graphs/20261118T084523Z-79d8bba1/comparison.png": "31eb26a8d610f53643c3bab29f42fb6e6d344049bd006553b1f2f40018a82a9b",
+    "graphs/20261118T084523Z-79d8bba1/complex.png": "8c2631d5b744954558a7c3f4bdf8e5a99940e9161f39b946afd0fbe4754d57c0",
+    "graphs/20261118T084523Z-79d8bba1/single.png": "c4f64d2829ceec3d01ac5de3b072d34e1a6304d0ca0976c98eba4a08ab89131a"
+  },
+  "overview": {
+    "inputs": [
+      {
+        "sample_id": "noise_single",
+        "sha256": "bb5d4c839f1075ac37538e0818aa0501c09641fc880b477e3f8dd6556a624d31"
+      },
+      {
+        "sample_id": "noise_complex",
+        "sha256": "51b57ef12d1b5d63f87473d606b03a008046046bb694f40ced9df6c7b0550889"
+      },
+      {
+        "sample_id": "noise_changing",
+        "sha256": "1a6af6c85e8961398311c845a5e7501e355faeb114ccc079bfeb52a1221beef0"
+      }
+    ],
+    "spectrum_image": "graphs/20261118T084523Z-79d8bba1/comparison.png",
+    "comparison_basis": "3종의 전체 음원을 같은 주파수·진폭 축으로 비교합니다. Hann 창 이득을 보정한 디지털 풀스케일(dBFS) 기준이며, 파일별 최대값 정규화는 적용하지 않았습니다. 녹음 레벨에 영향을 받으므로 실제 현장의 음압 크기 비교를 의미하지 않습니다."
+  }
+}
