@@ -4,16 +4,17 @@
 
 ## macOS에서 로컬 실행
 
-저장소 폴더에서 다음 명령을 실행합니다. Apple Silicon·Intel Mac을 지원합니다.
+Node.js 22.23.4가 준비된 환경에서 실행합니다. Node.js 설치는 필요한 팀원이 직접 진행합니다.
 
 ```bash
-git pull
-bash scripts/dev-local.sh
+cd website
+npm ci
+npm run dev
 ```
 
-기본 실행은 설치 파일을 받지 않습니다. 도구가 없는 첫 실행이나 의존성 변경 시에는 안내만 표시합니다. 설치를 선택하려면 `bash scripts/dev-local.sh --install`을 실행합니다. 이때만 인터넷으로 Node.js·웹 의존성을 프로젝트 안에 설치합니다.
+`npm ci`는 처음 실행하거나 의존성 잠금 파일이 변경됐을 때 사용합니다. 이후에는 `git pull` 후 `npm run dev`로 실행합니다.
 
-준비된 도구로 원음 12개·소음 3개·로컬 DB를 연결하고 개발 서버를 시작합니다. 브라우저에서 `http://localhost:5173/website/`에 접속합니다. 화면 소스를 수정하면 개발 서버에서 갱신합니다. 배포 계정 설정은 필요하지 않습니다.
+개발 서버가 공유 음원·완료된 FFT 그래프와 로컬 DB를 준비합니다. 브라우저에서 `http://localhost:5173/website/`에 접속합니다. 배포 계정 설정은 필요하지 않습니다.
 
 ## 진행 방향
 

@@ -14,7 +14,7 @@
 프로젝트 내부에 설치된 도구를 사용한다. `C:\Fied`의 실행 파일·코드·설정·패키지를 사용하지 않는다.
 
 - Node.js는 `.tools/node-v22.23.4-win-x64/node.exe`, npm은 같은 폴더의 `node_modules/npm/bin/npm-cli.js`를 사용한다.
-- macOS 웹 협업은 `bash scripts/dev-local.sh`로 시작한다. 설치는 사용자가 `--install`을 선택한 경우에만 수행하며 플랫폼별 Node.js도 프로젝트 `.tools/`에 설치한다.
+- macOS 웹 협업은 Node.js를 준비한 뒤 `website/`에서 `npm ci`·`npm run dev`로 진행한다. 별도 도구 설치기나 실행 래퍼를 추가하지 않는다.
 - 개별 Node.js 실행 시 프로젝트 Node.js 폴더를 해당 프로세스의 PATH 앞에 둔다.
 - Python은 `.venv/Scripts/python.exe`, 기반 Python은 `.tools/python/`을 사용한다.
 - C 컴파일러는 `.tools/tcc/tcc.exe`를 사용하고 실행파일은 `.cache/noise_analysis/`에 둔다.

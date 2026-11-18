@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { readExecutionProfile } from "./execution-profile.mjs";
@@ -12,10 +13,21 @@ const siteRoot = fileURLToPath(new URL("../", import.meta.url));
 process.chdir(siteRoot);
 process.env.PATH = path.dirname(process.execPath) + path.delimiter + (process.env.PATH || "");
 
-function runNode(arguments_) {
-  const result = spawnSync(process.execPath, arguments_, { cwd: siteRoot, stdio: "inherit", windowsHide: true });
+function runNode(arguments_, env = {}) {
+  const result = spawnSync(process.execPath, arguments_, { cwd: siteRoot, stdio: "inherit", windowsHide: true, env: { ...process.env, ...env } });
   if (result.error) throw result.error;
   if (result.status !== 0) process.exit(result.status ?? 1);
+}
+
+if (command === "dev") {
+  const exporter = new URL("../../export/prepare_local_dataset.mjs", import.meta.url);
+  if (existsSync(exporter)) {
+    const { prepareLocalDataset } = await import(exporter.href);
+    await prepareLocalDataset(fileURLToPath(new URL("../../", import.meta.url)));
+  }
+  runNode(["--import", "./scripts/sites-env.mjs", "./node_modules/wrangler/bin/wrangler.js",
+    "d1", "migrations", "apply", "construction-noise-local", "--local", "--config", "wrangler.local.json",
+    "--persist-to", ".wrangler/local-collab"], { CI: "true", CLOUDFLARE_API_TOKEN: "", CLOUDFLARE_ACCOUNT_ID: "" });
 }
 
 const audioCatalog = await prepareAudio();

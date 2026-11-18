@@ -4,20 +4,24 @@
 
 ## macOS 협업용 웹 실행
 
-저장소 폴더에서 `bash scripts/dev-local.sh`를 실행한다. 기본 실행은 설치 파일을 다운로드하지 않는다. 프로젝트 도구가 없거나 의존성 잠금 파일이 바뀌면 설치 필요 안내를 표시하고 종료한다.
+Node.js 22.23.4를 준비한 뒤 아래 명령으로 실행한다. Node.js 설치는 필요한 팀원이 직접 진행한다.
 
-설치를 선택할 때만 `bash scripts/dev-local.sh --install`을 실행한다. Apple Silicon·Intel을 감지해 프로젝트 `.tools/`에 Node.js 22.23.4를 설치하고 웹 의존성을 준비한다. 인터넷 연결이 필요하며 전역 설치는 하지 않는다. 이후 `git pull`과 기본 실행 명령으로 준비된 도구를 재사용한다. 입력 데이터·로컬 DB 준비는 기본 실행에서도 자동으로 수행한다.
+```bash
+cd website
+npm ci
+npm run dev
+```
+
+`npm ci`는 처음 실행하거나 `package-lock.json`이 바뀐 경우에 사용한다. 이후에는 `git pull` 후 `npm run dev`로 실행한다. 패키지는 `npm ci`를 직접 실행할 때 설치한다.
 
 - 주소: `http://localhost:5173/website/`, 종료: 터미널에서 `Ctrl+C`
-- 준비만 실행: `bash scripts/dev-local.sh --prepare-only`
-- 테스트·빌드·로컬 HTTP/DB 점검: `bash scripts/dev-local.sh --check`
-- 설치와 검증을 함께 선택: `bash scripts/dev-local.sh --install --check`
+- 검증·빌드: `website/`에서 `npm run build`
 - 원음은 `experiment/data/clean/`, 소음은 `experiment/data/noise/`의 공유 파일을 읽는다.
 - `experiment/outputs/noise_analysis/`의 완료된 FFT 수치·분석 이력과 `experiment/outputs/graphs/noise_analysis/`의 그래프를 함께 공유한다. 로컬 웹 준비는 계산을 반복하지 않고 완료된 그래프를 전달한다. 소음 원본이 달라지면 이전 그래프 표시를 보류한다.
 - 운영 배포 정보 없이 `website/wrangler.local.json`의 로컬 DB·R2를 사용하며 상태는 `.wrangler/local-collab/`에 보관한다. 기존 `.wrangler/state/`는 보존한다.
 - Node.js만으로 웹 자료를 준비한다. C/Python을 통한 FFT 재계산·객관 계산은 아래 실험 도구와 실행 절차를 따른다.
 
-Windows 작업 PC에서는 기존 프로젝트 Node.js로 `website/scripts/local-setup.mjs`를 실행할 수 있다. 웹 빌드는 계속 내보낸 스냅샷만 사용하며 실험 원본을 읽는 초기 준비와 분리한다.
+`npm run dev`는 기존 웹 실행 코드에서 공유 자료와 로컬 DB만 준비한다. 웹 빌드는 계속 내보낸 스냅샷만 사용하며 실험 원본을 읽는 개발 준비와 분리한다. Windows 작업 PC에서는 아래 프로젝트 Node.js·npm을 사용한다.
 
 ## 프로젝트 내부 도구
 
