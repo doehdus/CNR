@@ -274,6 +274,19 @@ test('QR 원자료를 포함한 v2 백업 복원과 v1 호환·무결성·중복
     broken.survey.responses[0].rating = JSON.stringify(row);
     assert.equal((await restored.call('/api/backup', 'PUT', { revision: data.revision, backup: broken })).status, 400);
     assert.equal((await restored.call('/api/study')).data.survey_ratings[0].key_correct, 2);
+    // Invalid external records must fail before replacing the saved QR response.
+    for (const mutate of [
+      value => { value.survey.sessions[0] = null; },
+      value => { value.survey.participants[0].joined_at = 123; },
+      value => { value.survey.responses[0].answers = []; },
+    ]) {
+      const malformed = structuredClone(backup);
+      mutate(malformed);
+      assert.equal((await restored.call('/api/backup', 'PUT', { revision: data.revision, backup: malformed })).status, 400);
+      const unchanged = (await restored.call('/api/study')).data;
+      assert.equal(unchanged.revision, data.revision);
+      assert.equal(unchanged.survey_ratings[0].key_correct, 2);
+    }
     assert.equal((await restored.call('/api/backup', 'PUT', { revision: data.revision, backup: backup.study })).status, 200);
     const preserved = (await restored.call('/api/study')).data;
     assert.equal(preserved.survey_ratings.length, 1);
