@@ -104,6 +104,20 @@ New-Item -ItemType Directory -Force .cache\noise_analysis | Out-Null
 
 개별 파일 계산은 계산기의 `calculate_wav_pair`, 배열 계산은 `calculate_signals`를 사용한다. 현재 기본 전처리는 공통 16 kHz 리샘플링·고정 지연 보정·공통 구간 선택이며 계산 결과에 실제 입력 지문·도구 버전·정렬 구간을 보관한다.
 
+## 합성 배치와 보조 Python 분석 재현
+
+2026-11-18 유채원 배치의 재현 코드는 `experiment/src/mixtures/build_dataset.py`다. 기존 원본과 C FFT 결과를 보존하고 **새 빈 출력 폴더**에 합성음·대응 기준음·보조 그래프·검증표를 생성한다. 프로젝트 `experiment/requirements.txt`의 환경을 사용한다.
+
+```powershell
+& .\.venv\Scripts\python.exe -m experiment.src.mixtures.build_dataset --output .cache/mixture-reproduction/2026-11-18
+```
+
+macOS에서는 같은 인수를 `.venv/bin/python -m experiment.src.mixtures.build_dataset`에 전달한다. 실행 위치는 프로젝트 루트다. `--clean-root`·`--noise-root`는 생략하면 현재 공유 원본을 읽는다. 출력 폴더가 비어 있지 않으면 재실행을 거부한다. 후보 필터 설계·C 피크 검출·웹 연결을 실행하는 명령이 아니다.
+
+출력 아래 `mixtures/`는 `experiment/mixtures/`, `data/reference/`는 `experiment/data/reference/`에 대응한다. 대응 기준음은 리샘플링·공통 이득을 적용한 평가 자료로 원본 `data/clean/`과 구분한다. 소음 확장본은 `outputs/mixture_preparation/noise/`, 보조 분석표는 `outputs/mixture_analysis/`, 그래프는 `outputs/graphs/mixture_analysis/`에 생성한다. 기존 exporter·평가 카탈로그는 이 기준음을 아직 연결하지 않으므로 후속 연결 시 경로와 입력 지문을 함께 검토한다.
+
+배치 조건과 실제 검증 수치는 `PROJECT_CONTEXT.md`의 합성 배치 기록을 따른다. Python Welch 피크는 이번 배치의 탐색 자료이며 기존 C FFT 경로와 분석 설정이 다르다. 공식 피크 검출·필터 조건으로 자동 확정하지 않는다.
+
 ## 합성 수령과 이후 구현 파일
 
 새 합성음원은 `experiment/mixtures/<소음>/snr<SNR>/<원음ID>.wav`에 둔다. 예: `single/snr20/instruction01.wav`. 소음별로 `snr20`·`snr10`·`snr05`·`snr00` 폴더를 준비했다. 점검기는 `snr5`·`snr0` 표기도 인식하며 같은 조건이 두 번 들어오면 중복으로 보고한다.
