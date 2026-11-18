@@ -31,11 +31,31 @@ function player(path,title){const card=el('article','audio-card');card.append(el
 export function createPeakAnalysis({fingerprints}) {
   let data=null,error='';const picks=new Map();
   const valid=()=>peakInputsMatch(data,fingerprints());
-  async function load(){try{const r=await fetch(new URL('../dataset/peak_analysis/results.json',location.href),{cache:'no-store'});if(r.status===404){data=null;return;}if(!r.ok)throw Error('피크 분석을 불러오지 못했습니다.');data=normalizePeakAnalysis(await r.json());}catch(e){data=null;error=e.message;}}
+  async function load(){error='';try{const r=await fetch(new URL('../dataset/peak_analysis/results.json',location.href),{cache:'no-store'});if(r.status===404){data=null;return;}if(!r.ok)throw Error('피크 분석을 불러오지 못했습니다.');data=normalizePeakAnalysis(await r.json());}catch(e){data=null;error=e.message;}}
   function hasNoise(noise){return valid()&&data.sources.some(s=>s.noise===noise);}
   function renderZoom(noise){if(!hasNoise(noise))return;const source=data.sources.find(s=>s.noise===noise);const p=source.peaks.find(p=>p.id===$('#noise-peak-select').value);if(!p){$('#noise-peak-zoom').replaceChildren(el('p','','검출된 피크가 없습니다.'));return;}picks.set(noise,p.id);chart('#noise-peak-zoom',`${p.id} · ${n(p.frequency_hz)} Hz 주변`,data.frequency_hz,[{values:source.psd_db,color:'#316c56',label:'소음 원본'}],`peak_${noise}_${p.id}`,{peaks:[p],minHz:Math.max(0,p.low_hz-100),maxHz:Math.min(8000,p.high_hz+100)});}
+  function resetSummary(){
+    for(const id of ['noise-research-conclusion','noise-energy-section','noise-temporal-section','noise-mixture-interpretation','noise-analysis-handoff']) $('#'+id).hidden=true;
+  }
+  function summary(noise){
+    const source=data.sources.find(s=>s.noise===noise);
+    $('#noise-research-conclusion').hidden=false;$('#noise-analysis-handoff').hidden=false;
+    $('#noise-research-answer').textContent='세 소음은 넓은 주파수 범위에 성분이 있지만, 전 대역에 균일하게 분포하지 않았습니다. 특정 주파수에서 주변보다 강한 피크가 관찰됐고, 드릴이 추가되는 조건에서는 그 주변 에너지가 달라졌습니다.';
+    $('#noise-research-findings').replaceChildren(...data.sources.map(s=>{const card=el('article');card.append(el('h3','',labels[s.noise]),el('p','',s.peaks.length?'주요 피크 '+s.peaks.slice(0,3).map(p=>n(p.frequency_hz)+'Hz').join(' · '):'현재 규칙에서 검출된 피크 없음'));return card;}));
+    const maxError=Math.max(...data.conditions.map(c=>Math.abs(c.actual_snr_db-c.snr)));
+    $('#noise-batch-summary').replaceChildren(...[['완료된 자료',`${data.recordings.length}개 음성 × 3종 소음 × 4단계 SNR = ${data.conditions.length}개 합성음`],['비교 기준','16kHz · 모노 · PCM16 · 문장별 공통 이득을 적용한 대응 기준음'],['SNR 확인',`말소리 산정 구간 기준, 최대 오차 ${maxError.toFixed(6)}dB`],['진행 범위','소음 특성 분석 완료 · 필터 구현·효과 검증 전']].map(([k,v])=>{const e=el('div');e.append(el('dt','',k),el('dd','',v));return e;}));
+    if(data.sources.every(s=>s.band_energy)){
+      $('#noise-energy-section').hidden=false;
+      table('#noise-energy-table',['대역 (Hz)','단일 (%)','복합 (%)','변화 (%)'],data.sources[0].band_energy.map((b,i)=>[`${b.low_hz}–${b.high_hz}`,...data.sources.map(s=>n(s.band_energy[i].energy_percent))]));
+      const below=source.band_energy.filter(b=>b.high_hz<=1000).reduce((v,b)=>v+b.energy_percent,0);
+      const high=source.band_energy.filter(b=>b.low_hz>=4000).reduce((v,b)=>v+b.energy_percent,0);
+      $('#noise-energy-summary').textContent=`${labels[noise]}: 1kHz 미만 ${n(below)}%, 4kHz 이상 ${n(high)}%. 특정 피크 외의 대역에도 소음 에너지가 있으므로, 하나의 대역만 제거하면 해결된다고 단정하지 않습니다.`;
+    }
+    if(source.before_psd_db&&source.after_psd_db){$('#noise-temporal-section').hidden=false;chart('#noise-temporal-artifact',labels[noise]+' · 2.5초 전후',data.frequency_hz,[{values:source.before_psd_db,color:'#2563eb',label:'0–2.5초'},{values:source.after_psd_db,color:'#316c56',label:'2.5초 이후'}],`time_${noise}`);}
+  }
   function render(noise){
     if(!hasNoise(noise))return;
+    summary(noise);
     const source=data.sources.find(s=>s.noise===noise), form=$('#noise-mixture-form');
     const current=form.elements.namedItem('statement').value;
     const select=form.elements.namedItem('statement');select.replaceChildren(...data.recordings.map(r=>new Option(`${r.id} · ${r.speaker}`,r.id)));select.value=data.recordings.some(r=>r.id===current)?current:data.recordings[0].id;
@@ -46,6 +66,10 @@ export function createPeakAnalysis({fingerprints}) {
     chart('#noise-peaks-artifact',labels[noise]+' · 주요 피크',data.frequency_hz,[{values:source.psd_db,color:'#316c56',label:'소음 원본'}],`peaks_${noise}`,{peaks:source.peaks});
     table('#noise-peaks-table',['피크','주파수 (Hz)','PSD (dBFS/Hz)','폭 (Hz)','돌출도 (dB)'],source.peaks.map(p=>[p.id,n(p.frequency_hz),n(p.magnitude_db),n(p.bandwidth_hz),n(p.prominence_db)]));
     const peakSelect=$('#noise-peak-select');peakSelect.replaceChildren(...source.peaks.map(p=>new Option(`${p.id} · ${n(p.frequency_hz)} Hz`,p.id)));peakSelect.disabled=!source.peaks.length;peakSelect.value=picks.get(noise)||source.peaks[0]?.id||'';renderZoom(noise);
+    const matched=row.observations.filter(o=>o.mixture_frequency_hz!==null).length;
+    const speechPeaks=row.observations.filter(o=>o.speech_peak_present).length;
+    $('#noise-mixture-interpretation').hidden=false;
+    $('#noise-mixture-interpretation').textContent=`선택 조건에서는 소음 피크 ${source.peaks.length}개 중 ${matched}개가 합성음에서도 허용 범위 안의 피크로 대응됐습니다. 기준음에서는 같은 주변에 ${speechPeaks}개 국소 피크가 관찰됐습니다. 미검출은 해당 주파수 성분이 없다는 뜻이 아니므로, 실제 대역 전력비를 함께 확인합니다.`;
     $('#noise-mixture-caption').textContent=`${labels[noise]} · ${snr} dB · ${statement} · ${recording.speaker}`;
     $('#noise-mixture-status').textContent='144조건 분석 연결 · 선택 조건 측정 완료';$('#noise-mixture-status').classList.remove('pending');$('#noise-mixture-status').classList.add('ready');
     $('#noise-mixture-players').replaceChildren(player(`data/reference/${statement}.wav`,'합성과 대응하는 기준음'),player(`data/noise/${noise}.wav`,'소음 원본 · 크기 보정 전'),player(`data/mixed/${noise}/snr${String(snr).padStart(2,'0')}/${statement}.wav`,'무처리 합성음'));
@@ -56,5 +80,5 @@ export function createPeakAnalysis({fingerprints}) {
     table('#noise-candidates-table',['소음','피크 주변 검토 대역 (Hz)','선정 근거','음성과 겹침','시간 구간 차이','검토 상태'],candidates);
   }
   function feedback(){if(error)return error;return data&&!valid()?'피크 분석 입력 음원이 변경됐거나 파일 지문을 확인하지 못해 보완 분석 표시를 보류했습니다.':'';}
-  return {load,hasNoise,render,renderZoom,feedback};
+  return {load,hasNoise,render,renderZoom,feedback,resetSummary};
 }
