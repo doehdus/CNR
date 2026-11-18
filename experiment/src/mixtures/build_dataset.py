@@ -116,7 +116,7 @@ def main():
      idx=idx[np.argsort(p[idx])[::-1]][:8]
      for rank,i in enumerate(idx,1):
       width=peak_widths(p,[i],rel_height=.5)[0][0]*(f[1]-f[0])
-      peakrows.append({'noise':t,'rank_by_power':rank,'frequency_hz':round(float(f[i]),2),'psd_dbfs_per_hz':round(float(pd[i]),2),'half_power_width_hz_approx':round(float(width),2)})
+      peakrows.append({'noise':t,'rank_by_power':rank,'frequency_hz':round(float(f[i]),2),'psd_dbfs_per_hz':round(float(pd[i]),2),'half_prominence_width_hz_approx':round(float(width),2)})
      for lo,hi in bands:bandrows.append({'noise':t,'band_hz':f'{lo}-{min(hi,8000)}','energy_percent':round(float(p[(f>=lo)&(f<hi)].sum()/p.sum()*100),3)})
     table('03_소음_주요피크.csv',peakrows);table('04_소음_대역별에너지.csv',bandrows)
 
