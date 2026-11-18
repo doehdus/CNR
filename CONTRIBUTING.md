@@ -178,3 +178,13 @@ git diff --cached
 ```
 
 문서는 README의 진행 방향, PROJECT_CONTEXT의 확정 자료, CONTRIBUTING의 실행 방법, AGENTS의 작업 지침 네 곳에 모은다. 세부 결정은 작업 중 필요한 시점에 확인하고 담당 문서에 반영한다.
+
+## 피크·합성음 비교 웹 연결
+
+등록된 144개 합성음과 대응 기준음은 프로젝트 Python으로 `-m experiment.src.noise_analysis.analyze_mixture_peaks`를 실행해 분석한다. 완료 결과는 `experiment/outputs/peak_analysis/results.json`에 저장하며 이전 결과는 해시별 파일로 보존한다. 배치 조건과 해석 범위는 PROJECT_CONTEXT를 따른다.
+
+`export/export_results.py`의 전체 내보내기는 완료 분석과 원본/기준음/합성음 171개를 지문 검증 후 전달한다. `website/`의 `npm run dev`도 완료 자료만 전달한다. 웹은 DSP 계산을 실행하지 않는다. 입력이 바뀌면 내보내기/표시를 보류하며 이전 실측 점수·응답을 새 문장에 재할당하지 않는다.
+
+‘소음 특성 분석’에서 소음 3종 → 피크 표/확대 → 12문장·SNR 4단계 비교 → 피크 주변 검토 대역 순서로 확인한다. 기존 C FFT와 보조 Welch PSD의 단위·분석 조건은 구분한다. PNG 저장 링크는 현재 그려진 그래프를 이미지로 제공한다. 후보 대역은 필터 설정이 아니며 효과 검증 전이다.
+
+전달 검사는 `node --test export/tests/peak-analysis.test.mjs export/tests/local-dataset.test.mjs`, 웹 검증은 `website/`의 `npm run build`다. 이전 QR 규격·객관 평가 ID는 이 작업에서 변경하지 않는다.

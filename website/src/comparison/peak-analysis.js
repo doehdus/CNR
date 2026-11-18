@@ -24,8 +24,7 @@ function chart(target, title, frequency, lines, filename, { peaks = [], minHz = 
   c.setLineDash([]);c.restore();
   lines.forEach((line,i)=>{const pos=820+i*190;c.fillStyle=line.color;c.fillRect(pos,48,24,4);c.fillStyle='#334e43';c.fillText(line.label,pos+30,57);});
   peaks.forEach((p,i)=>{if(p.frequency_hz<minHz||p.frequency_hz>maxHz)return;c.fillStyle='#b35a16';c.beginPath();c.arc(x(p.frequency_hz),y(p.magnitude_db),4,0,Math.PI*2);c.fill();if(i<3){c.font='16px sans-serif';c.fillText(Math.round(p.frequency_hz)+' Hz',Math.min(right-80,x(p.frequency_hz)+8),y(p.magnitude_db)-12-i%2*20);}});
-  const save=el('button','button secondary small','PNG 저장');save.type='button';save.setAttribute('aria-label', title+' PNG 저장');
-  save.addEventListener('click',()=>canvas.toBlob(blob=>{if(!blob)return;const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);},'image/png'));
+  const save=el('a','button secondary small','PNG 저장');save.setAttribute('aria-label', title+' PNG 저장');save.href=canvas.toDataURL('image/png');save.download=filename+'.png';
   figure.append(canvas,caption,save);$(target).replaceChildren(figure);
 }
 function player(path,title){const card=el('article','audio-card');card.append(el('h3','',title));const audio=el('audio');audio.controls=true;audio.preload='none';audio.src=new URL('../dataset/audio/'+path,location.href);audio.setAttribute('aria-label',title);card.append(audio);return card;}
