@@ -70,17 +70,18 @@ def generate(root=ROOT):
         p = spectrum(original)
         ids, prominences = peaks(p)
         selected = ids[np.argsort(p[ids])[::-1]][:8]
+        before, after = spectrum(original[:40000]), spectrum(original[40000:])
+        band_energy = [{'low_hz': low, 'high_hz': high, 'energy_percent': float(p[(f >= low) & ((f < high) if high < 8000 else (f <= high))].sum() / p.sum() * 100)} for low, high in [(0,100),(100,300),(300,1000),(1000,2000),(2000,4000),(4000,8000)]]
         noise_peaks = []
         for rank, i in enumerate(selected, 1):
             widths, _, left, right = peak_widths(p, [i], rel_height=.5)
             low, high = float(left[0]*FS/NFFT), float(right[0]*FS/NFFT)
-            before, after = spectrum(original[:40000]), spectrum(original[40000:])
             band = (f >= low) & (f <= high)
             noise_peaks.append({'id': f'p{rank}', 'frequency_hz': float(f[i]), 'magnitude_db': float(db(p[i])),
                 'prominence_db': float(prominences[i]), 'bandwidth_hz': float(widths[0]*FS/NFFT),
                 'low_hz': low, 'high_hz': high,
                 'time_change_db': float(db(after[band].sum())-db(before[band].sum()))})
-        sources.append({'noise': noise, 'psd_db': np.round(db(p), 3).tolist(), 'peaks': noise_peaks})
+        sources.append({'noise': noise, 'psd_db': np.round(db(p), 3).tolist(), 'before_psd_db': np.round(db(before), 3).tolist(), 'after_psd_db': np.round(db(after), 3).tolist(), 'band_energy': band_energy, 'peaks': noise_peaks})
         for snr in SNRS:
             for row in collection['recordings']:
                 name = row['id']

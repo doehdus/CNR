@@ -22,3 +22,13 @@ test('원본·대응 기준음·합성 경로를 구분하고 외부 경로를 �
   assert.equal(peakSourcePath('data/mixed/single/snr00/warning06.wav'), 'experiment/mixtures/single/snr00/warning06.wav');
   for (const p of ['../private.wav', 'data/clean/../../private.wav', 'https://example.com/a.wav']) assert.throws(() => peakSourcePath(p));
 });
+
+test('대역별 에너지는 100%로 보존되고 잘못된 요약값은 거부한다', () => {
+  for (const source of measured.sources) {
+    assert.equal(source.before_psd_db.length, 1025);
+    assert.equal(source.after_psd_db.length, 1025);
+    assert(Math.abs(source.band_energy.reduce((sum, band) => sum + band.energy_percent, 0) - 100) < 1e-6);
+  }
+  const broken = structuredClone(measured); broken.sources[0].band_energy[0].energy_percent += 10;
+  assert.throws(() => normalizePeakAnalysis(broken));
+});
