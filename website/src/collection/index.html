@@ -44,13 +44,13 @@
     <a class="button primary section-next" href="#noise-analysis">소음 특성 분석 살펴보기 →</a>
   </section>
   <section id="noise-analysis" class="page-section" hidden>
-    <div class="page-intro compact"><div><div class="eyebrow accent">02 / NOISE CHARACTERISTICS</div><h1>소음 특성 분석</h1><p>소음 전체의 주파수와 주요 피크를 분석하고, 합성음원에서 음성과 겹치는지 확인합니다.<br>전처리 후보 대역과 선정 근거를 모아두는 공간입니다.</p></div><span id="noise-analysis-status" class="status-tag pending" role="status">분석 자료 등록 대기</span></div>
+    <div class="page-intro compact"><div><div class="eyebrow accent">02 / NOISE CHARACTERISTICS</div><h1>소음 특성 분석</h1><p>넓은 대역에 분포한 소음과 그 안의 주요 피크를 살펴봅니다.<br>음성과 겹치는 대역을 확인하고, 사전필터·소음 저감 알고리즘 비교의 근거를 정리했습니다.</p></div><span id="noise-analysis-status" class="status-tag pending" role="status">분석 자료 등록 대기</span></div>
     <div class="noise-analysis-steps" aria-label="소음 분석 순서"><a href="#noise-spectrum-section"><b>01</b> 소음별 주파수</a><a href="#noise-peaks-section"><b>02</b> 소음별 피크</a><a href="#noise-mixture-section"><b>03</b> 합성음원 비교</a><a href="#noise-candidates-section"><b>04</b> 전처리 후보</a></div>
     <div id="noise-analysis-feedback" class="info-banner" role="status" hidden></div>
     <section id="noise-research-conclusion" class="panel noise-analysis-panel" hidden aria-labelledby="noise-research-title">
-      <span class="eyebrow">FEEDBACK → FINDINGS</span><h2 id="noise-research-title">소음은 모든 주파수에 똑같이 퍼져 있을까?</h2>
+      <span class="eyebrow">FEEDBACK → FINDINGS</span><h2 id="noise-research-title">넓은 대역에 분포한 소음, 그 안의 두드러진 피크</h2>
       <p id="noise-research-answer" class="noise-observation"></p><div id="noise-research-findings" class="noise-findings-grid"></div>
-      <p class="microcopy">이 세 파일에 대한 관찰입니다. 피크가 있는 대역만 소음이라는 뜻은 아니며, 그 대역을 줄여도 음성이 보존되는지는 필터 적용 후 확인해야 합니다.</p>
+      <p class="microcopy">이 세 파일에서 확인한 분포입니다. 모든 주파수에 균일한 소음이라는 뜻은 아닙니다. 사전필터만으로 충분한지, SS 등을 함께 적용할 때 더 나아지는지는 처리 전후 비교와 청취평가로 확인해야 합니다.</p>
       <dl id="noise-batch-summary" class="noise-parameter-list"></dl>
     </section>
     <div class="panel noise-source-panel">
@@ -84,7 +84,7 @@
       <div class="panel-heading"><div><span class="eyebrow">PREFILTER CANDIDATES</span><h2 id="noise-candidates-title">전처리 후보 요약</h2></div><span class="small-pill">전체 소음의 등록된 후보</span></div>
       <p class="microcopy">분석에서 도출한 후보와 근거를 모읍니다. 후보 대역은 확정된 필터 설정이나 효과 검증 결과가 아닙니다.</p><div id="noise-candidates-table" class="table-scroll noise-result-table"></div>
       <div class="noise-decision-guide"><div><strong>억제 후보</strong><p>소음에서 두드러지고 합성음원에서도 관찰되며 원음 성분은 약한 대역</p></div><div><strong>신중하게 검토</strong><p>음성과 겹치거나 피크의 안정성·출처를 더 확인해야 하는 대역</p></div><div><strong>보류 · 후보 없음</strong><p>제거 근거가 부족하거나 음성 손상 우려가 큰 경우도 결과로 기록</p></div></div>
-      <div id="noise-analysis-handoff" class="noise-observation" hidden><strong>이번 분석에서 확인한 것</strong><p>소음의 주파수 분포·주요 피크·144조건의 합성음 비교와 검토 대역을 정리했습니다. 다음은 후보를 바탕으로 필터를 설계하고, 소음 억제와 음성 손상·객관 지표·청취 결과를 함께 비교하는 단계입니다. 아래 대역을 바로 제거해도 안전하다는 결론은 아닙니다.</p></div>
+      <div id="noise-analysis-handoff" class="noise-observation" hidden><strong>이번 분석에서 확인한 것</strong><p>소음이 넓은 대역에 분포하면서 일부 피크가 두드러진다는 점과, 144조건에서 음성·소음이 겹치는 양상을 정리했습니다. 다음 단계에서는 특정 대역을 줄이는 사전필터와 SS 등 소음 저감 알고리즘의 효과를 비교합니다. 처리 전후의 소음 억제와 음성 보존을 확인할 예정이며, 효과가 이미 입증된 상태는 아닙니다.</p></div>
       <a class="button primary" href="#prefilter">사전 필터링에서 검증하기 →</a>
     </section>
   </section>
