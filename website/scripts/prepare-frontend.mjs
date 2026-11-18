@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { prepareSurvey } from './prepare-survey.mjs';
 
 const siteRoot = fileURLToPath(new URL('../', import.meta.url));
-const sharedModules = ['dataset.js', 'evaluation.js', 'metrics.js', 'correlation.js', 'report.js', 'study-tables.js', 'noise-analysis-data.js', 'collection-data.js'];
+const sharedModules = ['dataset.js', 'evaluation.js', 'metrics.js', 'correlation.js', 'report.js', 'study-tables.js', 'noise-analysis-data.js', 'peak-analysis-data.js', 'collection-data.js'];
 export const frontendAssets = [
   ['collection/index.html', 'website/index.html'],
   ['collection/style.css', 'website/css/style.css'],
@@ -13,6 +13,7 @@ export const frontendAssets = [
   ['collection/favicon.svg', 'favicon.svg'],
   ['comparison/audio-comparison.js', 'website/js/audio-comparison.js'],
   ['comparison/graphs.js', 'website/js/graphs.js'],
+  ['comparison/peak-analysis.js', 'website/js/peak-analysis.js'],
   ['comparison/noise-analysis.js', 'website/js/noise-analysis.js'],
   ['listening-test/survey.html', 'website/survey.html'],
   ['listening-test/survey-admin.html', 'website/survey-admin.html'],
