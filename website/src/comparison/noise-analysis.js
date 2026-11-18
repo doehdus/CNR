@@ -70,12 +70,15 @@ export function createNoiseAnalysis({ audioCard, pathFor, fingerprints }) {
     $('#noise-analysis-feedback').textContent = error || '현재 음원과 파일 지문이 대응하지 않는 분석 자료 ' + withheld + '건은 표시를 보류했습니다.';
     $('#noise-analysis-library').replaceChildren(audioCard(source, label + ' · 분석할 원본', 1));
     definitions('#noise-source-metadata', [['원본 파일', pathFor(source).split('/').at(-1)], ['분석 자료', record ? '현재 원본과 대응 확인' : '등록 대기'], ['분석 구간', analysis ? '전체 음원 · ' + number(analysis.sample_count / analysis.sample_rate_hz, '초') : '전체 음원'], ['분석 샘플링', analysis ? number(analysis.sample_rate_hz, ' Hz') : '분석 자료 등록 후 표시']]);
-    definitions('#noise-analysis-parameters', [['분석 방법', '전체 음원 FFT'], ['전체 샘플 수', analysis ? number(analysis.sample_count) : '미등록'], ['FFT 크기', analysis ? number(analysis.fft_size) : '미등록'], ['윈도', analysis?.window_function || '미등록'], ['크기·정규화 기준', analysis?.magnitude_reference || '미등록'], ['피크 검출 기준', analysis?.peak_rule || '미등록']]);
+    definitions('#noise-analysis-parameters', [['분석 방법', '전체 음원 FFT'], ['전체 샘플 수', analysis ? number(analysis.sample_count) : '미등록'], ['FFT 크기', analysis ? number(analysis.fft_size) : '미등록'], ['윈도', analysis?.window_function || '미등록'], ['크기·정규화 기준', analysis?.magnitude_reference || '미등록'], ['피크 검출 기준', details.hasNoise(noise) ? '아래 보조 Welch 분석 조건 참조 · C FFT와 별도' : analysis?.peak_rule || '미등록']]);
     document.querySelectorAll('[data-noise-spectrum-view]').forEach(button => { const active = button.dataset.noiseSpectrumView === spectrumView; button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active)); });
     const spectrum = spectrumView === 'all' ? (matches(data.overview) ? data.overview : null) : record;
     artifact('#noise-spectrum-artifact', spectrum?.spectrum_image, spectrum, spectrumView === 'all' ? '3개 소음 전체 FFT 비교 그래프' : label + ' 전체 FFT 그래프', '소음 전체를 분석한 주파수 그래프가 이곳에 표시됩니다.');
     $('#noise-spectrum-summary').textContent = spectrumView === 'all' ? spectrum?.comparison_basis || '세 소음의 축·크기 기준을 맞춘 비교 자료를 기다리고 있습니다.' : record?.summary || '분석 후 주요 에너지 대역과 관찰 내용을 표시합니다.';
+    details.resetSummary();
     if (details.hasNoise(noise)) { $('#noise-spectrum-summary').textContent = '기존 C 전체 FFT를 보존했습니다. 아래의 주요 피크·합성음 비교는 별도로 계산한 Welch PSD 탐색 결과입니다.'; details.render(noise); return; }
+    const statements = $('#noise-mixture-form [name=statement]');
+    if (!STATEMENTS.some(s => s.id === statements.value)) { statements.replaceChildren(...STATEMENTS.map(s => new Option(s.label + ' · ' + s.speaker, s.id))); }
     $('#noise-peaks-method').textContent = '';
     const feedback = details.feedback();
     if (feedback) { $('#noise-analysis-feedback').hidden = false; $('#noise-analysis-feedback').textContent = feedback; }
@@ -131,9 +134,10 @@ export function createNoiseAnalysis({ audioCard, pathFor, fingerprints }) {
       return result;
     }
     for (const [title, selectors] of [
-      ['소음별 주파수 분석', ['#noise-spectrum-artifact', '#noise-spectrum-summary', '#noise-analysis-parameters']],
+      ['분석 요약', ['#noise-research-answer', '#noise-research-findings', '#noise-batch-summary']],
+      ['소음별 주파수 분석', ['#noise-energy-table', '#noise-energy-summary', '#noise-temporal-artifact', '#noise-spectrum-artifact', '#noise-spectrum-summary', '#noise-analysis-parameters']],
       ['소음별 피크 분석', ['#noise-peaks-artifact', '#noise-peaks-table']],
-      ['합성음원에서 피크 분석', ['#noise-mixture-caption', '#noise-mixture-artifact', '#noise-mixture-table', '#noise-mixture-note']],
+      ['합성음원에서 피크 분석', ['#noise-mixture-caption', '#noise-mixture-interpretation', '#noise-mixture-artifact', '#noise-mixture-table', '#noise-mixture-note']],
       ['전처리 후보 요약', ['#noise-candidates-table']],
     ]) {
       result.append(element('h3', '', title));
