@@ -41,7 +41,6 @@ export function matchesFilters(sample, filters = {}) {
   if (filters.prefilter === 'off' || filters.prefilter === false) return sample.prefilter === false;
   return !filters.prefilter || filters.prefilter === 'all';
 }
-export const STORAGE_KEY = 'cnr-research-v1';
 export const SCORE_LEVELS = Object.freeze([0, 2.5, 5, 7.5, 10]);
 
 export function conditionId(noise, snr, statement) {

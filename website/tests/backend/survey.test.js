@@ -302,7 +302,8 @@ test('기존 이해도 삭제는 정오답·다른 점수·원응답을 보존�
     const migration = readFileSync(new URL('../../backend/migrations/0004_remove_subjective_understanding.sql', import.meta.url), 'utf8');
     f.sqlite.exec(migration);
     const updated = f.sqlite.prepare('SELECT * FROM study_state').get();
-    const { understanding, ...expected } = manual;
+    const expected = { ...manual };
+    delete expected.understanding;
     assert.deepEqual(JSON.parse(updated.payload).ratings, [expected]);
     assert.deepEqual(JSON.parse(f.sqlite.prepare('SELECT rating FROM survey_responses').get().rating), qr);
     assert.equal(updated.revision, saved.revision + 1);
