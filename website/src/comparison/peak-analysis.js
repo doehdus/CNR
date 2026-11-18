@@ -40,8 +40,12 @@ export function createPeakAnalysis({fingerprints}) {
   function summary(noise){
     const source=data.sources.find(s=>s.noise===noise);
     $('#noise-research-conclusion').hidden=false;$('#noise-analysis-handoff').hidden=false;
-    $('#noise-research-answer').textContent='세 소음은 넓은 주파수 범위에 성분이 있지만, 전 대역에 균일하게 분포하지 않았습니다. 특정 주파수에서 주변보다 강한 피크가 관찰됐고, 드릴이 추가되는 조건에서는 그 주변 에너지가 달라졌습니다.';
-    $('#noise-research-findings').replaceChildren(...data.sources.map(s=>{const card=el('article');card.append(el('h3','',labels[s.noise]),el('p','',s.peaks.length?'주요 피크 '+s.peaks.slice(0,3).map(p=>n(p.frequency_hz)+'Hz').join(' · '):'현재 규칙에서 검출된 피크 없음'));return card;}));
+    $('#noise-research-answer').textContent='분석한 세 소음은 특정 주파수에만 국한되지 않고 저주파부터 고주파까지 넓은 대역에 에너지가 분포했습니다. 그 넓은 분포 안에서 일부 주파수의 피크가 더 두드러졌습니다. 피크 주변을 줄이더라도 다른 대역에 소음이 남을 수 있으므로, 사전필터와 SS 등 소음 저감 알고리즘의 효과를 함께 비교할 계획입니다.';
+    $('#noise-research-findings').replaceChildren(...data.sources.map(s=>{
+      const card=el('article');card.append(el('h3','',labels[s.noise]));
+      if(s.band_energy){const low=s.band_energy.filter(b=>b.high_hz<=1000).reduce((sum,b)=>sum+b.energy_percent,0), high=s.band_energy.filter(b=>b.low_hz>=4000).reduce((sum,b)=>sum+b.energy_percent,0);card.append(el('p','',`1kHz 미만 ${n(low)}% · 4kHz 이상 ${n(high)}%`));}
+      card.append(el('p','microcopy',s.peaks.length?'분포 안의 주요 피크: '+s.peaks.slice(0,3).map(p=>n(p.frequency_hz)+'Hz').join(' · '):'현재 규칙에서 검출된 피크 없음'));return card;
+    }));
     const maxError=Math.max(...data.conditions.map(c=>Math.abs(c.actual_snr_db-c.snr)));
     $('#noise-batch-summary').replaceChildren(...[['완료된 자료',`${data.recordings.length}개 음성 × 3종 소음 × 4단계 SNR = ${data.conditions.length}개 합성음`],['비교 기준','16kHz · 모노 · PCM16 · 문장별 공통 이득을 적용한 대응 기준음'],['SNR 확인',`말소리 산정 구간 기준, 최대 오차 ${maxError.toFixed(6)}dB`],['진행 범위','소음 특성 분석 완료 · 필터 구현·효과 검증 전']].map(([k,v])=>{const e=el('div');e.append(el('dt','',k),el('dd','',v));return e;}));
     if(data.sources.every(s=>s.band_energy)){
@@ -49,7 +53,7 @@ export function createPeakAnalysis({fingerprints}) {
       table('#noise-energy-table',['대역 (Hz)','단일 (%)','복합 (%)','변화 (%)'],data.sources[0].band_energy.map((b,i)=>[`${b.low_hz}–${b.high_hz}`,...data.sources.map(s=>n(s.band_energy[i].energy_percent))]));
       const below=source.band_energy.filter(b=>b.high_hz<=1000).reduce((v,b)=>v+b.energy_percent,0);
       const high=source.band_energy.filter(b=>b.low_hz>=4000).reduce((v,b)=>v+b.energy_percent,0);
-      $('#noise-energy-summary').textContent=`${labels[noise]}: 1kHz 미만 ${n(below)}%, 4kHz 이상 ${n(high)}%. 특정 피크 외의 대역에도 소음 에너지가 있으므로, 하나의 대역만 제거하면 해결된다고 단정하지 않습니다.`;
+      $('#noise-energy-summary').textContent=`${labels[noise]}: 1kHz 미만 ${n(below)}%, 4kHz 이상 ${n(high)}%. 낮은 대역과 높은 대역 모두에 소음 에너지가 관찰됩니다. 피크는 이 넓은 분포 안의 두드러진 성분이며, 하나의 대역만 제거했을 때의 효과는 아직 검증하지 않았습니다.`;
     }
     if(source.before_psd_db&&source.after_psd_db){$('#noise-temporal-section').hidden=false;chart('#noise-temporal-artifact',labels[noise]+' · 2.5초 전후',data.frequency_hz,[{values:source.before_psd_db,color:'#2563eb',label:'0–2.5초'},{values:source.after_psd_db,color:'#316c56',label:'2.5초 이후'}],`time_${noise}`);}
   }
