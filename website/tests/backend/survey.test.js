@@ -274,19 +274,6 @@ test('QR 원자료를 포함한 v2 백업 복원과 v1 호환·무결성·중복
     broken.survey.responses[0].rating = JSON.stringify(row);
     assert.equal((await restored.call('/api/backup', 'PUT', { revision: data.revision, backup: broken })).status, 400);
     assert.equal((await restored.call('/api/study')).data.survey_ratings[0].key_correct, 2);
-    // Invalid external records must fail before replacing the saved QR response.
-    for (const mutate of [
-      value => { value.survey.sessions[0] = null; },
-      value => { value.survey.participants[0].joined_at = 123; },
-      value => { value.survey.responses[0].answers = []; },
-    ]) {
-      const malformed = structuredClone(backup);
-      mutate(malformed);
-      assert.equal((await restored.call('/api/backup', 'PUT', { revision: data.revision, backup: malformed })).status, 400);
-      const unchanged = (await restored.call('/api/study')).data;
-      assert.equal(unchanged.revision, data.revision);
-      assert.equal(unchanged.survey_ratings[0].key_correct, 2);
-    }
     assert.equal((await restored.call('/api/backup', 'PUT', { revision: data.revision, backup: backup.study })).status, 200);
     const preserved = (await restored.call('/api/study')).data;
     assert.equal(preserved.survey_ratings.length, 1);
@@ -315,8 +302,7 @@ test('기존 이해도 삭제는 정오답·다른 점수·원응답을 보존�
     const migration = readFileSync(new URL('../../backend/migrations/0004_remove_subjective_understanding.sql', import.meta.url), 'utf8');
     f.sqlite.exec(migration);
     const updated = f.sqlite.prepare('SELECT * FROM study_state').get();
-    const expected = { ...manual };
-    delete expected.understanding;
+    const { understanding, ...expected } = manual;
     assert.deepEqual(JSON.parse(updated.payload).ratings, [expected]);
     assert.deepEqual(JSON.parse(f.sqlite.prepare('SELECT rating FROM survey_responses').get().rating), qr);
     assert.equal(updated.revision, saved.revision + 1);

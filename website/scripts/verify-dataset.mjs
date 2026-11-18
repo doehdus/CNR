@@ -1,4 +1,3 @@
-import { normalizePeakAnalysis, peakInputsMatch } from '../shared/research/peak-analysis-data.js';
 import { readFile, realpath } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
@@ -47,13 +46,4 @@ if (noiseAnalysis !== null) {
     if (noiseAnalysis.artifacts && createHash('sha256').update(await readFile(target)).digest('hex') !== noiseAnalysis.artifacts[image]) throw new Error('소음 분석 그래프가 내보낸 시점의 파일과 일치하지 않습니다.');
   }
   console.log(`Verified noise analysis: ${data.sources.length} sources, ${data.mixtures.length} mixture comparisons.`);
-}
-
-let peakAnalysis = null;
-try { peakAnalysis = JSON.parse(await readFile(new URL('../public/dataset/peak_analysis/results.json', import.meta.url), 'utf8')); }
-catch (error) { if (error.code !== 'ENOENT') throw error; }
-if (peakAnalysis) {
-  const data = normalizePeakAnalysis(peakAnalysis);
-  if (!peakInputsMatch(data, fingerprints)) throw new Error('피크 분석과 내보낸 원본·기준음·합성음의 지문이 일치하지 않습니다.');
-  console.log(`Verified peak analysis: ${data.sources.length} noises, ${data.conditions.length} comparisons.`);
 }

@@ -1,6 +1,3 @@
-// Compatibility catalog for previous evaluations and saved responses.
-// The 12-recording analysis uses collection-data.js and peak-analysis-data.js;
-// migrate evaluation IDs, questionnaires and result records together (CONTRIBUTING.md).
 export const STATEMENTS = Object.freeze([
   { id: 'instruction_01', label: '작업 지시 1', text: '기사님, 장비를 뒤로 2미터 이동해 주세요.', speaker: '유채원' },
   { id: 'instruction_02', label: '작업 지시 2', text: '각재 3개를 오른쪽 적재장으로 옮겨 주세요.', speaker: '유채원' },
@@ -44,6 +41,7 @@ export function matchesFilters(sample, filters = {}) {
   if (filters.prefilter === 'off' || filters.prefilter === false) return sample.prefilter === false;
   return !filters.prefilter || filters.prefilter === 'all';
 }
+export const STORAGE_KEY = 'cnr-research-v1';
 export const SCORE_LEVELS = Object.freeze([0, 2.5, 5, 7.5, 10]);
 
 export function conditionId(noise, snr, statement) {

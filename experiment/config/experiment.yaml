@@ -9,7 +9,7 @@ dataset:
   expected_clean: 12
   expected_mixtures: 144
   input_snr_db: [20, 10, 5, 0]
-  snr_status: received_144_measured_against_batch_references
+  snr_status: new_mixtures_not_received_measurements_pending
   noise_train: experiment/data/noise_train
   noise_test: experiment/data/noise_test
   split_status: pending

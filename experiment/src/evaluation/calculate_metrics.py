@@ -1,8 +1,7 @@
 """깨끗한 기준 음성과 평가 음원을 비교해 실제 STOI·ESTOI를 계산한다.
 
 처리 순서: 음원 목록 확인 → WAV 읽기 → 리샘플링·시간 정렬 → 지표 계산 → 결과 저장.
-이전 3문장 평가 목록을 검증하는 계산기이며, 현재 새 12문장·144합성 배치는 아직 연결 전이다.
-새 기준 연결 시 문장·처리 방식·대응 기준음·웹 ID를 함께 전환한다(CONTRIBUTING.md).
+현재 준비된 무처리 36개와 초기 고정형 SS 36개는 CLI의 두 --algorithm 옵션으로 선택한다.
 실제 지표 연산은 pystoi가 담당하며, 이 코드는 입력 준비·검증·결과 기록을 담당한다.
 
 공개 함수: prepare_signals, calculate_signals, calculate_wav_pair, calculate_dataset,

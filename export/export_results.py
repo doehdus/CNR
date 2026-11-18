@@ -173,40 +173,6 @@ def export_noise_analysis(root, stage, manifest, catalog):
     return {"sources": len(sources), "graphs": len(images)}
 
 
-def export_peak_analysis(root, stage, files):
-    source = project_path(root, "experiment/outputs/peak_analysis/results.json")
-    if not source.is_file():
-        return 0
-    data = load_json(source)
-    if data.get("version") != 1 or len(data.get("conditions", [])) != 144 or len(data.get("files", [])) != 171:
-        raise ValueError("A complete measured 144-condition peak analysis is required.")
-    catalog = {entry["path"]: entry for entry in files}
-    seen = set()
-    for entry in data["files"]:
-        relative = entry["path"]
-        if relative in seen:
-            raise ValueError("Duplicate peak-analysis input.")
-        seen.add(relative)
-        expected = "experiment/mixtures/" + relative.removeprefix("data/mixed/") if relative.startswith("data/mixed/") else "experiment/" + relative
-        if entry.get("source") != expected or not relative.startswith(("data/clean/", "data/reference/", "data/noise/", "data/mixed/")):
-            raise ValueError("Invalid peak-analysis source path.")
-        contents = project_path(root, expected).read_bytes()
-        fingerprint = hashlib.sha256(contents).hexdigest()
-        if fingerprint != entry.get("sha256") or len(contents) != entry.get("size"):
-            raise ValueError("Peak-analysis input changed since calculation.")
-        if relative in catalog and catalog[relative]["sha256"] != fingerprint:
-            raise ValueError("Existing snapshot and peak-analysis inputs conflict.")
-        target = project_path(stage / "audio", relative)
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes(contents)
-        catalog[relative] = {"path": relative, "sha256": fingerprint, "size": len(contents)}
-    files[:] = sorted(catalog.values(), key=lambda entry: entry["path"])
-    destination = stage / "peak_analysis"
-    destination.mkdir(exist_ok=True)
-    write_json(destination / "results.json", data)
-    return len(data["conditions"])
-
-
 def copy_clean_collection(root, stage, files):
     definition = project_path(root, "experiment/config/collection.json")
     if not definition.exists():
@@ -307,7 +273,6 @@ def export_results(root=PROJECT_ROOT):
         validate_metrics(rows, samples, fingerprints)
         analysis = export_noise_analysis(root, stage, manifest, fingerprints)
         clean_recordings = copy_clean_collection(root, stage, files)
-        peak_comparisons = export_peak_analysis(root, stage, files)
         write_json(stage / "audio/catalog.json", {"version": 1, "files": files})
         write_json(stage / "manifest.json", manifest)
         write_json(stage / "results.json", rows)
@@ -320,7 +285,7 @@ def export_results(root=PROJECT_ROOT):
             if backup.exists():
                 backup.rename(destination)
             raise
-        return {"audio": len(files), "metrics": len(rows), "clean_recordings": clean_recordings, "noise_analysis": analysis, "peak_comparisons": peak_comparisons, "destination": str(destination)}
+        return {"audio": len(files), "metrics": len(rows), "clean_recordings": clean_recordings, "noise_analysis": analysis, "destination": str(destination)}
     finally:
         if stage.exists():
             shutil.rmtree(stage)

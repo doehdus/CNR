@@ -4,20 +4,17 @@ import { normalizeMetrics, mergeMetrics } from '../../shared/research/metrics.js
 import manifest from '../../.sites-runtime/backend/dataset.json' with { type: 'json' };
 import metrics from '../../.sites-runtime/backend/metrics.json' with { type: 'json' };
 import { EMPTY_STUDY, loadStudy } from '../study/store.ts';
-import { gradeResponse, participantQuestions, sessionSamples, validateSession, isRecord, SurveyError, type SurveyRating, type SurveySession, type SurveyParticipant, type SurveyResponse } from './model.ts';
+import { gradeResponse, participantQuestions, sessionSamples, validateSession, SurveyError, type SurveySession, type SurveyParticipant, type SurveyResponse } from './model.ts';
 
 type SurveyBackup = { sessions: SurveySession[]; participants: SurveyParticipant[]; responses: SurveyResponse[] };
 const json = (value: unknown, status = 200) => Response.json(value, { status, headers: { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' } });
 
-function validateSurveyBackup(input: unknown, manualRatings: Pick<SurveyRating, 'listener_id' | 'sample_id'>[]): SurveyBackup {
-  if (!isRecord(input) || !Array.isArray(input.sessions) || !Array.isArray(input.participants) || !Array.isArray(input.responses)) throw new SurveyError(400, 'QR 백업의 회차·참가자·원응답 배열이 필요합니다.');
+function validateSurveyBackup(input: any, manualRatings: any[]): SurveyBackup {
+  if (!input || !['sessions', 'participants', 'responses'].every(key => Array.isArray(input[key]))) throw new SurveyError(400, 'QR 백업의 회차·참가자·원응답 배열이 필요합니다.');
   const sessions = input.sessions.map(validateSession) as SurveySession[];
   const sessionMap = new Map(sessions.map(row => [row.code, row]));
   if (sessionMap.size !== sessions.length) throw new SurveyError(400, '중복 회차가 있습니다.');
-  const participants: SurveyParticipant[] = input.participants.map((row: unknown) => {
-    if (!isRecord(row) || typeof row.id !== 'string' || typeof row.session_code !== 'string' || typeof row.token_hash !== 'string' || typeof row.joined_at !== 'string') throw new SurveyError(400, 'QR 참가자 항목을 확인하세요.');
-    return { id: row.id, session_code: row.session_code, token_hash: row.token_hash, joined_at: row.joined_at };
-  });
+  const participants: SurveyParticipant[] = input.participants;
   const participantMap = new Map<string, SurveyParticipant>();
   const tokens = new Set<string>();
   for (const row of participants) {
@@ -26,15 +23,7 @@ function validateSurveyBackup(input: unknown, manualRatings: Pick<SurveyRating, 
     if (!sessionMap.has(row.session_code) || typeof row.id !== 'string' || !new RegExp('^' + row.session_code + '-[a-f0-9]{32}$').test(row.id) || !/^[a-f0-9]{64}$/.test(row.token_hash) || !Number.isFinite(Date.parse(row.joined_at)) || participantMap.has(row.id) || tokens.has(tokenKey)) throw new SurveyError(400, 'QR 참가자 정보를 확인하세요.');
     participantMap.set(row.id, row); tokens.add(tokenKey);
   }
-  const responses: SurveyResponse[] = input.responses.map((row: unknown) => {
-    if (!isRecord(row) || typeof row.id !== 'string' || typeof row.session_code !== 'string' || typeof row.participant_id !== 'string' || typeof row.sample_id !== 'string' || typeof row.trial_index !== 'number' || typeof row.answers !== 'string' || typeof row.choice_order !== 'string' || typeof row.rating !== 'string' || typeof row.recorded_at !== 'string' || row.deleted_at != null && typeof row.deleted_at !== 'string') throw new SurveyError(400, 'QR 원응답 항목을 확인하세요.');
-    return {
-      id: row.id, session_code: row.session_code, participant_id: row.participant_id,
-      sample_id: row.sample_id, trial_index: row.trial_index, answers: row.answers,
-      choice_order: row.choice_order, rating: row.rating, recorded_at: row.recorded_at,
-      deleted_at: row.deleted_at ?? null,
-    };
-  });
+  const responses: SurveyResponse[] = input.responses.map((row: any) => row && typeof row === 'object' ? { ...row } : row);
   const identifiers = new Set<string>(), keys = new Set(manualRatings.map(ratingKey));
   for (const row of responses) {
     if (!row || typeof row !== 'object') throw new SurveyError(400, 'QR 원응답 항목을 확인하세요.');
@@ -54,7 +43,7 @@ function validateSurveyBackup(input: unknown, manualRatings: Pick<SurveyRating, 
   return { sessions, participants, responses };
 }
 
-function insertRows(db: D1Database, table: string, columns: string[], rows: readonly object[]) {
+function insertRows(db: D1Database, table: string, columns: string[], rows: any[]) {
   const statements: D1PreparedStatement[] = [];
   for (let offset = 0; offset < rows.length; offset += 100) {
     // JSON batches keep bound parameters and statement count bounded for D1.

@@ -88,18 +88,13 @@ export function participantQuestions(session: SurveySession, participantId: stri
   });
 }
 
-export function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === 'object' && !Array.isArray(value);
-}
-
-export function gradeResponse(session: SurveySession, participantId: string, trialIndex: number, input: unknown, recordedAt: string) {
+export function gradeResponse(session: SurveySession, participantId: string, trialIndex: number, input: any, recordedAt: string) {
   if (!Number.isInteger(trialIndex) || trialIndex < 0 || trialIndex >= sessionSamples(session).length) throw new SurveyError(400, '음원 번호를 확인하세요.');
   const questions = questionsFor(session, trialIndex);
   const presented = participantQuestions({ ...session, current_index: trialIndex }, participantId);
-  if (!isRecord(input) || !isRecord(input.answers) || Object.keys(input.answers).length !== questions.length) throw new SurveyError(400, '핵심정보 3문항에 모두 응답하세요.');
-  const answers = input.answers;
+  if (!input.answers || typeof input.answers !== 'object' || Array.isArray(input.answers) || Object.keys(input.answers).length !== questions.length) throw new SurveyError(400, '핵심정보 3문항에 모두 응답하세요.');
   const selected = questions.map((question, index) => {
-    const option = presented[index].options.find(option => option.id === answers[question.id]);
+    const option = presented[index].options.find(option => option.id === input.answers[question.id]);
     if (!option) throw new SurveyError(400, '각 질문의 보기 중 하나를 선택하세요.');
     return { question: question.prompt, answer: option.label };
   });
@@ -114,11 +109,9 @@ export function gradeResponse(session: SurveySession, participantId: string, tri
   }])[0] as SurveyRating;
 }
 
-export function validateSession(row: unknown): SurveySession {
-  if (!isRecord(row)) throw new SurveyError(400, '회차 백업의 식별 정보를 확인하세요.');
+export function validateSession(row: any): SurveySession {
   if (row?.deleted_at != null && (typeof row.deleted_at !== 'string' || !Number.isFinite(Date.parse(row.deleted_at)) || row.phase !== 'closed')) throw new SurveyError(400, 'QR 회차의 삭제 기록을 확인하세요.');
-  if (typeof row.code !== 'string' || !/^[a-f0-9]{12}$/.test(row.code) || typeof row.title !== 'string' || !row.title.trim() || row.title.length > 100 || typeof row.control_hash !== 'string' || !/^[a-f0-9]{64}$/.test(row.control_hash)) throw new SurveyError(400, '회차 백업의 식별 정보를 확인하세요.');
-  if (typeof row.samples !== 'string' || typeof row.questionnaire !== 'string') throw new SurveyError(400, '회차의 음원 목록과 질문표를 확인하세요.');
+  if (!row || !/^[a-f0-9]{12}$/.test(row.code) || typeof row.title !== 'string' || !row.title.trim() || row.title.length > 100 || !/^[a-f0-9]{64}$/.test(row.control_hash)) throw new SurveyError(400, '회차 백업의 식별 정보를 확인하세요.');
   const samples: SurveySample[] = JSON.parse(row.samples);
   if (!Array.isArray(samples) || samples.length < 1 || samples.length > 180 || new Set(samples.map(sample => sample.id)).size !== samples.length) throw new SurveyError(400, '회차의 음원 목록을 확인하세요.');
   for (const sample of samples) {
@@ -126,11 +119,6 @@ export function validateSession(row: unknown): SurveySession {
     if (!known || known.kind === 'clean' || !/^(data\/mixed|outputs)\/[a-zA-Z0-9_./-]+\.wav$/.test(sample.path) || sample.path.split('/').includes('..') || !/^[a-f0-9]{64}$/.test(sample.sha256)) throw new SurveyError(400, '회차 음원의 경로와 지문을 확인하세요.');
   }
   if (JSON.stringify(JSON.parse(row.questionnaire)) !== JSON.stringify(QUESTIONNAIRE)) throw new SurveyError(400, '지원되는 qr-mc-v1 질문표가 필요합니다.');
-  if (typeof row.phase !== 'string' || !['waiting', 'listening', 'answering', 'closed'].includes(row.phase) || typeof row.current_index !== 'number' || !Number.isInteger(row.current_index) || row.current_index < 0 || row.current_index >= samples.length || typeof row.revision !== 'number' || !Number.isInteger(row.revision) || row.revision < 0 || typeof row.created_at !== 'string' || typeof row.updated_at !== 'string' || !Number.isFinite(Date.parse(row.created_at)) || !Number.isFinite(Date.parse(row.updated_at))) throw new SurveyError(400, '회차의 진행 상태를 확인하세요.');
-  return {
-    code: row.code, title: row.title, samples: row.samples, questionnaire: row.questionnaire,
-    control_hash: row.control_hash, phase: row.phase as SurveySession['phase'],
-    current_index: row.current_index, revision: row.revision,
-    created_at: row.created_at, updated_at: row.updated_at, deleted_at: row.deleted_at ?? null,
-  };
+  if (!['waiting', 'listening', 'answering', 'closed'].includes(row.phase) || !Number.isInteger(row.current_index) || row.current_index < 0 || row.current_index >= samples.length || !Number.isInteger(row.revision) || row.revision < 0 || !Number.isFinite(Date.parse(row.created_at)) || !Number.isFinite(Date.parse(row.updated_at))) throw new SurveyError(400, '회차의 진행 상태를 확인하세요.');
+  return row;
 }

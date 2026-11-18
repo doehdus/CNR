@@ -79,25 +79,6 @@ New-Item -ItemType Directory -Force .cache\noise_analysis | Out-Null
 
 기존 웹 WAV·지표를 유지하고 소음 분석만 갱신할 때는 `& .\.venv\Scripts\python.exe export\export_results.py --noise-analysis-only`를 실행한다. 이 명령도 기존 스냅샷의 WAV·지표·소음 입력 지문을 검증한다.
 
-## 새 평가 기준으로 전환할 작업
-
-소음 특성 분석은 새 12문장·144조건으로 연결되어 있다. 음성 처리 결과·객관 평가·QR 청음평가는 아직 이전 3문장 ID를 사용하므로, 파일이 전달됐다는 이유만으로 이 메뉴까지 연결 완료로 판단하지 않는다.
-
-| 경로 | 현재 상태 | 전환 시 할 일 |
-| --- | --- | --- |
-| `experiment/config/collection.json` | 새 원음 12개와 문장·화자 정의 | 새 평가 카탈로그의 문장 기준으로 재사용 |
-| `website/shared/research/dataset.js` | 이전 3문장·36조건과 새 처리 방식 정의 | 새 ID·문장·화자를 연결하고 처리 결과 표·선택 메뉴·집계를 함께 전환 |
-| `experiment/src/evaluation/calculate_metrics.py` | 이전 문장·알고리즘 목록 검증 | 새 목록·전처리 조건·완료 처리 방식 및 `data/reference/` 기준음을 연결 |
-| `experiment/data/metadata/dataset.json` | 평가 음원 목록 비어 있음 | 실제 완료한 무처리·전처리·알고리즘 결과만 경로와 지문을 확인해 등록 |
-| `website/backend/surveys/model.ts` | `qr-mc-v1`, 이전 3문장의 3문항 | 새 12문장별 핵심정보 4문항과 보기를 확정한 뒤 새 질문표 버전으로 구현 |
-| `website/shared/research/evaluation.js`·`src/listening-test/` | 0·2.5·5·7.5·10점, 진행자 제어 | 새 1~5점 척도·개별 재생·무제한 다시 듣기를 채점·저장·집계·화면과 함께 구현 |
-| `website/backend/surveys/backup.ts`·DB 마이그레이션 | 이전 응답 복원·검증 지원 | 이전 질문표·척도·원점수를 보존하고 새 응답과 혼합 집계하지 않도록 버전 구분 |
-| `export/`·`website/tests/`·`experiment/tests/` | 이전 평가 규격 검증과 새 분석 검증 공존 | 새 기준의 전달·평가·백업 호환을 검증한 뒤 메뉴 연결 확인 |
-
-진행 순서는 **카탈로그·기준음 연결 → 완료 처리 결과 등록 → STOI·ESTOI 계산·전달 → 새 청음 규격 구현 → 백업·집계 검증**이다. 핵심정보 4문항의 실제 내용·보기와 처리 범위는 확정한 뒤 구현한다. 질문표나 음원 ID를 이름만 바꿔 기존 응답에 적용하지 않는다. 현재 미연결 셀의 ‘연결 대기’는 유지한다.
-
-삭제한 미사용 항목은 `deliverPeakAnalysis()`와 브라우저의 미사용 가져오기·저장 키다. 실제 전달 경로 `prepareLocalDataset()`·`export_results.py`, 현재 분석·과거 분석 이력, DB 스키마·마이그레이션, 배포 실행 도구는 유지한다.
-
 ## 계산·전달·웹 빌드
 
 실험 자료 페이지의 새 원음은 `experiment/config/collection.json`에 정의하고 `experiment/data/clean/`에서 읽는다. `& .\.venv\Scripts\python.exe export\export_results.py --collection-only`로 원본 WAV를 그대로 웹 스냅샷에 전달한다. 화면은 `dataset/collection.json`과 내보낸 WAV를 사용하며 작업 지시·위험 경고 12개를 재생한다.
@@ -122,20 +103,6 @@ New-Item -ItemType Directory -Force .cache\noise_analysis | Out-Null
 계산 결과는 `experiment/outputs/metrics.json`·`metrics.csv`, 전달된 스냅샷은 `website/public/dataset/`, 웹 빌드는 `website/dist/`에 둔다. exporter는 완료 지표·기준 음원·비교 음원의 경로·SHA-256을 검증한 뒤 스냅샷을 교체한다. 계산기 소스는 [calculate_metrics.py](experiment/src/evaluation/calculate_metrics.py), 전달 소스는 [export_results.py](export/export_results.py)다.
 
 개별 파일 계산은 계산기의 `calculate_wav_pair`, 배열 계산은 `calculate_signals`를 사용한다. 현재 기본 전처리는 공통 16 kHz 리샘플링·고정 지연 보정·공통 구간 선택이며 계산 결과에 실제 입력 지문·도구 버전·정렬 구간을 보관한다.
-
-## 합성 배치와 보조 Python 분석 재현
-
-2026-11-18 유채원 배치의 재현 코드는 `experiment/src/mixtures/build_dataset.py`다. 기존 원본과 C FFT 결과를 보존하고 **새 빈 출력 폴더**에 합성음·대응 기준음·보조 그래프·검증표를 생성한다. 프로젝트 `experiment/requirements.txt`의 환경을 사용한다.
-
-```powershell
-& .\.venv\Scripts\python.exe -m experiment.src.mixtures.build_dataset --output .cache/mixture-reproduction/2026-11-18
-```
-
-macOS에서는 같은 인수를 `.venv/bin/python -m experiment.src.mixtures.build_dataset`에 전달한다. 실행 위치는 프로젝트 루트다. `--clean-root`·`--noise-root`는 생략하면 현재 공유 원본을 읽는다. 출력 폴더가 비어 있지 않으면 재실행을 거부한다. 후보 필터 설계·C 피크 검출·웹 연결을 실행하는 명령이 아니다.
-
-출력 아래 `mixtures/`는 `experiment/mixtures/`, `data/reference/`는 `experiment/data/reference/`에 대응한다. 대응 기준음은 리샘플링·공통 이득을 적용한 평가 자료로 원본 `data/clean/`과 구분한다. 소음 확장본은 `outputs/mixture_preparation/noise/`, 보조 분석표는 `outputs/mixture_analysis/`, 그래프는 `outputs/graphs/mixture_analysis/`에 생성한다. 보조 소음 분석용 전달은 이 기준음을 포함한다. 객관 평가 카탈로그·계산기의 기준음 연결은 아직 후속 작업이므로 경로와 입력 지문을 함께 검토한다.
-
-배치 조건과 실제 검증 수치는 `PROJECT_CONTEXT.md`의 합성 배치 기록을 따른다. Python Welch 피크는 이번 배치의 탐색 자료이며 기존 C FFT 경로와 분석 설정이 다르다. 공식 피크 검출·필터 조건으로 자동 확정하지 않는다.
 
 ## 합성 수령과 이후 구현 파일
 
@@ -197,13 +164,3 @@ git diff --cached
 ```
 
 문서는 README의 진행 방향, PROJECT_CONTEXT의 확정 자료, CONTRIBUTING의 실행 방법, AGENTS의 작업 지침 네 곳에 모은다. 세부 결정은 작업 중 필요한 시점에 확인하고 담당 문서에 반영한다.
-
-## 피크·합성음 비교 웹 연결
-
-등록된 144개 합성음과 대응 기준음은 프로젝트 Python으로 `-m experiment.src.noise_analysis.analyze_mixture_peaks`를 실행해 분석한다. 완료 결과는 `experiment/outputs/peak_analysis/results.json`에 저장하며 이전 결과는 해시별 파일로 보존한다. 배치 조건과 해석 범위는 PROJECT_CONTEXT를 따른다.
-
-`export/export_results.py`의 전체 내보내기는 완료 분석과 원본/기준음/합성음 171개를 지문 검증 후 전달한다. `website/`의 `npm run dev`도 완료 자료만 전달한다. 웹은 DSP 계산을 실행하지 않는다. 입력이 바뀌면 내보내기/표시를 보류하며 이전 실측 점수·응답을 새 문장에 재할당하지 않는다.
-
-‘소음 특성 분석’에서 소음 3종 → 피크 표/확대 → 12문장·SNR 4단계 비교 → 피크 주변 검토 대역 순서로 확인한다. 기존 C FFT와 보조 Welch PSD의 단위·분석 조건은 구분한다. PNG 저장 링크는 현재 그려진 그래프를 이미지로 제공한다. 후보 대역은 필터 설정이 아니며 효과 검증 전이다.
-
-전달 검사는 `node --test export/tests/peak-analysis.test.mjs export/tests/local-dataset.test.mjs`, 웹 검증은 `website/`의 `npm run build`다. 이전 QR 규격·객관 평가 ID는 이 작업에서 변경하지 않는다.
