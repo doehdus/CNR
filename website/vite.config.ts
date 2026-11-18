@@ -10,7 +10,8 @@ import { authoredAssets } from "./scripts/vite/authored-assets-plugin";
 const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 const managedLinux = readExecutionProfile() === "managed-linux";
 
-const { name: _localName, ...localBindingConfig } = localConfig;
+const localBindingConfig: Partial<typeof localConfig> = { ...localConfig };
+delete localBindingConfig.name;
 
 export default defineConfig(async () => {
   configureToolEnvironment(process.cwd());
