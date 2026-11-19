@@ -1,3 +1,4 @@
+import { loadPeakAnalysis } from './peak_analysis.mjs';
 // Deliver the shared inputs and previously calculated reference plots; no FFT or metrics run here.
 import { createHash, randomUUID } from 'node:crypto';
 import { cp, mkdir, mkdtemp, readFile, realpath, rename, rm, writeFile } from 'node:fs/promises';
@@ -64,9 +65,14 @@ export async function prepareLocalDataset(root = projectRoot) {
   normalizeCleanCollection({ version: 1, recordings });
   for (const noise of manifest.noise_sources) await input('experiment/' + noise.path, noise.path);
   if (inputFiles.size !== 15) throw new Error('Expected twelve shared clean recordings and three noises.');
+  const peakAnalysis = await loadPeakAnalysis(root);
+  if (peakAnalysis) for (const { bytes, path: logical, sha256, size } of peakAnalysis.files) {
+    if (inputFiles.has(logical) && inputFiles.get(logical).sha256 !== sha256) throw new Error('Peak analysis input conflict.');
+    inputFiles.set(logical, { bytes, path: logical, sha256, size });
+  }
   const referenceRoot = inside(root, 'experiment/outputs/noise_analysis');
   const reference = await optionalJSON(path.join(referenceRoot, 'results.json'));
-  const sourceFingerprint = sha256(JSON.stringify([definition, manifest, [...inputFiles.values()].map(({ path, sha256 }) => [path, sha256]), reference]));
+  const sourceFingerprint = sha256(JSON.stringify([definition, manifest, [...inputFiles.values()].map(({ path, sha256 }) => [path, sha256]), reference, peakAnalysis?.sha256 || null]));
   const publicRoot = inside(root, 'website/public');
   const destination = path.join(publicRoot, 'dataset');
   await mkdir(publicRoot, { recursive: true });
@@ -94,6 +100,7 @@ export async function prepareLocalDataset(root = projectRoot) {
     await writeJSON(path.join(stage, 'manifest.json'), manifest);
     await writeJSON(path.join(stage, 'collection.json'), { version: 1, recordings });
     await writeJSON(path.join(stage, 'results.json'), []);
+    if (peakAnalysis) { await mkdir(path.join(stage, 'peak_analysis'), { recursive: true }); await writeJSON(path.join(stage, 'peak_analysis/results.json'), peakAnalysis.data); }
     await writeJSON(path.join(stage, 'export.json'), { version: 1, mode: 'local-inputs', audio_files: files.length, metric_rows: 0, clean_recordings: 12 });
     let graphs = 0;
     if (reference) {

@@ -1,0 +1,37 @@
+{
+  "status": "exploratory_not_web_connected",
+  "source": "2026-11-18 Python build_dataset batch",
+  "fft": "whole original noise, mean removed, Hann coherent-gain corrected single-sided amplitude",
+  "welch": {
+    "window": "hann",
+    "nperseg": 2048,
+    "noverlap": 1024,
+    "sample_rate_hz": 16000,
+    "detrend": "constant",
+    "scaling": "density",
+    "bin_spacing_hz": 7.8125
+  },
+  "exploratory_peak_settings": {
+    "prominence_db": 6,
+    "minimum_distance_bins": 6,
+    "maximum_per_noise": 8,
+    "ranking": "PSD power descending",
+    "width": "half-prominence width measured on linear PSD; approximate, not an agreed filter bandwidth"
+  },
+  "mixture_aggregation": "linear-power mean over 12 utterances, then dB; shaded range=min/max, not confidence interval",
+  "limitations": [
+    "Prominence values are not yet exported in peak CSV.",
+    "Speech overlap and candidate filter bands are pending.",
+    "Not a replacement for existing C FFT results or the web noise_analysis schema.",
+    "No filtering, STOI/ESTOI calculation, listening results or site deployment performed."
+  ],
+  "graphs": [
+    "01_음성구간_확인.png",
+    "02_소음원본_전체FFT.png",
+    "03_소음원본_피크.png",
+    "04_single_합성음_주파수.png",
+    "04_complex_합성음_주파수.png",
+    "04_changing_합성음_주파수.png",
+    "05_변화소음_2.5초전후.png"
+  ]
+}

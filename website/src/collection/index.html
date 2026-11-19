@@ -44,24 +44,32 @@
     <a class="button primary section-next" href="#noise-analysis">소음 특성 분석 살펴보기 →</a>
   </section>
   <section id="noise-analysis" class="page-section" hidden>
-    <div class="page-intro compact"><div><div class="eyebrow accent">02 / NOISE CHARACTERISTICS</div><h1>소음 특성 분석</h1><p>소음 전체의 주파수와 주요 피크를 분석하고, 합성음원에서 음성과 겹치는지 확인합니다.<br>전처리 후보 대역과 선정 근거를 모아두는 공간입니다.</p></div><span id="noise-analysis-status" class="status-tag pending" role="status">분석 자료 등록 대기</span></div>
+    <div class="page-intro compact"><div><div class="eyebrow accent">02 / NOISE CHARACTERISTICS</div><h1>소음 특성 분석</h1><p>넓은 대역에 분포한 소음과 그 안의 주요 피크를 살펴봅니다.<br>음성과 겹치는 대역을 확인하고, 사전필터·소음 저감 알고리즘 비교의 근거를 정리했습니다.</p></div><span id="noise-analysis-status" class="status-tag pending" role="status">분석 자료 등록 대기</span></div>
     <div class="noise-analysis-steps" aria-label="소음 분석 순서"><a href="#noise-spectrum-section"><b>01</b> 소음별 주파수</a><a href="#noise-peaks-section"><b>02</b> 소음별 피크</a><a href="#noise-mixture-section"><b>03</b> 합성음원 비교</a><a href="#noise-candidates-section"><b>04</b> 전처리 후보</a></div>
     <div id="noise-analysis-feedback" class="info-banner" role="status" hidden></div>
+    <section id="noise-research-conclusion" class="panel noise-analysis-panel" hidden aria-labelledby="noise-research-title">
+      <span class="eyebrow">FEEDBACK → FINDINGS</span><h2 id="noise-research-title">넓은 대역에 분포한 소음, 그 안의 두드러진 피크</h2>
+      <p id="noise-research-answer" class="noise-observation"></p><div id="noise-research-findings" class="noise-findings-grid"></div>
+      <p class="microcopy">이 세 파일에서 확인한 분포입니다. 모든 주파수에 균일한 소음이라는 뜻은 아닙니다. 사전필터만으로 충분한지, SS 등을 함께 적용할 때 더 나아지는지는 처리 전후 비교와 청취평가로 확인해야 합니다.</p>
+      <dl id="noise-batch-summary" class="noise-parameter-list"></dl>
+    </section>
     <div class="panel noise-source-panel">
       <div class="panel-heading"><div><span class="eyebrow">ANALYSIS SOURCE</span><h2>분석할 소음 원본</h2></div><label class="noise-source-label">소음 선택<select id="noise-analysis-source" class="inline-select"></select></label></div>
       <div class="noise-source-layout"><div id="noise-analysis-library" class="analysis-source-grid"></div><dl id="noise-source-metadata" class="noise-source-metadata"></dl></div>
-      <p class="microcopy">원본 연결과 분석 결과 등록은 별개입니다. 소음의 train/test 분리와 실제 장비 출처는 검증 대기입니다.</p>
+      <p class="microcopy">공유된 소음 파일명과 원본 지문을 기준으로 분석했습니다. 별도 평가용 소음 분리·현장 대표성 확인·필터 효과 검증은 다음 단계입니다.</p>
     </div>
     <section id="noise-spectrum-section" class="panel noise-analysis-panel" aria-labelledby="noise-spectrum-title">
       <div class="panel-heading"><div><span class="eyebrow">01 / FULL-RECORD FFT</span><h2 id="noise-spectrum-title">소음별 주파수 분석</h2></div><div class="noise-view-tabs" role="group" aria-label="주파수 그래프 보기"><button type="button" data-noise-spectrum-view="selected" class="active" aria-pressed="true">선택 소음</button><button type="button" data-noise-spectrum-view="all" aria-pressed="false">3개 소음 비교</button></div></div>
       <p class="microcopy">소음 전체에 FFT를 적용한 주파수 스펙트럼입니다. 에너지가 집중된 구간과 소음별 분포 차이를 확인합니다.</p>
       <div id="noise-spectrum-artifact" class="noise-artifact"></div><div class="noise-axis-note"><span>가로축 · 주파수 (Hz)</span><span>세로축 · 주파수 성분의 크기 (dB, 기준은 분석 조건에 기록)</span></div><p id="noise-spectrum-summary" class="noise-observation"></p>
       <details class="noise-analysis-details"><summary>분석 조건 확인</summary><dl id="noise-analysis-parameters" class="noise-parameter-list"></dl></details>
+      <div id="noise-energy-section" hidden><h3>대역별 소음 에너지 비율</h3><p class="microcopy">Welch PSD를 대역별로 합산한 비율입니다. 대역 폭이 서로 다르므로 비율만으로 주파수당 크기를 비교하지 않습니다.</p><div id="noise-energy-table" class="table-scroll noise-result-table"></div><p id="noise-energy-summary" class="noise-observation"></p></div>
+      <div id="noise-temporal-section" hidden><h3>2.5초 전후 주파수 분포</h3><p class="microcopy">앞·뒤 구간의 평균 분포를 비교합니다. 변화 소음은 2.5초부터 드릴이 추가됩니다. 이 비교만으로 피크가 항상 일정하다고 판단하지 않습니다.</p><div id="noise-temporal-artifact" class="noise-artifact"></div></div>
     </section>
     <section id="noise-peaks-section" class="panel noise-analysis-panel" aria-labelledby="noise-peaks-title">
       <div class="panel-heading"><div><span class="eyebrow">02 / SPECTRAL PEAKS</span><h2 id="noise-peaks-title">소음별 피크 분석</h2></div><span id="noise-peaks-count" class="small-pill">피크 등록 대기</span></div>
       <p class="microcopy">주요 피크의 주파수·크기·폭과 주변 대비 돌출 정도를 정리합니다. 전체 FFT에서 관찰된 피크의 시간 지속성은 별도 확인이 필요합니다.</p>
-      <div id="noise-peaks-artifact" class="noise-artifact"></div><div id="noise-peaks-table" class="table-scroll noise-result-table"></div>
+      <p id="noise-peaks-method" class="microcopy"></p><div id="noise-peaks-artifact" class="noise-artifact"></div><div id="noise-peaks-table" class="table-scroll noise-result-table"></div>
       <div class="noise-peak-detail"><label>확대할 피크<select id="noise-peak-select" disabled><option value="">등록된 피크 없음</option></select></label><div id="noise-peak-zoom" class="noise-artifact noise-artifact-compact"></div></div>
     </section>
     <section id="noise-mixture-section" class="panel noise-analysis-panel" aria-labelledby="noise-mixture-title">
@@ -69,13 +77,14 @@
       <p class="microcopy">선택 소음의 피크가 합성음원에서도 관찰되는지 확인하고, 깨끗한 원음의 같은 대역과 비교합니다.</p>
       <form id="noise-mixture-form" class="filter-row noise-mixture-filters"><label>비교할 문장<select name="statement"></select></label><label>합성음원 SNR<select name="snr"></select></label></form><p id="noise-mixture-caption" class="condition-caption"></p>
       <div id="noise-mixture-players" class="noise-mixture-players"></div><div class="noise-legend" aria-label="비교 대상"><span>깨끗한 원음</span><span>순수 소음</span><span>무처리 합성음원</span></div>
-      <div id="noise-mixture-artifact" class="noise-artifact"></div><div id="noise-mixture-table" class="table-scroll noise-result-table"></div><p id="noise-mixture-note" class="noise-observation"></p>
+      <p id="noise-mixture-interpretation" class="noise-observation" hidden></p><div id="noise-mixture-artifact" class="noise-artifact"></div><div id="noise-mixture-table" class="table-scroll noise-result-table"></div><p id="noise-mixture-note" class="noise-observation"></p>
       <p class="microcopy">비교에는 같은 분석 기준과 합성에 사용된 소음 크기·구간 정보가 필요합니다. 합성음원의 큰 피크만으로 소음 성분이라고 판단하지 않습니다.</p>
     </section>
     <section id="noise-candidates-section" class="panel noise-analysis-panel" aria-labelledby="noise-candidates-title">
       <div class="panel-heading"><div><span class="eyebrow">PREFILTER CANDIDATES</span><h2 id="noise-candidates-title">전처리 후보 요약</h2></div><span class="small-pill">전체 소음의 등록된 후보</span></div>
       <p class="microcopy">분석에서 도출한 후보와 근거를 모읍니다. 후보 대역은 확정된 필터 설정이나 효과 검증 결과가 아닙니다.</p><div id="noise-candidates-table" class="table-scroll noise-result-table"></div>
       <div class="noise-decision-guide"><div><strong>억제 후보</strong><p>소음에서 두드러지고 합성음원에서도 관찰되며 원음 성분은 약한 대역</p></div><div><strong>신중하게 검토</strong><p>음성과 겹치거나 피크의 안정성·출처를 더 확인해야 하는 대역</p></div><div><strong>보류 · 후보 없음</strong><p>제거 근거가 부족하거나 음성 손상 우려가 큰 경우도 결과로 기록</p></div></div>
+      <div id="noise-analysis-handoff" class="noise-observation" hidden><strong>이번 분석에서 확인한 것</strong><p>소음이 넓은 대역에 분포하면서 일부 피크가 두드러진다는 점과, 144조건에서 음성·소음이 겹치는 양상을 정리했습니다. 다음 단계에서는 특정 대역을 줄이는 사전필터와 SS 등 소음 저감 알고리즘의 효과를 비교합니다. 처리 전후의 소음 억제와 음성 보존을 확인할 예정이며, 효과가 이미 입증된 상태는 아닙니다.</p></div>
       <a class="button primary" href="#prefilter">사전 필터링에서 검증하기 →</a>
     </section>
   </section>
