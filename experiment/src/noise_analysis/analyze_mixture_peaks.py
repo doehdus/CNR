@@ -132,7 +132,7 @@ def generate(root=ROOT):
     payload = json.dumps(result, ensure_ascii=False, allow_nan=False, separators=(',', ':'))+'\n'
     target = folder/'results.json'
     digest = hashlib.sha256(payload.encode()).hexdigest()
-    if target.exists() and target.read_text() != payload:
+    if target.exists() and target.read_text(encoding='utf-8') != payload:
         archive = folder/('results-'+hashlib.sha256(target.read_bytes()).hexdigest()[:12]+'.json')
         if not archive.exists(): archive.write_bytes(target.read_bytes())
     target.write_text(payload, encoding='utf-8')
