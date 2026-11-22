@@ -19,6 +19,22 @@ SECRET_PATTERNS = (
         rb"\s*[:=]\s*[\"']([A-Za-z0-9_+/=.-]{20,})[\"']", re.I)),
 )
 
+SOURCE_LIMIT = 10 * 1024 * 1024
+RESEARCH_LIMIT = 100 * 1024 * 1024
+SECRET_MARKERS = {
+    "private key": (b"-----begin",),
+    "GitHub token": (b"ghp_", b"gho_", b"ghu_", b"ghs_", b"ghr_", b"github_pat_"),
+    "AWS access key": (b"akia", b"asia"),
+    "OpenAI token": (b"sk-",),
+    "Slack token": (b"xox",),
+    "credential in URL": (b"http",),
+    "credential assignment": (b"api", b"client", b"access", b"auth", b"password", b"secret"),
+}
+
+
+def file_limit(name):
+    return RESEARCH_LIMIT if name.startswith((b"experiment/data/", b"experiment/mixtures/", b"experiment/outputs/")) else SOURCE_LIMIT
+
 
 def git(root, *args, data=None, allowed=(0,)):
     result = subprocess.run(
@@ -50,24 +66,46 @@ def check(root):
         data=b"\0".join(name for name, _ in indexed) + b"\0", allowed=(0, 1)
     ).split(b"\0")))
     problems = [(name, "excluded by Git ignore rules") for name in sorted(ignored)]
-    # Read index blobs, including staged changes that differ from the working copy.
-    batch = git(root, "cat-file", "--batch", data=b"\n".join(sha for _, sha in indexed) + b"\n")
-    position = 0
-    for name, expected_sha in indexed:
-        end = batch.index(b"\n", position)
-        sha, kind, size = batch[position:end].split()
-        if sha != expected_sha or kind != b"blob":
-            raise RuntimeError("Unexpected Git object in index.")
-        size = int(size)
-        content = batch[end + 1:end + 1 + size]
-        position = end + 2 + size
-        if name in ignored:
-            continue
-        if size > 10 * 1024 * 1024:
-            problems.append((name, "larger than the 10 MiB source-file limit"))
-        for label, pattern in SECRET_PATTERNS:
-            if pattern.search(content):
-                problems.append((name, f"possible {label}; review locally"))
+    # One request/response at a time avoids buffering the entire research index.
+    command = ["git", "-c", f"safe.directory={root.resolve().as_posix()}", "-C", str(root), "cat-file", "--batch"]
+    process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    scanned = {}
+    try:
+        for name, expected_sha in indexed:
+            if expected_sha not in scanned:
+                process.stdin.write(expected_sha + b"\n"); process.stdin.flush()
+                sha, kind, length = process.stdout.readline().split()
+                if sha != expected_sha or kind != b"blob": raise RuntimeError("Unexpected Git object in index.")
+                size = int(length)
+                if size <= RESEARCH_LIMIT:
+                    content = process.stdout.read(size)
+                    if len(content) != size: raise RuntimeError("Incomplete Git object in index.")
+                    lower_content = content.lower()
+                    labels = [label for label, pattern in SECRET_PATTERNS
+                              if any(marker in lower_content for marker in SECRET_MARKERS[label]) and pattern.search(content)]
+                else:
+                    remaining = size
+                    while remaining:
+                        chunk = process.stdout.read(min(remaining, 1024 * 1024))
+                        if not chunk: raise RuntimeError("Incomplete Git object in index.")
+                        remaining -= len(chunk)
+                    labels = []  # Oversized objects are rejected regardless of contents.
+                if process.stdout.read(1) != b"\n": raise RuntimeError("Unexpected Git object boundary.")
+                scanned[expected_sha] = size, labels
+            size, labels = scanned[expected_sha]
+            if name in ignored: continue
+            limit = file_limit(name)
+            if size > limit:
+                kind = "research-data" if limit == RESEARCH_LIMIT else "source-file"
+                problems.append((name, f"larger than the {limit // (1024 * 1024)} MiB {kind} limit"))
+            problems.extend((name, f"possible {label}; review locally") for label in labels)
+        process.stdin.close()
+        if process.wait(timeout=30): raise RuntimeError("Could not inspect Git objects.")
+    finally:
+        if process.poll() is None:
+            process.kill(); process.wait()
+        for stream in (process.stdin, process.stdout, process.stderr):
+            if stream and not stream.closed: stream.close()
 
     for name, reason in problems:
         print(f"BLOCKED: {name.decode('utf-8', errors='replace')}: {reason}", file=sys.stderr)

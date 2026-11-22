@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "status": "initial",
+  "filter_type": "peaking_eq",
+  "scope": "fixed_per_noise",
+  "bandwidth_definition": "half_gain_db",
+  "sample_rate_hz": 16000,
+  "analysis_run_id": "20261120T052542Z-31f3a759",
+  "analysis_source_sha256": "fe95da6e4fa02fd9b692dd523ceb3deede8a28cfa3c42aeede316cdd751edc2c",
+  "presets": [
+    {
+      "noise": "single",
+      "source_peak_id": "p1",
+      "center_hz": 109.375,
+      "measured_width_hz": 14.7405510126,
+      "bandwidth_hz": 30,
+      "q": 3.64467029,
+      "gain_db": -6
+    },
+    {
+      "noise": "complex",
+      "source_peak_id": "p1",
+      "center_hz": 843.75,
+      "measured_width_hz": 12.4050331293,
+      "bandwidth_hz": 25,
+      "q": 33.13556812,
+      "gain_db": -6
+    },
+    {
+      "noise": "changing",
+      "source_peak_id": "p1",
+      "center_hz": 843.75,
+      "measured_width_hz": 11.1989669467,
+      "bandwidth_hz": 25,
+      "q": 33.13556812,
+      "gain_db": -6
+    }
+  ]
+}

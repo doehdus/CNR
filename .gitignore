@@ -72,6 +72,8 @@ service-account*.json
 *.7z
 *.tar
 *.gz
+!/experiment/outputs/peak_analysis/runs/**/raw/*.json.gz
+!/experiment/outputs/mixture_summary/runs/**/raw/*.json.gz
 
 # Generated output and machine-specific files
 /website/dist/
@@ -93,3 +95,28 @@ Desktop.ini
 !/experiment/**/*.m4a
 !/experiment/**/*.ogg
 !/experiment/**/*.aac
+
+# Share the active research snapshots; keep superseded runs locally.
+/experiment/outputs/peak_analysis/results-*.json
+/experiment/outputs/peak_analysis/runs/*
+!/experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/
+/experiment/outputs/mixture_summary/peak-comparison-*.json
+/experiment/outputs/mixture_summary/runs/*
+!/experiment/outputs/mixture_summary/runs/20261120T123002Z-0c8da0ed/
+!/experiment/outputs/mixture_summary/runs/20261120T130215Z-f6283e9c/
+!/experiment/outputs/mixture_summary/runs/20261120T133503Z-27efc240/
+/experiment/outputs/bpf_candidates/runs/*
+!/experiment/outputs/bpf_candidates/runs/20261121T105756Z-8555834e/
+/experiment/outputs/bpf_design/runs/*
+!/experiment/outputs/bpf_design/runs/20261121T112506Z-5ddc728b/
+/experiment/outputs/prefilter_design/runs/*
+!/experiment/outputs/prefilter_design/runs/20261121T071339Z-7b3335ad/
+/experiment/outputs/prefilter_metrics/runs/*
+!/experiment/outputs/prefilter_metrics/runs/20261122T002355Z-270f7cc4/
+/experiment/outputs/enhanced/prefilter_bpf/runs/*
+!/experiment/outputs/enhanced/prefilter_bpf/runs/20261121T112537Z-ba7b742b/
+/experiment/outputs/enhanced/prefilter_bpf/runs/*/comparison/
+/experiment/outputs/enhanced/prefilter_fixed/runs/*
+!/experiment/outputs/enhanced/prefilter_fixed/runs/20261121T085447Z-bd655d13/
+/experiment/outputs/enhanced/prefilter_fixed/runs/**/*.wav
+/experiment/outputs/mixture_preparation/noise/

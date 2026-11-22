@@ -181,7 +181,16 @@ class BatchTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory(prefix='cnr-batch-test-')
         self.root = Path(self.temporary.name)
-        self.manifest = json.loads((PROJECT_ROOT/'experiment/data/metadata/dataset.json').read_text(encoding='utf-8-sig'))
+        # Legacy API coverage must not depend on research WAVs/catalogs that were
+        # intentionally pruned when the new twelve-statement experiment began.
+        self.manifest = {'version':1,'samples':[]}
+        for statement,speaker in [('instruction_01','유채원'),('instruction_02','유채원'),('warning_01','김도연')]:
+            self.manifest['samples'].append(dict(id='clean_'+statement,kind='clean',statement=statement,speaker=speaker,noise=None,snr=None,algorithm='clean',path='data/clean/'+statement+'.wav'))
+            for noise in ('single','complex','changing'):
+                for snr in (20,10,5,0):
+                    for algorithm in ('noisy','ss_fixed','ss_pattern_fixed','ss_pattern_update','additional'):
+                        suffix=f'{noise}/snr{snr:02d}/{statement}.wav'
+                        self.manifest['samples'].append(dict(id=f'{noise}_snr{snr:02d}_{statement}_{algorithm}',kind='noisy' if algorithm=='noisy' else 'processed',statement=statement,speaker=speaker,noise=noise,snr=snr,algorithm=algorithm,path='data/mixed/'+suffix if algorithm=='noisy' else 'outputs/'+algorithm+'/'+suffix))
         config = self.root/'experiment/config/paths.json'
         config.parent.mkdir(parents=True)
         config.write_text((PROJECT_ROOT/'experiment/config/paths.json').read_text(encoding='utf-8'),encoding='utf-8')
@@ -285,7 +294,7 @@ class BatchTests(unittest.TestCase):
         self.assertFalse(destination.exists())
 
     def test_layout_preserves_public_paths_and_rejects_outside_sources(self):
-        self.assertEqual(resolve_audio_path('data/mixed/a.wav',self.root),self.root/'experiment/data/mixtures/a.wav')
+        self.assertEqual(resolve_audio_path('data/mixed/a.wav',self.root),self.root/'experiment/mixtures/a.wav')
         self.assertEqual(resolve_audio_path('outputs/ss_fixed/a.wav',self.root),self.root/'experiment/outputs/enhanced/ss_fixed/a.wav')
         config = self.root/'experiment/config/paths.json'
         layout = json.loads(config.read_text())
