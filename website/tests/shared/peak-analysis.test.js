@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { normalizePeakAnalysis, peakInputsMatch, peakSourcePath } from '../../shared/research/peak-analysis-data.js';
+import { normalizePeakAnalysis, normalizePeakDetails, peakDetailsForWeb, peakInputsMatch, peakSourcePath, peakArtifactPath } from '../../shared/research/peak-analysis-data.js';
 const measured = JSON.parse(await readFile(new URL('../../../experiment/outputs/peak_analysis/results.json', import.meta.url)));
 test('12개 원음·3종 소음·144조건의 측정 분석과 입력 지문을 대응한다', () => {
   const d = normalizePeakAnalysis(measured);
@@ -31,4 +31,33 @@ test('대역별 에너지는 100%로 보존되고 잘못된 요약값은 거부�
   }
   const broken = structuredClone(measured); broken.sources[0].band_energy[0].energy_percent += 10;
   assert.throws(() => normalizePeakAnalysis(broken));
+});
+
+test('완료된 C 계산의 회차·파일 지문·추적 구조를 검증한다', async () => {
+  assert.equal(measured.engine.language, 'C');
+  assert.equal(measured.engine.tool_version, 'cnr-frequency-analysis/1');
+  const path = measured.sources[0].details;
+  const detail = JSON.parse(await readFile(new URL('../../../experiment/outputs/peak_analysis/' + path, import.meta.url)));
+  assert.equal(normalizePeakDetails(detail, measured.engine.run_id).signal.frame_count, detail.signal.times_sec.length);
+  for (const mutate of [d => { d.signal.tracking.tracks[0].points[0][0] = -1; }, d => { d.signal.tracking.tracks[0].std_hz = NaN; }, d => { d.engine.run_id = 'other'; }]) {
+    const broken = structuredClone(detail); mutate(broken); assert.throws(() => normalizePeakDetails(broken, measured.engine.run_id));
+  }
+  for (const path of ['../private.json', 'runs/../graphs/a.png', 'runs/20261120T000000Z-12345678/details/../../private.json']) assert.throws(() => peakArtifactPath(path));
+  const broken = structuredClone(measured); delete broken.artifacts[path]; assert.throws(() => normalizePeakAnalysis(broken));
+});
+
+test('웹 전달은 전체 C 기록을 보존하고 모든 궤적 통계값을 정확히 복원한다', async () => {
+  const content = await readFile(new URL('../../../experiment/outputs/peak_analysis/' + measured.sources[0].details, import.meta.url));
+  const original = JSON.parse(content);
+  const compact = peakDetailsForWeb(original, 'a'.repeat(64));
+  assert.equal(compact.signal.tracking.tracks.length, original.signal.tracking.tracks.length);
+  assert.equal(compact.signal.psd_db, undefined);
+  const broken = structuredClone(compact); broken.signal.tracking.tracks[0].pop();
+  assert.throws(() => normalizePeakDetails(broken, measured.engine.run_id));
+  const decoded = normalizePeakDetails(compact, measured.engine.run_id);
+  for (const [index, track] of original.signal.tracking.tracks.entries()) {
+    const stats = { ...track }; delete stats.points;
+    assert.deepEqual(decoded.signal.tracking.tracks[index], stats);
+  }
+  assert(original.signal.tracking.tracks[0].points.length > 0);
 });

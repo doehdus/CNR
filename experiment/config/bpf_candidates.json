@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "status": "exploratory_not_selected",
+  "filter_type": "digital_butterworth_bandpass",
+  "sample_rate_hz": 16000,
+  "lower_cutoffs_hz": [20, 50, 75, 100, 125, 150, 200, 250, 300],
+  "upper_cutoffs_hz": [3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000],
+  "prototype_orders": [1, 2, 3, 4],
+  "digital_order_definition": "2 * prototype_order",
+  "cutoff_definition": "single_pass_power_half_of_passband_peak",
+  "comparison_mode": "causal_single_pass_magnitude_response",
+  "selected_candidate_id": null,
+  "selection_status": "Cutoffs, final order and processing scope are not yet selected.",
+  "evaluation_relationship": "Existing 12 statements, 144 mixtures and their completed C analysis inform candidate selection. This is not independent final evaluation or an intelligibility measurement.",
+  "design_evidence": [
+    {"path": "experiment/outputs/peak_analysis/results.json", "sha256": "fe95da6e4fa02fd9b692dd523ceb3deede8a28cfa3c42aeede316cdd751edc2c"},
+    {"path": "experiment/outputs/mixture_summary/results.json", "sha256": "d8e855324c0610fec75324db27d495e6c80639b8f5f31bf7d2672f7afed6b15f"},
+    {"path": "experiment/outputs/mixture_summary/peak_comparison.json", "sha256": "878118a4b40fc6141435b81bf74ee02b5c50707256eeb752ccfd5a3469a9215e"}
+  ]
+}

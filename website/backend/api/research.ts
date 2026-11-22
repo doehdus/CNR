@@ -6,6 +6,7 @@ import audioCatalog from '../../.sites-runtime/backend/audio-catalog.json' with 
 import { loadStudy as load } from '../study/store.ts';
 import { surveyRequest, surveyRatings, type AvailableAudio } from '../surveys/routes.ts';
 import { backupRequest } from '../surveys/backup.ts';
+import { prefilterListeningRequest } from '../surveys/prefilter.ts';
 
 type AudioFile = { path: string; size: number; sha256: string };
 type AudioCatalog = { version: number; files: AudioFile[] };
@@ -68,12 +69,13 @@ export async function researchRequest(request: Request, env: Cloudflare.Env, cat
   const audioPath = /^\/(data\/(clean|noise|mixed)|outputs)\//.test(pathname);
   if (!api && !audioPath) return null;
   try {
-    const needsDatabase = pathname === '/api/study' || pathname === '/api/backup' || pathname.startsWith('/api/survey-sessions') || pathname === '/api/audio';
+    const needsDatabase = pathname === '/api/study' || pathname === '/api/backup' || pathname.startsWith('/api/survey-sessions') || pathname.startsWith('/api/prefilter-listening') || pathname === '/api/audio';
     if (needsDatabase && !env.DB) return json({ error: '청음 응답 저장소가 준비되지 않았습니다.' }, 503);
     if (pathname === '/api/audio' && !env.BUCKET) return json({ error: '음원 업로드 저장소가 준비되지 않았습니다.' }, 503);
     if (!['GET', 'HEAD'].includes(request.method)) {
       if ((request.headers.get('Origin') && request.headers.get('Origin') !== url.origin) || request.headers.get('Sec-Fetch-Site') === 'cross-site') return json({ error: '같은 사이트에서 요청하세요.' }, 403);
     }
+    if (pathname.startsWith('/api/prefilter-listening')) return await prefilterListeningRequest(request, env.DB!, () => availableAudio(env, catalog));
     if (pathname.startsWith('/api/survey-sessions')) return await surveyRequest(request, env.DB!, () => availableAudio(env, catalog));
     if (pathname === '/api/backup') return await backupRequest(request, env.DB!);
     if (pathname === '/api/study' && request.method === 'GET') return json({ ...(await load(env.DB!)), survey_ratings: await surveyRatings(env.DB!) });

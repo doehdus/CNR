@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "run_id": "20261120T052542Z-31f3a759",
+  "compared_with_run": "20261120T031333Z-9eba6fbd",
+  "sources": 3,
+  "conditions": 144,
+  "unchanged_input_wavs": 171,
+  "artifacts": 612,
+  "identical_raw_c_outputs": 147,
+  "numerical_results_unchanged": true,
+  "updated_peak_pngs": 147,
+  "unchanged_other_pngs": 318,
+  "label_layout": {
+    "actual_charts": 147,
+    "actual_labels": 1176,
+    "boundary_cases": 2,
+    "label_overlaps": 0,
+    "clipped_labels": 0
+  },
+  "note": "Only Peak Detection PNG presentation changed. All C outputs and measured values match the previous run exactly. Previous results and artifacts are preserved."
+}

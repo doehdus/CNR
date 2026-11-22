@@ -8,17 +8,21 @@
   <title>소음 저감 연구 · 데이터와 결과보고서</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/prefilter-listening.css">
   <script type="module" src="js/audio-comparison.js"></script>
 </head>
 <body>
 <a class="skip-link" href="#main">본문으로 이동</a>
 <aside class="sidebar">
   <a class="brand" href="#collection" aria-label="현장 음성 연구 홈"><span class="brand-mark" aria-hidden="true">▥</span><span>현장 음성 연구<small>CONSTRUCTION NOISE LAB</small></span></a>
-  <div class="workspace-label">RESEARCH FLOW · 7 CATEGORIES</div>
+  <div class="workspace-label">RESEARCH FLOW</div>
   <nav aria-label="주요 메뉴">
     <a class="nav-link active" href="#collection" title="실험 자료"><span aria-hidden="true">◉</span><span class="nav-label">실험 자료</span><span class="nav-number">01</span></a>
-    <a class="nav-link" href="#noise-analysis" title="소음 특성 분석"><span aria-hidden="true">≈</span><span class="nav-label">소음 특성 분석</span><span class="nav-number">02</span></a>
+    <a class="nav-link" href="#noise-analysis" title="Noise 분석"><span aria-hidden="true">≈</span><span class="nav-label">Noise 분석</span></a>
+    <a class="nav-link" href="#mixture-analysis" title="Mixture 분석"><span aria-hidden="true">≋</span><span class="nav-label">Mixture 분석</span></a>
     <a class="nav-link" href="#prefilter" title="사전 필터링"><span aria-hidden="true">⊖</span><span class="nav-label">사전 필터링</span><span class="nav-number">03</span></a>
+    <a class="nav-link" href="#prefilter-analysis" title="필터링 결과 분석"><span aria-hidden="true">▦</span><span class="nav-label">필터링 결과 분석</span></a>
+    <a class="nav-link" href="#prefilter-listening" title="필터링 청음평가"><span aria-hidden="true">♫</span><span class="nav-label">필터링 청음평가</span></a>
     <a class="nav-link" href="#demo" title="음성 처리 결과"><span aria-hidden="true">▶</span><span class="nav-label">음성 처리 결과</span><span class="nav-number">04</span></a>
     <a class="nav-link" href="#metrics" title="객관 성능 평가"><span aria-hidden="true">▤</span><span class="nav-label">객관 성능 평가</span><span class="nav-number">05</span></a>
     <a class="nav-link" href="#listening-test" title="청음평가"><span aria-hidden="true">♪</span><span class="nav-label">청음평가</span><span class="nav-number">06</span></a>
@@ -43,59 +47,126 @@
     </div>
     <a class="button primary section-next" href="#noise-analysis">소음 특성 분석 살펴보기 →</a>
   </section>
-  <section id="noise-analysis" class="page-section" hidden>
-    <div class="page-intro compact"><div><div class="eyebrow accent">02 / NOISE CHARACTERISTICS</div><h1>소음 특성 분석</h1><p>넓은 대역에 분포한 소음과 그 안의 주요 피크를 살펴봅니다.<br>음성과 겹치는 대역을 확인하고, 사전필터·소음 저감 알고리즘 비교의 근거를 정리했습니다.</p></div><span id="noise-analysis-status" class="status-tag pending" role="status">분석 자료 등록 대기</span></div>
-    <div class="noise-analysis-steps" aria-label="소음 분석 순서"><a href="#noise-spectrum-section"><b>01</b> 소음별 주파수</a><a href="#noise-peaks-section"><b>02</b> 소음별 피크</a><a href="#noise-mixture-section"><b>03</b> 합성음원 비교</a><a href="#noise-candidates-section"><b>04</b> 전처리 후보</a></div>
-    <div id="noise-analysis-feedback" class="info-banner" role="status" hidden></div>
-    <section id="noise-research-conclusion" class="panel noise-analysis-panel" hidden aria-labelledby="noise-research-title">
-      <span class="eyebrow">FEEDBACK → FINDINGS</span><h2 id="noise-research-title">넓은 대역에 분포한 소음, 그 안의 두드러진 피크</h2>
-      <p id="noise-research-answer" class="noise-observation"></p><div id="noise-research-findings" class="noise-findings-grid"></div>
-      <p class="microcopy">이 세 파일에서 확인한 분포입니다. 모든 주파수에 균일한 소음이라는 뜻은 아닙니다. 사전필터만으로 충분한지, SS 등을 함께 적용할 때 더 나아지는지는 처리 전후 비교와 청취평가로 확인해야 합니다.</p>
-      <dl id="noise-batch-summary" class="noise-parameter-list"></dl>
-    </section>
-    <div class="panel noise-source-panel">
-      <div class="panel-heading"><div><span class="eyebrow">ANALYSIS SOURCE</span><h2>분석할 소음 원본</h2></div><label class="noise-source-label">소음 선택<select id="noise-analysis-source" class="inline-select"></select></label></div>
-      <div class="noise-source-layout"><div id="noise-analysis-library" class="analysis-source-grid"></div><dl id="noise-source-metadata" class="noise-source-metadata"></dl></div>
-      <p class="microcopy">공유된 소음 파일명과 원본 지문을 기준으로 분석했습니다. 별도 평가용 소음 분리·현장 대표성 확인·필터 효과 검증은 다음 단계입니다.</p>
+  <section id="noise-analysis" class="page-section acoustic-page" hidden>
+    <div class="page-intro compact"><div><div class="eyebrow accent">NOISE ANALYSIS</div><h1>Noise 분석</h1><p>소음 3종의 에너지 분포, 주요 피크와 시간에 따른 변화를 확인합니다.</p></div><span id="noise-analysis-status" class="status-tag pending" role="status">완료된 C 분석 자료 등록 대기</span></div>
+    <div data-c-ready="noise" hidden>
+      <div class="panel"><div class="panel-heading noise-source-heading"><h2>소음 원본 3종</h2><label for="noise-analysis-source" class="noise-source-selector"><span>분석할 소음</span><select id="noise-analysis-source" class="inline-select"></select></label></div><div id="noise-c-library" class="acoustic-players"></div><p id="noise-c-source-note" class="analysis-help"></p></div>
+      <nav class="acoustic-tabs" aria-label="Noise 세부 분석">
+        <a href="#noise-analysis/welch" data-acoustic-view="noise:welch" class="active">Welch PSD</a>
+        <a href="#noise-analysis/peaks" data-acoustic-view="noise:peaks">Peak Detection</a>
+        <a href="#noise-analysis/temporal" data-acoustic-view="noise:temporal">Spectrogram + Peak Tracking</a>
+      </nav>
+      <div data-acoustic-panel="noise:welch" class="panel">
+        <h2>에너지 집중 대역</h2>
+        <p id="noise-c-welch-conditions" class="analysis-help"></p>
+        <div id="noise-c-welch"></div><h3>대역별 에너지 비율</h3><div id="noise-c-energy" class="table-scroll noise-result-table"></div>
+      </div>
+      <div data-acoustic-panel="noise:peaks" class="panel" hidden>
+        <h2>피크 중심 주파수와 폭</h2><p id="noise-c-peak-conditions" class="analysis-help"></p>
+        <div id="noise-c-peaks"></div><div id="noise-c-peak-table" class="table-scroll noise-result-table"></div>
+        <label class="acoustic-zoom-label">확대할 피크<select id="noise-c-zoom-select"></select></label><div id="noise-c-zoom"></div>
+      </div>
+      <div data-acoustic-panel="noise:temporal" class="panel" hidden>
+        <h2>피크의 시간 변화와 안정성</h2><p id="noise-c-temporal-conditions" class="analysis-help"></p>
+        <div id="noise-c-temporal"></div><div id="noise-c-tracking"></div>
+      </div>
+      <a class="button primary" href="#mixture-analysis">Mixture 분석 보기</a>
     </div>
-    <section id="noise-spectrum-section" class="panel noise-analysis-panel" aria-labelledby="noise-spectrum-title">
-      <div class="panel-heading"><div><span class="eyebrow">01 / FULL-RECORD FFT</span><h2 id="noise-spectrum-title">소음별 주파수 분석</h2></div><div class="noise-view-tabs" role="group" aria-label="주파수 그래프 보기"><button type="button" data-noise-spectrum-view="selected" class="active" aria-pressed="true">선택 소음</button><button type="button" data-noise-spectrum-view="all" aria-pressed="false">3개 소음 비교</button></div></div>
-      <p class="microcopy">소음 전체에 FFT를 적용한 주파수 스펙트럼입니다. 에너지가 집중된 구간과 소음별 분포 차이를 확인합니다.</p>
-      <div id="noise-spectrum-artifact" class="noise-artifact"></div><div class="noise-axis-note"><span>가로축 · 주파수 (Hz)</span><span>세로축 · 주파수 성분의 크기 (dB, 기준은 분석 조건에 기록)</span></div><p id="noise-spectrum-summary" class="noise-observation"></p>
-      <details class="noise-analysis-details"><summary>분석 조건 확인</summary><dl id="noise-analysis-parameters" class="noise-parameter-list"></dl></details>
-      <div id="noise-energy-section" hidden><h3>대역별 소음 에너지 비율</h3><p class="microcopy">Welch PSD를 대역별로 합산한 비율입니다. 대역 폭이 서로 다르므로 비율만으로 주파수당 크기를 비교하지 않습니다.</p><div id="noise-energy-table" class="table-scroll noise-result-table"></div><p id="noise-energy-summary" class="noise-observation"></p></div>
-      <div id="noise-temporal-section" hidden><h3>2.5초 전후 주파수 분포</h3><p class="microcopy">앞·뒤 구간의 평균 분포를 비교합니다. 변화 소음은 2.5초부터 드릴이 추가됩니다. 이 비교만으로 피크가 항상 일정하다고 판단하지 않습니다.</p><div id="noise-temporal-artifact" class="noise-artifact"></div></div>
-    </section>
-    <section id="noise-peaks-section" class="panel noise-analysis-panel" aria-labelledby="noise-peaks-title">
-      <div class="panel-heading"><div><span class="eyebrow">02 / SPECTRAL PEAKS</span><h2 id="noise-peaks-title">소음별 피크 분석</h2></div><span id="noise-peaks-count" class="small-pill">피크 등록 대기</span></div>
-      <p class="microcopy">주요 피크의 주파수·크기·폭과 주변 대비 돌출 정도를 정리합니다. 전체 FFT에서 관찰된 피크의 시간 지속성은 별도 확인이 필요합니다.</p>
-      <p id="noise-peaks-method" class="microcopy"></p><div id="noise-peaks-artifact" class="noise-artifact"></div><div id="noise-peaks-table" class="table-scroll noise-result-table"></div>
-      <div class="noise-peak-detail"><label>확대할 피크<select id="noise-peak-select" disabled><option value="">등록된 피크 없음</option></select></label><div id="noise-peak-zoom" class="noise-artifact noise-artifact-compact"></div></div>
-    </section>
-    <section id="noise-mixture-section" class="panel noise-analysis-panel" aria-labelledby="noise-mixture-title">
-      <div class="panel-heading"><div><span class="eyebrow">03 / SPEECH · NOISE · MIXTURE</span><h2 id="noise-mixture-title">합성음원에서 피크 분석</h2></div><span id="noise-mixture-status" class="status-tag pending">비교 자료 등록 대기</span></div>
-      <p class="microcopy">선택 소음의 피크가 합성음원에서도 관찰되는지 확인하고, 깨끗한 원음의 같은 대역과 비교합니다.</p>
-      <form id="noise-mixture-form" class="filter-row noise-mixture-filters"><label>비교할 문장<select name="statement"></select></label><label>합성음원 SNR<select name="snr"></select></label></form><p id="noise-mixture-caption" class="condition-caption"></p>
-      <div id="noise-mixture-players" class="noise-mixture-players"></div><div class="noise-legend" aria-label="비교 대상"><span>깨끗한 원음</span><span>순수 소음</span><span>무처리 합성음원</span></div>
-      <p id="noise-mixture-interpretation" class="noise-observation" hidden></p><div id="noise-mixture-artifact" class="noise-artifact"></div><div id="noise-mixture-table" class="table-scroll noise-result-table"></div><p id="noise-mixture-note" class="noise-observation"></p>
-      <p class="microcopy">비교에는 같은 분석 기준과 합성에 사용된 소음 크기·구간 정보가 필요합니다. 합성음원의 큰 피크만으로 소음 성분이라고 판단하지 않습니다.</p>
-    </section>
-    <section id="noise-candidates-section" class="panel noise-analysis-panel" aria-labelledby="noise-candidates-title">
-      <div class="panel-heading"><div><span class="eyebrow">PREFILTER CANDIDATES</span><h2 id="noise-candidates-title">전처리 후보 요약</h2></div><span class="small-pill">전체 소음의 등록된 후보</span></div>
-      <p class="microcopy">분석에서 도출한 후보와 근거를 모읍니다. 후보 대역은 확정된 필터 설정이나 효과 검증 결과가 아닙니다.</p><div id="noise-candidates-table" class="table-scroll noise-result-table"></div>
-      <div class="noise-decision-guide"><div><strong>억제 후보</strong><p>소음에서 두드러지고 합성음원에서도 관찰되며 원음 성분은 약한 대역</p></div><div><strong>신중하게 검토</strong><p>음성과 겹치거나 피크의 안정성·출처를 더 확인해야 하는 대역</p></div><div><strong>보류 · 후보 없음</strong><p>제거 근거가 부족하거나 음성 손상 우려가 큰 경우도 결과로 기록</p></div></div>
-      <div id="noise-analysis-handoff" class="noise-observation" hidden><strong>이번 분석에서 확인한 것</strong><p>소음이 넓은 대역에 분포하면서 일부 피크가 두드러진다는 점과, 144조건에서 음성·소음이 겹치는 양상을 정리했습니다. 다음 단계에서는 특정 대역을 줄이는 사전필터와 SS 등 소음 저감 알고리즘의 효과를 비교합니다. 처리 전후의 소음 억제와 음성 보존을 확인할 예정이며, 효과가 이미 입증된 상태는 아닙니다.</p></div>
-      <a class="button primary" href="#prefilter">사전 필터링에서 검증하기 →</a>
-    </section>
   </section>
-  <section id="prefilter" class="page-section" hidden>
-    <div class="page-intro compact"><div><div class="eyebrow accent">03 / FREQUENCY PREFILTER</div><h1>사전 필터링</h1><p>사전 필터만 적용한 음원을 무처리 입력과 비교합니다.<br>알고리즘 처리 결과와 구분해 전처리 자체의 영향을 확인합니다.</p></div></div>
-    <div id="prefilter-stats" class="stat-grid"></div>
-    <div class="panel"><form id="prefilter-condition-form" class="filter-row"><label>소음<select name="noise"></select></label><label>입력 SNR<select name="snr"></select></label><label>문장<select name="statement"></select></label></form><p class="microcopy">동일한 혼합 입력의 전처리 전·후를 비교합니다. 필터 설정과 결과가 준비된 조건만 재생할 수 있습니다.</p></div>
-    <div id="prefilter-players" class="prefilter-player-grid"></div>
-    <div class="panel"><div class="panel-heading"><h2>필터 설정과 선정 근거</h2><span class="status-tag pending">미확정</span></div><dl class="filter-specs"><div><dt>대상 주파수 대역</dt><dd>분석 후 등록</dd></div><div><dt>필터 종류 · Q / 대역폭</dt><dd>미등록</dd></div><div><dt>감쇠량</dt><dd>미등록</dd></div><div><dt>설정 근거</dt><dd>사전 등록용 소음 분석 결과 필요</dd></div></dl><p id="prefilter-result-note" class="microcopy"></p></div>
-    <div class="panel matrix-panel"><div class="panel-heading"><h2>전처리만 적용한 음원</h2><span class="muted">36개 입력 조건</span></div><div id="prefilter-matrix" class="table-scroll"></div></div>
-    <button type="button" class="button primary section-next" data-open-processing="on">전처리 적용 알고리즘 결과 보기 →</button>
+  <section id="mixture-analysis" class="page-section acoustic-page" hidden>
+    <div class="page-intro compact"><div><div class="eyebrow accent">MIXTURE ANALYSIS</div><h1>Mixture 분석</h1><p>소음과 음성이 섞인 상태의 주파수 분포와 피크의 시간 변화를 확인합니다.</p></div><span id="mixture-analysis-status" class="status-tag pending" role="status">완료된 C 분석 자료 등록 대기</span></div>
+    <div data-c-ready="mixture" hidden>
+      <section class="mixture-summary" aria-labelledby="mixture-summary-heading">
+        <div class="panel">
+          <div class="panel-heading"><div><h2 id="mixture-summary-heading">소음별 SNR 비교</h2><p class="analysis-help">Single · Complex · Changing의 분포·피크 유지·추적 안정성·Clean 중첩을 비교합니다.</p></div><span id="mixture-snr-comparison-status" class="status-tag pending" role="status">완료된 SNR 비교 그래프 등록 대기</span></div>
+          <nav class="acoustic-tabs" aria-label="소음별 비교 보기"><button type="button" data-comparison-view="psd" class="active" aria-pressed="true">PSD</button><button type="button" data-comparison-view="peaks" aria-pressed="false">Peak Detection 집계</button><button type="button" data-comparison-view="tracking" aria-pressed="false">Peak Tracking 안정성</button><button type="button" data-comparison-view="clean" aria-pressed="false">Clean 음성 중첩</button></nav>
+          <span id="mixture-peak-comparison-status" class="status-tag pending" role="status" hidden>완료된 피크 비교 자료 등록 대기</span>
+          <div data-comparison-panel="psd">
+          <div id="mixture-snr-comparison-results" hidden><p id="mixture-snr-comparison-note" class="analysis-help"></p><div class="snr-comparison-plots"><article><h3>Single · 단일 소음</h3><div id="mixture-snr-comparison-single"></div></article><article><h3>Complex · 복합 소음</h3><div id="mixture-snr-comparison-complex"></div></article><article><h3>Changing · 변화 소음</h3><div id="mixture-snr-comparison-changing"></div></article></div></div>
+          </div>
+          <div data-comparison-panel="peaks" hidden><p id="mixture-peak-comparison-peaks-note" class="analysis-help">원본 Noise의 같은 피크·대역을 기준으로 SNR별 검출 문장 수를 비교합니다. 검출률은 각 문장의 구간 평균 PSD에서 조건을 만족한 모든 피크 중 대응 피크가 있는 문장 수 / 12입니다. 각 SNR의 p1 순위를 서로 연결하지 않습니다. Changing은 전체·2.5초 이전·이후를 분리했습니다.</p><div id="mixture-peak-comparison-peaks" class="snr-comparison-plots" hidden><article><h3>Single · 단일 소음</h3><div id="mixture-peak-comparison-peaks-single"></div></article><article><h3>Complex · 복합 소음</h3><div id="mixture-peak-comparison-peaks-complex"></div></article><article><h3>Changing · 변화 소음</h3><div id="mixture-peak-comparison-peaks-changing"></div></article></div></div>
+          <div data-comparison-panel="tracking" hidden><p id="mixture-peak-comparison-tracking-note" class="analysis-help">각 문장·구간에서 원본 Noise 피크 주변의 가장 오래 이어진 대표 궤적을 사용합니다. 주파수 평균·표준편차는 대응 궤적이 있는 문장만 평균하고, 궤적이 없는 문장은 출현율 0%로 포함해 12문장 평균을 구합니다. 첫 행은 Noise 피크 중심에서의 평균 주파수 편차입니다. 표준편차의 평균은 전체 문장 점들을 합친 표준편차와 다릅니다. 검출률은 구간 평균 PSD, 안정성은 프레임별 추적 결과이므로 미검출 기준을 구분합니다. Changing은 2.5초에서 나눈 구간마다 완전한 프레임으로 새로 추적하며, 경계를 넘는 창·끊어진 궤적은 연결하지 않습니다. 원본 Noise 참조선의 출현율도 각 구간의 완전한 프레임 수가 분모이며 음원 길이는 문장별로 다를 수 있습니다.</p><div id="mixture-peak-comparison-tracking" class="snr-comparison-plots" hidden><article><h3>Single · 단일 소음</h3><div id="mixture-peak-comparison-tracking-single"></div></article><article><h3>Complex · 복합 소음</h3><div id="mixture-peak-comparison-tracking-complex"></div></article><article><h3>Changing · 변화 소음</h3><div id="mixture-peak-comparison-tracking-changing"></div></article></div><details class="acoustic-method"><summary>구간별 수치·검출 문장 수·유효 문장 수</summary><div id="mixture-peak-comparison-counts" class="table-scroll noise-result-table" tabindex="0" role="region" aria-label="피크 비교 집계 수치"></div></details></div>
+          <div data-comparison-panel="clean" hidden><p id="mixture-peak-comparison-clean-note" class="analysis-help">Clean 중첩은 동일한 원본 Noise 측정 대역 안의 Clean/실제 추가 소음 전력비(dB)입니다. 기존 문장별 Clean 발화 구간 RMS 정규화 계수를 공통 적용한 평균 PSD를 선형 전력으로 되돌려 대역별 합산 후 비율을 계산했습니다. 문장별 dB 비율을 평균하지 않습니다. 0dB는 두 성분의 대역 전력이 같고 양수는 Clean이 더 큼을 뜻합니다. 위쪽 Clean 피크 검출률은 같은 기준음을 쓰므로 SNR 간 동일한 공통선이며, 미검출도 음성 에너지 부재를 뜻하지 않습니다. Changing은 구간별로 동일하게 비교합니다.</p><div id="mixture-peak-comparison-clean" class="snr-comparison-plots" hidden><article><h3>Single · 단일 소음</h3><div id="mixture-peak-comparison-clean-single"></div></article><article><h3>Complex · 복합 소음</h3><div id="mixture-peak-comparison-clean-complex"></div></article><article><h3>Changing · 변화 소음</h3><div id="mixture-peak-comparison-clean-changing"></div></article></div></div>
+        </div>
+        <details class="mixture-group-details"><summary>기존 그룹별 상세 그래프 · 12개 그룹</summary>
+        <div class="panel">
+          <div class="panel-heading"><h3>그룹별 상세 분석</h3><span id="mixture-summary-status" class="status-tag pending" role="status">완료된 평균 분석 자료 등록 대기</span></div>
+          <div class="summary-controls"><label for="mixture-summary-noise">평균 소음<select id="mixture-summary-noise"></select></label><label for="mixture-summary-snr">평균 SNR<select id="mixture-summary-snr"></select></label></div>
+        </div>
+        <div id="mixture-summary-results" hidden>
+          <div class="panel"><h3 id="mixture-summary-caption"></h3><p id="mixture-summary-normalization" class="analysis-help"></p><details class="acoustic-method"><summary>문장별 정규화 기준 확인</summary><div id="mixture-summary-members" class="table-scroll noise-result-table"></div></details></div>
+          <nav class="acoustic-tabs" aria-label="평균 분석 보기"><button type="button" data-summary-view="welch" class="active" aria-pressed="true">Welch PSD</button><button type="button" data-summary-view="peaks" aria-pressed="false">Peak Detection</button><button type="button" data-summary-view="temporal" aria-pressed="false">Spectrogram + Peak Tracking</button></nav>
+          <div data-summary-panel="welch" class="panel"><h3>평균 주파수 분포</h3><p id="mixture-summary-welch-note" class="analysis-help"></p><div id="mixture-summary-welch"></div><div id="mixture-summary-change-section" hidden><h3>변화소음 · 2.5초 전후 평균</h3><p class="analysis-help">각 문장을 2.5초 전후로 나눠 계산한 선형 PSD를 동일 가중치로 평균했습니다. 표는 원본 Noise의 동일 측정 대역 안에서 이후−이전 전력 차이를 비교합니다.</p><div id="mixture-summary-change"></div><div id="mixture-summary-change-table" class="table-scroll noise-result-table"></div></div></div>
+          <div data-summary-panel="peaks" class="panel" hidden><h3>평균 피크와 문장별 검출 빈도</h3><p id="mixture-summary-peak-note" class="analysis-help"></p><div id="mixture-summary-peaks"></div><div id="mixture-summary-peak-table" class="table-scroll noise-result-table"></div><h3>원본 Noise 피크와 비교</h3><div id="mixture-summary-noise-comparison" class="table-scroll noise-result-table"></div></div>
+          <div data-summary-panel="temporal" class="panel" hidden><h3>시간별 평균과 검출 분포</h3><p id="mixture-summary-temporal-note" class="analysis-help"></p><div id="mixture-summary-temporal"></div><details class="acoustic-method"><summary>시점별 참여 음원 수 확인</summary><div id="mixture-summary-participants" class="table-scroll noise-result-table"></div></details></div>
+        </div>
+        </details>
+      </section>
+      <div class="mixture-individual-heading"><h2>개별 합성음 듣기·분석</h2><p class="analysis-help">원래 WAV를 재생합니다. 위 평균 분석의 선택 조건은 바뀌지 않습니다.</p></div>
+      <div class="panel"><div class="panel-heading mixture-source-heading"><div><h2>합성음원 선택</h2><p class="analysis-help">세로는 소음 3종, 가로는 음성 12개입니다. 재생 또는 분석할 음원을 선택하세요.</p></div><label class="mixture-snr-selector" for="mixture-analysis-snr">개별 SNR<select id="mixture-analysis-snr" class="inline-select"></select></label></div>
+        <div id="mixture-c-matrix" class="table-scroll"></div>
+      </div>
+      <div class="panel"><h2 id="mixture-c-caption">선택한 조건</h2><p id="mixture-c-sentence"></p><div id="mixture-c-players" class="acoustic-players"></div><p id="mixture-c-interval" class="analysis-help"></p></div>
+      <nav class="acoustic-tabs" aria-label="Mixture 세부 분석">
+        <a href="#mixture-analysis/welch" data-acoustic-view="mixture:welch" class="active">Welch PSD</a>
+        <a href="#mixture-analysis/peaks" data-acoustic-view="mixture:peaks">Peak Detection</a>
+        <a href="#mixture-analysis/temporal" data-acoustic-view="mixture:temporal">Spectrogram + Peak Tracking</a>
+      </nav>
+      <div data-acoustic-panel="mixture:welch" class="panel">
+        <h2>혼합 상태의 주파수 분포</h2><p id="mixture-c-welch-conditions" class="analysis-help"></p><div id="mixture-c-welch"></div>
+      </div>
+      <div data-acoustic-panel="mixture:peaks" class="panel" hidden>
+        <h2>혼합음 자체의 주요 피크</h2><p id="mixture-c-peak-conditions" class="analysis-help"></p><div id="mixture-c-peaks"></div><div id="mixture-c-peak-table" class="table-scroll noise-result-table"></div>
+      </div>
+      <div data-acoustic-panel="mixture:temporal" class="panel" hidden>
+        <h2>혼합음 피크의 시간 변화</h2><p id="mixture-c-temporal-conditions" class="analysis-help"></p><div id="mixture-c-temporal"></div><div id="mixture-c-tracking"></div>
+      </div>
+      <details class="panel acoustic-method"><summary>Noise·Mixture 피크와 궤적 대응 상세</summary>
+        <p class="analysis-help">현재 선택한 합성음의 대응 자료입니다. 피크 미검출은 음성 에너지 부재를 뜻하지 않으며, 출현율은 대표 연속 궤적의 통계입니다.</p>
+        <div id="mixture-c-comparison" class="table-scroll noise-result-table"></div>
+        <div id="mixture-c-tracks" class="table-scroll noise-result-table"></div>
+      </details>
+      <a class="button primary" href="#prefilter">사전 필터링 보기</a>
+    </div>
+  </section>
+  <section id="prefilter" class="page-section acoustic-page" hidden>
+    <div class="page-intro compact"><div><div class="eyebrow accent">03 / FREQUENCY PREFILTER</div><h1>사전 필터링</h1><p>Butterworth 처리음은 16kHz 합성음원에 <strong>75–4,000Hz · 4차 BPF</strong>를 단방향으로 적용하고, <strong>−1dB 감쇠 후 PCM16 WAV</strong>로 저장했습니다.</p></div><span id="prefilter-status" class="status-tag pending" role="status">완료된 음원 등록 대기</span></div>
+    <div id="prefilter-content" hidden>
+      <div class="panel prefilter-playback-panel">
+        <div id="prefilter-kind-options" class="prefilter-kind-options" role="group" aria-label="재생할 음원 종류"></div>
+        <div class="prefilter-table-controls"><div class="prefilter-snr-picker"><span id="prefilter-snr-label">입력 SNR</span><div id="prefilter-snr-options" class="prefilter-snr-options" role="group" aria-labelledby="prefilter-snr-label"></div></div><p id="prefilter-table-note" class="analysis-help" role="status"></p></div>
+        <div class="panel-heading"><h2 id="prefilter-matrix-title">무처리 합성음원</h2></div>
+        <div id="prefilter-matrix" class="table-scroll" tabindex="0" role="region" aria-label="음원별·소음별 재생표"></div>
+        <p id="prefilter-playback-status" class="analysis-help" role="status" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+  <section id="prefilter-analysis" class="page-section acoustic-page" hidden>
+    <div class="page-intro compact"><div><div class="eyebrow accent">PREFILTER ANALYSIS</div><h1>필터링 결과 분석</h1><p>같은 Clean 기준음으로 계산한 무처리와 Butterworth 처리의 STOI·ESTOI를 비교합니다.</p></div><span id="prefilter-analysis-status" class="status-tag pending" role="status">완료된 지표 등록 대기</span></div>
+    <div id="prefilter-analysis-content" hidden>
+      <div class="panel prefilter-metric-panel">
+        <div id="prefilter-metric-options" class="prefilter-kind-options" role="group" aria-label="분석 지표"></div>
+        <div class="prefilter-table-controls"><div class="prefilter-snr-picker"><span id="prefilter-analysis-snr-label">입력 SNR</span><div id="prefilter-analysis-snr-options" class="prefilter-snr-options" role="group" aria-labelledby="prefilter-analysis-snr-label"></div></div><p id="prefilter-analysis-scope" class="analysis-help" role="status"></p></div>
+        <div class="prefilter-metric-summary"><div><span>무처리 평균</span><strong id="prefilter-mean-baseline"></strong></div><div><span>필터링 후 평균</span><strong id="prefilter-mean-filtered"></strong></div><div><span>평균 변화량 Δ</span><strong id="prefilter-mean-delta"></strong></div></div>
+        <div class="panel-heading"><h2 id="prefilter-analysis-title">STOI 전후 비교</h2><span class="analysis-help">Δ = 필터링 후 − 무처리</span></div>
+        <div id="prefilter-analysis-matrix" class="table-scroll" tabindex="0" role="region" aria-label="음원별·소음별 STOI ESTOI 전후 비교표"></div>
+        <p class="analysis-help">양수 Δ는 지표 상승, 음수 Δ는 하락입니다. STOI·ESTOI는 명료도 예측 지표이며 백분율이나 실제 단어 정답률이 아닙니다.</p>
+        <details class="prefilter-metric-notes"><summary>계산 기준과 자료 확인</summary><p>무처리 원본과 현재 재생되는 BPF 처리 WAV를 동일한 16kHz Clean 기준음에 대응시켰습니다. 기존 ±0.5초 교차상관 지연 정렬 후, 전후 모두 같은 Clean 공통 구간으로 계산했습니다. 기준음에는 BPF를 적용하지 않았습니다.</p><p>BPF 파일의 저장 여유 −1dB를 포함한 실제 파일로 계산했습니다. 별도의 음량 정규화·클리핑·0 채우기는 하지 않았으며, pystoi 내부의 리샘플링·비발화 구간 처리를 사용했습니다.</p><p>현재 12문장·144조건은 필터 선정에 사용한 자료입니다. 이 비교는 독립 최종 평가나 청음평가 결과를 대신하지 않습니다.</p><p id="prefilter-metric-tool" class="metric-provenance"></p><p id="prefilter-metric-calculated" class="metric-provenance"></p><a id="prefilter-analysis-csv" class="button secondary" download="prefilter-stoi-estoi.csv">전체 비교 CSV 내려받기</a></details>
+      </div>
+    </div>
+  </section>
+  <section id="prefilter-listening" class="page-section acoustic-page" hidden>
+    <div class="page-intro compact"><div><div class="eyebrow accent">PREFILTER LISTENING</div><h1>필터링 청음평가</h1><p>배정받은 그룹의 링크 또는 QR로 참여해 주세요. 각 그룹에서 같은 조건의 처리 전후 음원 12개를 평가합니다.</p></div><span id="prefilter-listening-status" class="status-tag" role="status">청음평가 현황 확인 중</span></div>
+    <div id="prefilter-listening-links" class="prefilter-group-links" aria-label="그룹별 청음평가 참여 링크"></div>
+    <div class="panel prefilter-listening-results">
+      <div class="panel-heading"><h2>무처리·Butterworth 청음평가 평균</h2><button type="button" class="button secondary" id="prefilter-listening-refresh">응답 현황 새로고침</button></div>
+      <label class="prefilter-listening-help" for="prefilter-listening-group">평가 그룹</label>
+      <select id="prefilter-listening-group" class="inline-select"><option value="all">전체 · 5그룹 동일 가중</option><option value="1">그룹 1</option><option value="2">그룹 2</option><option value="3">그룹 3</option><option value="4">그룹 4</option><option value="5">그룹 5</option></select>
+      <div id="prefilter-listening-means" class="table-scroll"></div><p id="prefilter-listening-empty" class="prefilter-listening-help" role="status">완료 응답을 기다리고 있습니다.</p>
+      <p class="prefilter-listening-help">자연스러움·소음 방해 정도는 1~5점이며 높을수록 좋은 평가입니다. 변화량은 Butterworth 평균 − 무처리 평균입니다.</p>
+    </div>
+    <div class="panel"><div class="panel-heading"><h2>그룹별 참여 현황</h2></div><div id="prefilter-listening-counts" class="table-scroll"></div></div>
+    <details class="panel"><summary>평가 구성과 해석 기준</summary><p class="prefilter-listening-help">문장 12개를 고르게 사용한 30조건을 5그룹에 배정했습니다. 참가자는 같은 문장·소음·SNR의 무처리 다음 처리음을 듣습니다. 두 번째 청취에는 문장 기억과 순서의 영향이 포함될 수 있습니다. 현재 자료는 필터 선정에도 사용한 자료이며, 이 결과를 독립 최종 평가 또는 144조건 전체의 결과로 일반화하지 않습니다.</p></details>
   </section>
   <section id="demo" class="page-section" hidden>
     <div class="page-intro compact"><div><div class="eyebrow accent">04 / SPEECH ENHANCEMENT</div><h1>음성 처리 결과</h1><p>전처리 유무를 먼저 선택한 뒤 알고리즘과 입력 조건을 좁혀 비교합니다. 무처리 입력은 두 분류에서 공통 기준으로 사용합니다.</p></div></div>

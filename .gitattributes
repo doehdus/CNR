@@ -13,6 +13,8 @@
 *.png binary
 # Preserve calculated file bytes so recorded SHA-256 values survive checkout.
 experiment/outputs/** -text whitespace=cr-at-eol
+# This retained analysis setting participates in byte-level delivery fingerprints.
+experiment/config/prefilter_initial.json -text whitespace=cr-at-eol
 .githooks/* text eol=lf
 *.cmd text eol=crlf
 *.ps1 text eol=crlf

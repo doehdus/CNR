@@ -1,149 +1,270 @@
-import { createPeakAnalysis } from './peak-analysis.js';
-import { NOISES, NOISE_SOURCES, STATEMENTS, SNRS, SAMPLE_INDEX, conditionId } from './dataset.js';
-import { normalizeNoiseAnalysis, noiseAnalysisMatches } from './noise-analysis-data.js';
+import { normalizePeakAnalysis, normalizePeakDetails, peakInputsMatch } from './peak-analysis-data.js';
+import { createMixtureSummary } from './mixture-summary.js';
+import { element as el, number as n, assetURL, analysisTable, analysisFigure, analysisPlayer, peakRows, renderNoisePeaks, renderTracking } from './peak-analysis.js';
 
 const $ = selector => document.querySelector(selector);
-const element = (tag, className = '', text = '') => {
-  const result = document.createElement(tag); result.className = className; result.textContent = text; return result;
-};
-const number = (value, suffix = '') => Number.isFinite(value) ? value.toLocaleString('ko-KR', { maximumFractionDigits: 2 }) + suffix : '—';
-const overlapLabel = value => ({ weak: '원음 성분 약함', present: '원음과 겹침', unknown: '확인 필요' })[value];
-const judgmentLabel = value => ({ candidate: '억제 후보', review: '검토 필요', hold: '보류' })[value];
+const labels = { single: '단일 소음', complex: '복합 소음', changing: '변화 소음' };
+const peakHeadings = ['피크', '중심 주파수 (Hz)', '측정 폭 (Hz)', 'PSD (dBFS/Hz)', '돌출도 (dB)'];
 
-function empty(title, description) {
-  const box = element('div', 'artifact-empty');
-  box.append(element('strong', '', title), element('span', '', description)); return box;
-}
-function table(target, headers, rows, message) {
-  const result = element('table'), head = element('thead'), headings = element('tr'), body = element('tbody');
-  for (const label of headers) { const cell = element('th', '', label); cell.scope = 'col'; headings.append(cell); }
-  head.append(headings);
-  for (const values of rows) { const row = element('tr'); for (const value of values) row.append(element('td', '', String(value))); body.append(row); }
-  if (!rows.length) { const row = element('tr'), cell = element('td', 'empty-cell', message); cell.colSpan = headers.length; row.append(cell); body.append(row); }
-  result.append(head, body); $(target).replaceChildren(result);
-}
-function definitions(target, pairs) {
-  $(target).replaceChildren(...pairs.map(([label, value]) => { const row = element('div'); row.append(element('dt', '', label), element('dd', '', value)); return row; }));
-}
-function artifact(target, path, record, title, description) {
-  const host = $(target);
-  if (!path) { host.replaceChildren(empty(title + ' 등록 대기', description)); return; }
-  const figure = element('figure', 'noise-figure'), image = element('img');
-  const url = new URL('../dataset/noise_analysis/' + path, location.href);
-  url.searchParams.set('v', record.inputs.map(input => input.sha256).join('-'));
-  image.alt = title; image.src = url.href; image.loading = 'lazy';
-  image.addEventListener('error', () => { host.replaceChildren(empty('그래프 파일 확인 필요', '분석 수치는 아래 표에서 확인할 수 있습니다.')); });
-  const link = element('a'); link.href = url.href; link.target = '_blank'; link.rel = 'noopener'; link.setAttribute('aria-label', title + ' 원본 크기로 열기'); link.append(image);
-  const download = element('a', 'button secondary small', 'PNG 저장'); download.href = url.href; download.download = path.split('/').at(-1);
-  figure.append(download);
-  figure.append(link, element('figcaption', '', title + ' · 그래프를 누르면 원본 크기로 열립니다.')); host.replaceChildren(figure);
-}
+export function createNoiseAnalysis({ fingerprints, stopAudio }) {
+  let data = null, error = '', noise = 'single', mixtureNoise = 'single', statement = 'instruction01', snr = 20;
+  let noiseView = 'welch', mixtureView = 'welch', request = 0;
+  let playerKey = '', comparisonKey = '', activePage = '';
+  const details = new Map();
+  const summaryPage = createMixtureSummary({ analysis: () => data, fingerprints });
+  const ready = () => Boolean(data?.engine?.language === 'C') && peakInputsMatch(data, fingerprints());
+  const selectedSource = () => data?.sources.find(row => row.noise === noise);
+  const selectedMixture = () => data?.conditions.find(row => row.noise === mixtureNoise && row.statement === statement && row.snr === snr);
 
-export function createNoiseAnalysis({ audioCard, pathFor, fingerprints }) {
-  let data = normalizeNoiseAnalysis(null), error = '', spectrumView = 'selected';
-  const selectedPeaks = new Map();
-  const details = createPeakAnalysis({ fingerprints });
-  const matches = record => noiseAnalysisMatches(record, pathFor, fingerprints());
-  const selectedNoise = () => $('#noise-analysis-source').value || NOISES[0].id;
+  function syncNoiseSelection() {
+    const value = $('#noise-analysis-source').value;
+    if (!Object.hasOwn(labels, value) || value === noise) return false;
+    noise = value;
+    request++;
+    return true;
+  }
 
   async function load() {
-    error = '';
-    await details.load();
+    request++; data = null; error = ''; details.clear();
+    comparisonKey = playerKey = '';
     try {
-      const response = await fetch(new URL('../dataset/noise_analysis/results.json', location.href), { cache: 'no-store' });
-      if (response.status === 404) { data = normalizeNoiseAnalysis(null); return; }
-      if (!response.ok) throw new Error('분석 결과 파일을 읽지 못했습니다.');
-      data = normalizeNoiseAnalysis(await response.json());
-    } catch (failure) { data = normalizeNoiseAnalysis(null); error = failure.message; }
+      const response = await fetch(new URL('../dataset/peak_analysis/results.json', location.href), { cache: 'no-store' });
+      if (response.status === 404) return;
+      if (!response.ok) throw Error('완료된 C 분석 결과를 읽지 못했습니다.');
+      data = normalizePeakAnalysis(await response.json());
+    } catch (failure) { data = null; error = failure.message; }
+    await summaryPage.load();
+  }
+
+  async function readDetails(row) {
+    if (details.has(row.details)) return details.get(row.details);
+    const job = (async () => {
+      const response = await fetch(assetURL(row.details), { cache: 'no-cache' });
+      if (!response.ok) throw Error('추적 결과 파일을 읽지 못했습니다.');
+      const buffer = await response.arrayBuffer();
+      const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', buffer)), byte => byte.toString(16).padStart(2, '0')).join('');
+      if (hash !== data.artifacts[row.details]) throw Error('추적 결과의 파일 지문이 다릅니다.');
+      const result = normalizePeakDetails(JSON.parse(new TextDecoder().decode(buffer)), data.engine.run_id);
+      return result;
+    })();
+    details.set(row.details, job);
+    try { return await job; } catch (failure) { details.delete(row.details); throw failure; }
+  }
+
+  function setPanels() {
+    document.querySelectorAll('[data-acoustic-panel]').forEach(panel => {
+      const [kind, view] = panel.dataset.acousticPanel.split(':');
+      panel.hidden = view !== (kind === 'noise' ? noiseView : mixtureView);
+    });
+    document.querySelectorAll('[data-acoustic-view]').forEach(link => {
+      const [kind, view] = link.dataset.acousticView.split(':');
+      const active = view === (kind === 'noise' ? noiseView : mixtureView);
+      link.classList.toggle('active', active);
+      if (active) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
+    });
+  }
+
+  function figures(row, kind) {
+    for (const key of ['welch', 'peaks', 'temporal']) analysisFigure($('#' + kind + '-c-' + key), row.graphs[key], data.artifacts,
+      `${kind === 'noise' ? labels[noise] : labels[mixtureNoise] + ' · ' + statement + ' · ' + snr + 'dB'} · ${key === 'temporal' ? 'Spectrogram + Peak Tracking' : key === 'peaks' ? 'Peak Detection' : 'Welch PSD'}`);
+  }
+
+  function renderNoise() {
+    // Browsers can restore a select without dispatching a change event.
+    syncNoiseSelection();
+    const source = selectedSource();
+    $('#noise-analysis-status').textContent = `${labels[noise]} · C 계산 완료 · 저장 결과 조회`;
+    const { sample_rate_hz: rate, nperseg: samples, noverlap: overlap } = data.method;
+    const hop = samples - overlap;
+    $('#noise-c-welch-conditions').textContent = `분석 조건: 선택한 소음 원본 전체 · ${n(rate / 1000)}kHz · Hann ${n(samples)}샘플(${n(samples / rate * 1000)}ms) · ${n(hop)}샘플 이동(${n(hop / rate * 1000)}ms, ${n(overlap / samples * 100)}% 중첩) · 프레임별 평균 제거. 완전한 프레임의 선형 PSD를 평균한 뒤 dBFS/Hz로 표시합니다.`;
+    const frameSteps = `소음 WAV(${n(rate / 1000)}kHz) → 프레임 분할(${n(samples)}샘플, ${n(hop)}샘플 이동) → 프레임 평균 제거 → Hann 창 적용`;
+    const { minimum_distance_bins: distance, prominence_db: prominence, max_source_peaks: maximum,
+      matching_minimum_bins: matchingBins, matching_width_fraction: matchingWidth } = data.method;
+    $('#noise-c-peak-conditions').textContent = `분석 순서: ${frameSteps} → FFT → 단측 PSD 계산 → 선형 PSD 평균(Welch) → 국소 최댓값 탐색 → 최소 간격 ${n(distance)}bin 적용 → 돌출도 ${n(prominence)}dB 이상 선별 → 선형 PSD의 half-prominence 폭 측정 → PSD 크기순 최대 ${n(maximum)}개 표시.`;
+    $('#noise-c-temporal-conditions').textContent = `분석 순서: ${frameSteps} → 프레임별 FFT(STFT) → 단측 PSD 계산·스펙트로그램 표시 → 프레임별 피크 검출(최소 간격 ${n(distance)}bin·돌출도 ${n(prominence)}dB 이상인 모든 피크) → 인접 프레임의 피크를 주파수 차이가 작은 순서로 일대일 연결(허용 범위 max(${n(matchingBins)}bin, 이전 피크 폭 × ${n(matchingWidth)}), 끊기면 새 궤적) → 궤적별 평균 주파수·모집단 표준편차·출현율(전체 프레임 기준) 계산.`;
+    for (const view of ['welch', 'peak', 'temporal']) {
+      const caption = $('#noise-c-' + view + '-conditions');
+      caption.textContent = labels[noise] + ' · ' + caption.textContent;
+    }
+    figures(source, 'noise');
+    analysisTable($('#noise-c-energy'), ['대역 (Hz)', '에너지 비율 (%)'], source.band_energy.map(band => [`${band.low_hz}–${band.high_hz}`, n(band.energy_percent)]));
+    renderNoisePeaks($('#noise-c-peak-table'), source, data.frequency_hz);
+    const select = $('#noise-c-zoom-select'), selected = select.value;
+    select.replaceChildren(...source.peaks.map(peak => new Option(`${peak.id} · ${n(peak.frequency_hz)} Hz`, peak.id)));
+    select.disabled = !source.peaks.length;
+    select.value = source.peaks.some(peak => peak.id === selected) ? selected : source.peaks[0]?.id || '';
+    renderZoom();
+    $('#noise-c-source-note').textContent = `${labels[noise]} · 16kHz · Hann 2048샘플 · 1024샘플 이동. 전체 프레임의 평균 PSD와 시간별 궤적을 구분합니다.`;
+    if (activePage === 'noise-analysis' && noiseView === 'temporal') loadNoiseTracking(source);
+  }
+
+  function renderZoom() {
+    if (!ready()) return;
+    const source = selectedSource(), id = $('#noise-c-zoom-select').value;
+    analysisFigure($('#noise-c-zoom'), source.graphs['zoom_' + id], data.artifacts, `${labels[noise]} · ${id} 주변 확대`);
+  }
+
+  async function loadNoiseTracking(source) {
+    const token = request, key = source.details;
+    $('#noise-c-tracking').replaceChildren(el('p', 'analysis-help', '완료된 추적 결과를 읽고 있습니다.'));
+    try {
+      const loaded = await readDetails(source);
+      if (request !== token || selectedSource()?.details !== key || !ready()) return;
+      renderTracking($('#noise-c-tracking'), loaded.signal);
+    } catch (failure) { if (request === token && selectedSource()?.details === key) $('#noise-c-tracking').replaceChildren(el('p', 'audio-error', failure.message)); }
+  }
+
+  function renderMatrix() {
+    const table = el('table', 'mixture-matrix'), head = el('thead'), row = el('tr'), body = el('tbody');
+    row.append(el('th', '', '소음 / 음성'));
+    for (const recording of data.recordings) { const cell = el('th', '', recording.id); cell.scope = 'col'; cell.title = recording.text + ' · ' + recording.speaker; row.append(cell); }
+    head.append(row);
+    for (const kind of ['single', 'complex', 'changing']) {
+      const line = el('tr'), heading = el('th', '', labels[kind]); heading.scope = 'row'; line.append(heading);
+      for (const recording of data.recordings) {
+        const cell = el('td'), selected = kind === mixtureNoise && recording.id === statement;
+        cell.classList.toggle('selected', selected);
+        for (const [action, text] of [['play', '재생'], ['select', '분석']]) {
+          const button = el('button', 'matrix-action', text); button.type = 'button';
+          button.dataset.matrixAction = action; button.dataset.noise = kind; button.dataset.statement = recording.id;
+          button.setAttribute('aria-label', `${labels[kind]} ${recording.id} ${snr}dB ${text}`);
+          if (action === 'select') button.setAttribute('aria-pressed', String(selected));
+          cell.append(button);
+        }
+        line.append(cell);
+      }
+      body.append(line);
+    }
+    table.append(head, body); $('#mixture-c-matrix').replaceChildren(table);
+  }
+
+  function renderMixture() {
+    const row = selectedMixture(), recording = data.recordings.find(item => item.id === statement);
+    const method = data.method, hop = method.nperseg - method.noverlap;
+    const frames = `프레임 분할(${n(method.nperseg)}샘플, ${n(hop)}샘플 이동) → 프레임 평균 제거 → Hann 창 적용`;
+    const detection = `국소 최댓값 탐색 → 최소 간격 ${n(method.minimum_distance_bins)}bin 적용 → 돌출도 ${n(method.prominence_db)}dB 이상 선별`;
+    $('#mixture-c-welch-conditions').textContent = `분석 순서: 혼합음·대응 기준음(${n(method.sample_rate_hz / 1000)}kHz) 로드 → 혼합음−기준음으로 실제 추가 소음 분리 → 각 신호의 ${frames} → FFT → 단측 PSD 계산 → 프레임별 선형 PSD 평균(Welch) → dBFS/Hz 변환 → 같은 축으로 비교.`;
+    $('#mixture-c-peak-conditions').textContent = `분석 순서: 혼합음 → ${frames} → FFT → 단측 PSD 계산 → 선형 PSD 평균(Welch) → ${detection} → 선형 PSD의 half-prominence 폭 측정 → PSD 크기순 최대 ${n(method.max_source_peaks)}개 표시.`;
+    $('#mixture-c-temporal-conditions').textContent = `분석 순서: 혼합음 → ${frames} → 프레임별 FFT(STFT) → 단측 PSD 계산·스펙트로그램 표시 → 프레임별 피크 검출(${n(method.minimum_distance_bins)}bin 이상 간격·돌출도 ${n(method.prominence_db)}dB 이상인 모든 피크) → 인접 프레임의 피크를 가까운 주파수부터 일대일 연결(허용 범위 max(${n(method.matching_minimum_bins)}bin, 이전 피크 폭 × ${n(method.matching_width_fraction)}), 끊기면 새 궤적) → 전체 구간의 궤적별 평균 주파수·모집단 표준편차·출현율 계산.`;
+    figures(row, 'mixture');
+    $('#mixture-c-caption').textContent = `${labels[mixtureNoise]} · ${statement} · ${recording.speaker} · SNR ${snr}dB`;
+    $('#mixture-c-sentence').textContent = recording.text;
+    $('#mixture-c-interval').textContent = `등록된 말소리 구간 ${n(row.interval_sec[0])}–${n(row.interval_sec[1])}초 · 내부 쉼 포함 · 실제 SNR ${n(row.actual_snr_db)}dB`;
+    analysisTable($('#mixture-c-peak-table'), peakHeadings, peakRows(row.mixture_peaks));
+    const key = `${mixtureNoise}/${snr}/${statement}`;
+    if (key !== playerKey) {
+      $('#mixture-c-players').replaceChildren(
+        analysisPlayer(`data/reference/${statement}.wav`, '합성과 대응하는 기준음', stopAudio),
+        analysisPlayer(`data/mixed/${mixtureNoise}/snr${String(snr).padStart(2, '0')}/${statement}.wav`, '선택한 무처리 합성음', stopAudio));
+      playerKey = key;
+    }
+    if (activePage === 'mixture-analysis' && mixtureView === 'temporal') loadMixtureTracking(row);
+  }
+
+  async function loadMixtureTracking(row) {
+    const token = request, key = row.details;
+    $('#mixture-c-tracking').replaceChildren(el('p', 'analysis-help', '완료된 추적 결과를 읽고 있습니다.'));
+    try {
+      const loaded = await readDetails(row);
+      if (request !== token || selectedMixture()?.details !== key || !ready()) return;
+      renderTracking($('#mixture-c-tracking'), loaded.signal);
+    } catch (failure) {
+      if (request === token && selectedMixture()?.details === key) $('#mixture-c-tracking').replaceChildren(el('p', 'audio-error', failure.message));
+    }
+  }
+
+  function renderComparison() {
+    const row = selectedMixture(), source = data.sources.find(item => item.noise === mixtureNoise);
+    if (comparisonKey !== row.details) for (const id of ['mixture-c-comparison', 'mixture-c-tracks']) $('#' + id).replaceChildren(el('p', 'analysis-help', '선택 조건의 비교 자료를 읽고 있습니다.'));
+    if (activePage === 'mixture-analysis') loadComparison(row, source);
+  }
+
+  async function loadComparison(row, source = data.sources.find(item => item.noise === row.noise)) {
+    const token = request, key = row.details;
+    try {
+      const [loaded, original] = await Promise.all([readDetails(row), readDetails(source)]);
+      if (request !== token || selectedMixture()?.details !== key || !ready()) return;
+      const track = (signal, id) => signal.tracking.tracks.find(item => item.id === id);
+      const summary = value => value ? `${n(value.mean_hz)} Hz\nσ ${n(value.std_hz)} Hz · ${n(value.appearance_percent)}%` : '대응 궤적 없음';
+      analysisTable($('#mixture-c-comparison'), ['Noise 피크', 'Noise 중심 / 측정 폭 (Hz)', 'Mixture 중심 / 측정 폭 (Hz)', '기준음 국소 피크', '측정 폭 안의 기준음/추가소음 (dB)'],
+        row.observations.map((observation, index) => {
+          const peak = source.peaks[index];
+          return [peak.id, `${n(peak.frequency_hz)} / ${n(peak.bandwidth_hz)}`, `${n(observation.mixture_frequency_hz)} / ${n(observation.mixture_width_hz)}`,
+            observation.speech_peak_present ? '검출' : '미검출', n(observation.speech_to_noise_db)];
+        }));
+      analysisTable($('#mixture-c-tracks'), ['Noise 피크', '원본 Noise · 평균 / 표준편차 / 출현율', '실제 추가 소음 · 평균 / 표준편차 / 출현율', 'Mixture · 평균 / 표준편차 / 출현율'],
+        row.observations.map((observation, index) => [source.peaks[index].id,
+          summary(track(original.signal, original.signal.tracking.peak_track_ids[index])),
+          summary(track(loaded.added_noise, observation.noise_track_id)), summary(track(loaded.signal, observation.mixture_track_id))]));
+      comparisonKey = key;
+    } catch (failure) {
+      if (request === token && selectedMixture()?.details === key) for (const id of ['mixture-c-comparison', 'mixture-c-tracks']) $('#' + id).replaceChildren(el('p', 'audio-error', failure.message));
+    }
   }
 
   function render() {
-    const noise = selectedNoise(), label = NOISES.find(item => item.id === noise).label;
-    const source = NOISE_SOURCES.find(item => item.noise === noise);
-    const usable = data.sources.filter(matches), record = usable.find(item => item.noise === noise), analysis = record?.analysis;
-    const allRecords = [...data.sources, ...data.mixtures, ...(data.overview ? [data.overview] : [])];
-    const withheld = allRecords.filter(item => !matches(item)).length;
-    $('#noise-analysis-status').textContent = usable.length ? '분석 자료 ' + usable.length + ' / 3 소음 연결' : '분석 자료 등록 대기';
-    $('#noise-analysis-status').classList.toggle('pending', !usable.length);
-    $('#noise-analysis-status').classList.toggle('ready', Boolean(usable.length));
-    $('#noise-analysis-feedback').hidden = !error && !withheld;
-    $('#noise-analysis-feedback').textContent = error || '현재 음원과 파일 지문이 대응하지 않는 분석 자료 ' + withheld + '건은 표시를 보류했습니다.';
-    $('#noise-analysis-library').replaceChildren(audioCard(source, label + ' · 분석할 원본', 1));
-    definitions('#noise-source-metadata', [['원본 파일', pathFor(source).split('/').at(-1)], ['분석 자료', record ? '현재 원본과 대응 확인' : '등록 대기'], ['분석 구간', analysis ? '전체 음원 · ' + number(analysis.sample_count / analysis.sample_rate_hz, '초') : '전체 음원'], ['분석 샘플링', analysis ? number(analysis.sample_rate_hz, ' Hz') : '분석 자료 등록 후 표시']]);
-    definitions('#noise-analysis-parameters', [['분석 방법', '전체 음원 FFT'], ['전체 샘플 수', analysis ? number(analysis.sample_count) : '미등록'], ['FFT 크기', analysis ? number(analysis.fft_size) : '미등록'], ['윈도', analysis?.window_function || '미등록'], ['크기·정규화 기준', analysis?.magnitude_reference || '미등록'], ['피크 검출 기준', details.hasNoise(noise) ? '아래 보조 Welch 분석 조건 참조 · C FFT와 별도' : analysis?.peak_rule || '미등록']]);
-    document.querySelectorAll('[data-noise-spectrum-view]').forEach(button => { const active = button.dataset.noiseSpectrumView === spectrumView; button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active)); });
-    const spectrum = spectrumView === 'all' ? (matches(data.overview) ? data.overview : null) : record;
-    artifact('#noise-spectrum-artifact', spectrum?.spectrum_image, spectrum, spectrumView === 'all' ? '3개 소음 전체 FFT 비교 그래프' : label + ' 전체 FFT 그래프', '소음 전체를 분석한 주파수 그래프가 이곳에 표시됩니다.');
-    $('#noise-spectrum-summary').textContent = spectrumView === 'all' ? spectrum?.comparison_basis || '세 소음의 축·크기 기준을 맞춘 비교 자료를 기다리고 있습니다.' : record?.summary || '분석 후 주요 에너지 대역과 관찰 내용을 표시합니다.';
-    details.resetSummary();
-    if (details.hasNoise(noise)) { $('#noise-spectrum-summary').textContent = '기존 C 전체 FFT를 보존했습니다. 아래의 주요 피크·합성음 비교는 별도로 계산한 Welch PSD 탐색 결과입니다.'; details.render(noise); return; }
-    const statements = $('#noise-mixture-form [name=statement]');
-    if (!STATEMENTS.some(s => s.id === statements.value)) { statements.replaceChildren(...STATEMENTS.map(s => new Option(s.label + ' · ' + s.speaker, s.id))); }
-    $('#noise-peaks-method').textContent = '';
-    const feedback = details.feedback();
-    if (feedback) { $('#noise-analysis-feedback').hidden = false; $('#noise-analysis-feedback').textContent = feedback; }
-    const peaks = record?.peaks || [], peaksReady = Array.isArray(record?.peaks);
-    $('#noise-peaks-count').textContent = peaksReady ? '등록된 피크 ' + peaks.length + '개' : '주요 피크 검출 대기';
-    artifact('#noise-peaks-artifact', record?.peaks_image, record, label + ' 주요 피크 표시 그래프', '피크 위치를 표시한 전체 FFT 그래프가 이곳에 표시됩니다.');
-    table('#noise-peaks-table', ['피크', '주파수 (Hz)', '크기 (dB)', '폭 (Hz)', '돌출 정도 (dB)', '관찰 내용'], peaks.map(peak => [peak.id, number(peak.frequency_hz), number(peak.magnitude_db), number(peak.bandwidth_hz), number(peak.prominence_db), peak.note || '—']), peaksReady ? '등록된 분석에서 검출된 피크가 없습니다.' : '주요 피크 검출은 대기 중입니다. 기준 확정 후 결과를 표시합니다.');
-    const select = $('#noise-peak-select');
-    select.replaceChildren(...(peaks.length ? peaks.map(peak => new Option(peak.id + ' · ' + number(peak.frequency_hz, ' Hz'), peak.id)) : [new Option(peaksReady ? '검출된 피크 없음' : '주요 피크 검출 대기', '')]));
-    select.disabled = !peaks.length;
-    select.value = peaks.some(peak => peak.id === selectedPeaks.get(noise)) ? selectedPeaks.get(noise) : peaks[0]?.id || '';
-    renderZoom(record);
-    renderMixture(record, source, label);
-    const candidates = usable.flatMap(item => item.candidates.map(candidate => [NOISES.find(noise => noise.id === item.noise).label, number(candidate.low_hz) + '–' + number(candidate.high_hz), candidate.reason, overlapLabel(candidate.speech_overlap), candidate.stability_note || '안정성 확인 필요', judgmentLabel(candidate.judgment)]));
-    table('#noise-candidates-table', ['소음', '후보 대역 (Hz)', '선정 근거', '원음과 겹침', '피크 안정성', '검토 상태'], candidates, '등록된 전처리 후보가 없습니다. 분석 후 후보 대역과 근거를 기록합니다.');
+    summaryPage.render();
+    setPanels();
+    const usable = ready();
+    const message = error || (data && !peakInputsMatch(data, fingerprints()) ? '입력 음원 지문이 달라 이전 분석 표시를 보류했습니다.' : '완료된 C 분석 자료 등록 대기');
+    for (const kind of ['noise', 'mixture']) {
+      $('#' + kind + '-analysis-status').textContent = usable ? 'C 계산 완료 · 저장 결과 조회' : message;
+      $('#' + kind + '-analysis-status').classList.toggle('ready', usable);
+      $('#' + kind + '-analysis-status').classList.toggle('pending', !usable);
+      document.querySelectorAll('[data-c-ready="' + kind + '"]').forEach(host => { host.hidden = !usable; });
+    }
+    if (!usable) return;
+    if (!$('#noise-c-library').children.length || $('#noise-c-library').dataset.run !== data.engine.run_id) {
+      $('#noise-c-library').replaceChildren(...Object.keys(labels).map(kind => analysisPlayer(`data/noise/${kind}.wav`, labels[kind], stopAudio)));
+      $('#noise-c-library').dataset.run = data.engine.run_id;
+    }
+    renderNoise(); renderMatrix(); renderMixture(); renderComparison();
   }
 
-  function renderZoom(record) {
-    const peak = record?.peaks?.find(item => item.id === $('#noise-peak-select').value);
-    artifact('#noise-peak-zoom', peak?.zoom_image, record, peak ? peak.id + ' · ' + number(peak.frequency_hz, ' Hz') + ' 확대 그래프' : '피크 확대 그래프', '피크를 선택하면 해당 주파수 주변의 상세 그래프를 확인할 수 있습니다.');
-  }
-
-  function renderMixture(record, source, label) {
-    const form = $('#noise-mixture-form'), statementId = form.elements.namedItem('statement').value, snr = Number(form.elements.namedItem('snr').value);
-    const statement = STATEMENTS.find(item => item.id === statementId), id = conditionId(source.noise, snr, statementId);
-    const comparison = record && data.mixtures.find(item => item.noise === source.noise && item.statement === statementId && item.snr === snr && matches(item));
-    $('#noise-mixture-caption').textContent = label + ' · ' + snr + ' dB · ' + statement.label + ' · ' + statement.speaker;
-    $('#noise-mixture-players').replaceChildren(audioCard(SAMPLE_INDEX.get('clean_' + statementId), '깨끗한 원음 · ' + statement.label, 1), audioCard(source, '순수 소음 · ' + label, 2), audioCard(SAMPLE_INDEX.get(id + '_noisy'), '무처리 합성음원 · ' + snr + ' dB', 3));
-    $('#noise-mixture-status').textContent = comparison ? '선택 조건의 비교 자료 연결' : '선택 조건의 비교 자료 등록 대기';
-    $('#noise-mixture-status').classList.toggle('pending', !comparison); $('#noise-mixture-status').classList.toggle('ready', Boolean(comparison));
-    artifact('#noise-mixture-artifact', comparison?.spectrum_image, comparison, label + ' · ' + statement.label + ' · ' + snr + ' dB 주파수 비교', '원음·소음·합성음원을 같은 기준으로 비교한 그래프가 이곳에 표시됩니다.');
-    const observations = comparison?.observations || [];
-    table('#noise-mixture-table', ['소음 피크', '소음 주파수 (Hz)', '합성음원 대응 주파수 (Hz)', '원음과 겹침', '해석'], observations.map(item => [item.peak_id, number(record.peaks.find(peak => peak.id === item.peak_id).frequency_hz), number(item.mixture_frequency_hz), overlapLabel(item.speech_overlap), item.note || '—']), '선택 조건의 피크 대응 자료가 등록되면 표시합니다. 빈 값은 미관찰 또는 미확인으로 해석합니다.');
-    $('#noise-mixture-note').textContent = comparison?.comparison_basis || '비교 자료 등록 시 분석 구간·소음 크기 보정·정규화 기준을 함께 기록합니다.';
+  function navigate(page, view) {
+    activePage = page;
+    if (page === 'noise-analysis') noiseView = ['welch', 'peaks', 'temporal'].includes(view) ? view : noiseView;
+    if (page === 'mixture-analysis') mixtureView = ['welch', 'peaks', 'temporal'].includes(view) ? view : mixtureView;
+    setPanels();
+    if (ready()) { if (page === 'noise-analysis') renderNoise(); if (page === 'mixture-analysis') renderMixture(); if (page === 'mixture-analysis') renderComparison(); }
   }
 
   function initialize() {
-    for (const statement of STATEMENTS) $('#noise-mixture-form [name=statement]').add(new Option(statement.label + ' · ' + statement.speaker, statement.id));
-    for (const snr of SNRS) $('#noise-mixture-form [name=snr]').add(new Option(snr + ' dB', String(snr)));
-    $('#noise-analysis-source').addEventListener('change', render);
-    $('#noise-mixture-form').addEventListener('change', render);
-    $('#noise-mixture-form').addEventListener('submit', event => event.preventDefault());
-    document.querySelectorAll('[data-noise-spectrum-view]').forEach(button => button.addEventListener('click', () => { spectrumView = button.dataset.noiseSpectrumView; render(); }));
-    $('#noise-peak-select').addEventListener('change', () => { if (details.hasNoise(selectedNoise())) { details.renderZoom(selectedNoise()); return; } selectedPeaks.set(selectedNoise(), $('#noise-peak-select').value); renderZoom(data.sources.find(item => item.noise === selectedNoise() && matches(item))); });
-    document.querySelectorAll('.noise-analysis-steps a').forEach(link => link.addEventListener('click', event => { event.preventDefault(); $(link.getAttribute('href')).scrollIntoView({ block: 'start', behavior: 'smooth' }); }));
+    summaryPage.initialize();
+    const refreshNoise = () => {
+      if (!syncNoiseSelection()) return;
+      stopAudio();
+      render();
+    };
+    for (const event of ['input', 'change']) $('#noise-analysis-source').addEventListener(event, refreshNoise);
+    window.addEventListener('pageshow', () => { syncNoiseSelection(); render(); });
+    for (const value of [20, 10, 5, 0]) $('#mixture-analysis-snr').add(new Option(value + ' dB', String(value)));
+    $('#mixture-analysis-snr').addEventListener('change', event => { snr = Number(event.target.value); request++; stopAudio(); renderMatrix(); renderMixture(); renderComparison(); });
+    $('#noise-c-zoom-select').addEventListener('change', renderZoom);
+    $('#mixture-c-matrix').addEventListener('click', event => {
+      const button = event.target.closest('[data-matrix-action]'); if (!button || !ready()) return;
+      mixtureNoise = button.dataset.noise; statement = button.dataset.statement; request++; stopAudio();
+      renderMatrix(); renderMixture(); renderComparison();
+      if (button.dataset.matrixAction === 'play') $('#mixture-c-players').querySelectorAll('audio')[1]?.play().catch(() => {});
+    });
   }
 
-  function report() {
-    const result = element('div', 'noise-analysis-report');
-    result.append(element('p', '', NOISES.find(noise => noise.id === selectedNoise()).label + ' · ' + $('#noise-analysis-status').textContent));
-    if (!data.sources.some(matches)) {
-      result.append(element('p', '', '전체 FFT·주요 피크·원음과 합성음원의 비교·전처리 후보 자료는 등록 대기입니다.'));
-      return result;
-    }
-    for (const [title, selectors] of [
-      ['분석 요약', ['#noise-research-answer', '#noise-research-findings', '#noise-batch-summary']],
-      ['소음별 주파수 분석', ['#noise-energy-table', '#noise-energy-summary', '#noise-temporal-artifact', '#noise-spectrum-artifact', '#noise-spectrum-summary', '#noise-analysis-parameters']],
-      ['소음별 피크 분석', ['#noise-peaks-artifact', '#noise-peaks-table']],
-      ['합성음원에서 피크 분석', ['#noise-mixture-caption', '#noise-mixture-interpretation', '#noise-mixture-artifact', '#noise-mixture-table', '#noise-mixture-note']],
-      ['전처리 후보 요약', ['#noise-candidates-table']],
-    ]) {
-      result.append(element('h3', '', title));
-      for (const selector of selectors) { const original = $(selector), copy = original.cloneNode(true); copy.querySelectorAll('canvas').forEach((canvas, index) => { const image = element('img'); image.src = original.querySelectorAll('canvas')[index].toDataURL('image/png'); image.alt = canvas.getAttribute('aria-label') || '분석 그래프'; canvas.replaceWith(image); }); copy.removeAttribute('id'); copy.querySelectorAll('[id]').forEach(item => item.removeAttribute('id')); result.append(copy); }
+  async function report() {
+    const result = el('div', 'noise-analysis-report');
+    result.append(summaryPage.report());
+    if (!ready()) { result.append(el('p', '', error || '현재 입력과 대응하는 완료 C 분석 자료가 없습니다.')); return result; }
+    const token = request;
+    await Promise.all([loadNoiseTracking(selectedSource()), loadMixtureTracking(selectedMixture()), loadComparison(selectedMixture(), data.sources.find(item => item.noise === mixtureNoise))]);
+    if (request !== token || !ready()) throw Error('보고서 구성 중 조건이 바뀌었습니다. 다시 인쇄해 주세요.');
+    for (const [title, selectors] of [['Noise 분석 · ' + labels[noise], ['#noise-c-welch-conditions', '#noise-c-welch', '#noise-c-energy', '#noise-c-peak-conditions', '#noise-c-peak-table', '#noise-c-temporal-conditions', '#noise-c-temporal', '#noise-c-tracking']],
+      ['Mixture 분석 · ' + statement + ' · ' + snr + 'dB', ['#mixture-c-caption', '#mixture-c-welch-conditions', '#mixture-c-welch', '#mixture-c-peak-conditions', '#mixture-c-peak-table', '#mixture-c-temporal-conditions', '#mixture-c-temporal', '#mixture-c-tracking', '#mixture-c-comparison', '#mixture-c-tracks']]]) {
+      result.append(el('h3', '', title));
+      for (const selector of selectors) {
+        const copy = $(selector).cloneNode(true); copy.removeAttribute('id');
+        copy.querySelectorAll('[id]').forEach(item => item.removeAttribute('id')); copy.querySelectorAll('button, audio').forEach(item => item.remove()); result.append(copy);
+      }
     }
     return result;
   }
-  return { initialize, load, render, report };
+  return { initialize, load, render, navigate, report };
 }

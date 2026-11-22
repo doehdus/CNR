@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "status": "selected",
+  "filter_type": "butterworth_bandpass",
+  "scope": "fixed_common",
+  "sample_rate_hz": 16000,
+  "lower_hz": 75,
+  "upper_hz": 4000,
+  "prototype_order": 2,
+  "digital_order": 4,
+  "passband_peak_gain_db": 0,
+  "cutoff_definition": "single_pass_power_half_of_passband_peak",
+  "processing": "causal_single_pass_df2_transposed_zero_state_per_wav",
+  "planned_count": 144,
+  "selected_candidate_id": "bpf_l75_h4000_n2",
+  "selection_evidence": [
+    {
+      "path": "experiment/outputs/peak_analysis/results.json",
+      "sha256": "fe95da6e4fa02fd9b692dd523ceb3deede8a28cfa3c42aeede316cdd751edc2c"
+    },
+    {
+      "path": "experiment/outputs/mixture_summary/results.json",
+      "sha256": "d8e855324c0610fec75324db27d495e6c80639b8f5f31bf7d2672f7afed6b15f"
+    },
+    {
+      "path": "experiment/outputs/mixture_summary/peak_comparison.json",
+      "sha256": "878118a4b40fc6141435b81bf74ee02b5c50707256eeb752ccfd5a3469a9215e"
+    },
+    {
+      "path": "experiment/outputs/bpf_candidates/runs/20261121T105756Z-8555834e/manifest.json",
+      "sha256": "85d5da49c8e375221ba37a95376783668ae7dabfb124dc0d66b83d66255f4443"
+    },
+    {
+      "path": "experiment/outputs/bpf_candidates/runs/20261121T105756Z-8555834e/results.json",
+      "sha256": "c088f88932029506b2b04cbd0bfcddaa54900c01c6dfe868c874ee55817c555b"
+    },
+    {
+      "path": "experiment/outputs/bpf_candidates/runs/20261121T105756Z-8555834e/cases.csv",
+      "sha256": "d8d5169c25ca6b059c0b9ed8f58ab554d584fe258a61b98d30b6a12214bd2bb7"
+    }
+  ],
+  "selection_basis": {
+    "lower": "75 to 100 Hz adds 0.123 dB mean noise reduction but drops minimum Clean power retention from 97.081% to 92.768%.",
+    "upper": "4000 Hz is a conservative compromise: 3500 Hz adds 0.319 dB noise reduction, while high-frequency phonetic preservation is not established by total power.",
+    "order": "Digital order 4 preserves more Clean power than order 2 and gives the highest mean and minimum spectral SNR change among tested orders at 75–4000 Hz.",
+    "authorization": "User requested continuing the evidence-based selection through BPF processing and the final prefilter website update. Existing all-144 paired comparison scope is retained."
+  },
+  "evaluation_relationship": "The current 12 statements and 144 mixtures informed selection and this demonstration. They are not an independent final evaluation set. Final evaluation split and listening validation remain pending.",
+  "comparison_gain_db": -1,
+  "comparison_gain_scope": "both_unfiltered_and_bpf_listening_copies",
+  "comparison_gain_basis": "Unscaled C scan of all 144 mixtures: maximum peak 1.086558223624818 (+0.72dBFS), 12 files and 36 samples exceed PCM16. Common fixed -1dB on both listening copies; original inputs preserved. This gain is separate from BPF passband normalization."
+}

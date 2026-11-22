@@ -1,5 +1,127 @@
 # 개발·실행 안내
 
+## 필터링 청음평가 실행
+
+공개 음원 수는 315개이며 로컬 전체 dataset 459개는 보존한다. 배포용 카탈로그와 정적 파일 복사는 `prepareAudio()`의 활성 목록을 사용한다. 미사용 비교 복사본·Peaking EQ 보관 원본을 삭제해 수량을 맞추지 않는다. [공개 음원 정리 기준](PROJECT_CONTEXT.md#2026-11-22-공개-음원-정리--실제-사용-315개만-배포)을 따른다.
+
+현재 새 필터 비교는 `#prefilter-listening`에서 그룹별 링크 또는 QR로 접속한다. 참여 주소는 `/website/prefilter-survey.html?group=1`~`group=5`다. 새 응답은 `/api/prefilter-listening/`과 별도 D1 테이블로 저장·집계하며, 기존 진행자 제어 QR·척도·백업과 혼합하지 않는다. 배정·문항·집계·해석 기준은 [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md#2026-11-22-필터링-청음평가--5개-참여-링크와-실제-응답-집계-연결)을 따른다.
+
+`export/export_results.py`가 배정표를 검증·전달한 뒤 `website/`의 `npm run build`를 실행한다. 개발 서버는 같은 배정표를 Node 전달기로 준비하며 점수를 재계산하지 않는다. 새 SQL 마이그레이션은 기존 데이터를 보존하는 테이블 추가뿐이다. 운영의 첫 API 접근도 같은 테이블을 안전하게 준비한다. 연구 스냅샷이 등록된 뒤 같은 연구 ID의 배정·문항·척도가 바뀌면 접속을 보류하므로, 수집 중 자료 변경은 새 연구 버전으로 분리한다. 기존 일반 백업은 이전 평가용이며 새 필터 원응답은 별도 D1 테이블에 보존한다.
+
+## 필터링 청음평가 음원 선정
+
+확정된 5그룹의 30쌍·문장 배정·점수·기존 WAV 지문은 [prefilter_listening.json](experiment/config/prefilter_listening.json), 선정 논리와 실제 수량은 [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md#2026-11-22-필터링-청음평가--12문장을-고르게-사용하는-5그룹-음원-선정)을 따른다. 검토용 CSV는 `experiment/outputs/prefilter_listening/assignment.csv`다. 다음 검사는 WAV·지표를 재생성하지 않는다.
+
+```powershell
+& .\.venv\Scripts\python.exe -m experiment.src.evaluation.select_prefilter_listening --verify-config experiment/config/prefilter_listening.json
+& .\.venv\Scripts\python.exe -m unittest experiment.tests.evaluation.test_prefilter_listening -v
+```
+
+선정기는 기존 설정·CSV를 덮어쓰지 않는다. 새 선정을 만들 때에는 별도의 `experiment/config/` 출력 경로를 지정하고 완료된 지표 회차와 파일 지문을 보존한다. 이번 필터 청음평가는 위 새 자가 재생 경로에 연결됐으며, 아래 일반 알고리즘 평가의 전환 작업과 구분한다.
+
+## 필터링 결과의 STOI·ESTOI 계산과 전달
+
+기준음·정렬·공통 구간·수량·평가 자료 관계는 [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md#2026-11-22-필터링-결과-분석--실제-stoiestoi-비교)를 따른다. 기존 144조건 BPF 처리 회차가 준비된 상태에서 프로젝트 루트에서 실행한다.
+
+```powershell
+& .\.venv\Scripts\python.exe -m experiment.src.evaluation.calculate_metrics --prefilter-bpf
+& .\.venv\Scripts\python.exe -m unittest experiment.tests.evaluation.test_prefilter_metrics experiment.tests.evaluation.test_calculate_metrics -v
+& .\.venv\Scripts\python.exe export/export_results.py
+```
+
+실제 지표는 기존 `calculate_signals`·pystoi로 계산한다. `prefilter_metrics.py`는 같은 Clean 구간의 원본/BPF 쌍과 지문·정렬을 묶어 `experiment/outputs/prefilter_metrics/runs/<회차>/results.json`, `comparison.csv`에 보존한다. 현재 포인터는 `experiment/outputs/prefilter_metrics.json`이며 이전 회차·원본·기존 `metrics.json`·평가 카탈로그·응답은 유지한다. 이번 모드는 기존 `--sample-rate`(현재 16000Hz)·`--max-delay-seconds`(기본 0.5초)를 기록한다. 기존 3문장 알고리즘 배치 모드는 별도로 보존한다.
+
+`export/bpf.mjs`는 `export/prefilter_metrics.mjs`를 통해 완료 지표를 검증·전달한다. Node 로컬 준비에서도 지표 회차 지문을 반영해 완료 자료를 갱신하며 지표를 재계산하지 않는다. 새 화면은 `website/src/comparison/prefilter-analysis.js`, 공용 데이터 검증은 `website/shared/research/prefilter-metrics-data.js`다. 웹 검증은 기존대로 `website/`의 `npm run build`를 사용한다.
+
+## 고정 Butterworth BPF 설계·처리·재생표 전달
+
+확정 설정·선정 근거·공통 청음 레벨·자료 관계는 [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md#2026-11-21-고정-butterworth-bpf-확정144조건-처리), 수치 원본은 [prefilter_bpf.json](experiment/config/prefilter_bpf.json)을 따른다. 프로젝트 루트에서 실행한다.
+
+```powershell
+& .\.venv\Scripts\python.exe -m experiment.src.preprocessing.design_bpf
+& .\.venv\Scripts\python.exe -m experiment.src.preprocessing.run_bpf
+& .\.venv\Scripts\python.exe -m unittest experiment.tests.preprocessing.test_bpf -v
+& .\.venv\Scripts\python.exe export/export_results.py
+```
+
+C가 계수·극점·응답과 WAV 필터링을 계산하며 Python은 실행·검증·지문·완료 응답 PNG를 담당한다. 설계는 `experiment/outputs/bpf_design/runs/`, BPF 144개와 무처리 청음용 복사본 144개는 `experiment/outputs/enhanced/prefilter_bpf/runs/`에 새 회차로 보존한다. 현재 포인터는 `experiment/outputs/bpf_results.json`이다. 원본 입력에는 쓰지 않는다. 처리기의 `--measure-only`는 양자화 전 피크·범위 초과 예상 수만 반환하고 WAV를 만들지 않는다. `--gain-db`는 설정에 명시한 고정 배율만 적용하며 기본은 0dB, 범위 초과 시 자동 클리핑 없이 실패한다.
+
+Python exporter와 Node 로컬 자료 준비는 `export/bpf.mjs`로 같은 완료 자료·지문·형식을 검증한다. BPF가 있으면 이전 EQ의 완료 WAV는 실험 원본에 보존하고 웹에는 이력 메타데이터만 전달해 Sites 용량 제한 안에 현재 재생 자산을 담는다. 웹은 `prefilter_bpf/results.json`과 전달 음원/그래프를 읽으며 필터를 실행하지 않는다. `website/`에서 `npm run build`로 전달 스냅샷·재생 버튼의 전체 조건 대응·타입·빌드를 검증한다. 전달 경로의 별도 검사는 프로젝트 Node.js의 `node --test export/tests/bpf.test.mjs`다. 이전 고정 EQ 명령과 완료 회차는 비교 이력으로 보존한다.
+
+현재 재생 화면 구성은 [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md#2026-11-21-사전필터링을-음원별소음별-선택-재생표로-변경)를 따른다. 화면은 `website/src/comparison/butterworth-prefilter.js`, 재생표 검사는 `website/tests/frontend/butterworth-prefilter.test.js`에서 관리한다. 화면 변경 시 WAV 처리를 반복하지 않는다.
+
+## Butterworth BPF 후보 비교
+
+선정 목적·자료 대응·수치의 한계는 [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md#2026-11-21-butterworth-bpf-주-전처리-후보-비교), 탐색 후보군은 [bpf_candidates.json](experiment/config/bpf_candidates.json)을 따른다. 프로젝트 루트에서 실행한다.
+
+```powershell
+& .\.venv\Scripts\python.exe -m experiment.src.preprocessing.compare_bpf
+& .\.venv\Scripts\python.exe -m unittest experiment.tests.preprocessing.test_compare_bpf -v
+```
+
+실행기는 프로젝트 TinyCC로 `compare_bpf.c`를 `.cache/noise_analysis/`에 컴파일하고 기존 C의 원본·그룹·개별 PSD를 재사용한다. FFT·소음 추정·음원 필터링을 반복하지 않는다. 결과·구간별 CSV·응답·그래프·입력 지문은 `experiment/outputs/bpf_candidates/runs/<실행ID>/`에 보존하며 기존 회차를 덮어쓰지 않는다. 탐색 단면 그래프에 표시한 고정 상한·하한·차수는 비교를 위한 조건이며 확정 설정이 아니다. 이 명령은 웹·exporter·현재 고정 EQ의 재생 표를 변경하지 않는다.
+
+## 고정 EQ 음원 처리와 재생표 전달
+
+처리 범위·방식·화면 기준은 [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md#2026-11-21-고정-eq-144개-처리와-사전-필터링-화면-통합)를 따른다. 고정 EQ 설계 검증 회차가 준비된 뒤 프로젝트 루트에서 실행한다.
+
+```powershell
+& .\.venv\Scripts\python.exe -m experiment.src.preprocessing.run_prefilter
+& .\.venv\Scripts\python.exe -m unittest experiment.tests.preprocessing.test_prefilter -v
+& .\.venv\Scripts\python.exe export/export_results.py
+```
+
+실행기는 프로젝트 TinyCC로 `prefilter.c`를 `.cache/noise_analysis/`에 컴파일하며, 완료된 계수만 C에 전달한다. 처리 WAV·manifest는 `experiment/outputs/enhanced/prefilter_fixed/runs/<실행ID>/`, 현재 참조는 `experiment/outputs/prefilter_results.json`이다. 설정·설계·입력이 달라지면 재설계 검증 또는 입력 확인을 요구하며, 기존 처리 회차는 보존한다.
+
+`npm run dev`의 기존 Node 자료 준비도 완료 WAV를 검증·전달하며 필터를 실행하지 않는다. 웹 검증은 `website/`에서 기존 `npm run build`를 사용한다. 새 재생표 검사는 `website/tests/frontend/prefilter.test.js`와 `website/tests/shared/prefilter-fixed.test.js`이며 빌드 검사에 포함된다. 기존 3문장 평가 카탈로그·원응답은 새 144조건으로 자동 변환하지 않는다.
+
+## 공통 고정형 peaking EQ 설계·응답 검증
+
+확정 설정과 자료 관계는 [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md#2026-11-21-공통-고정형-peaking-eq-설계응답-검증), 수치 원본은 [prefilter_fixed.json](experiment/config/prefilter_fixed.json)을 따른다. 프로젝트 루트에서 실행한다.
+
+```powershell
+& .\.venv\Scripts\python.exe -m experiment.src.preprocessing.design_peaking_eq
+& .\.venv\Scripts\python.exe -m unittest experiment.tests.preprocessing.test_design_peaking_eq -v
+```
+
+실행기는 프로젝트 TinyCC로 설계 계산기를 `.cache/noise_analysis/`에 컴파일한다. C가 계수·극점·복소 응답·반감쇠 경계를 계산하고 Python은 지문 기록·CSV 조회·PNG 작성만 담당한다. 결과는 `experiment/outputs/prefilter_design/runs/<실행ID>/`의 `design.json`, `response.csv`, 전체·대역별 PNG 3개와 `manifest.json`에 보존한다. 응답은 0.5Hz 격자에 정확한 중심·반감쇠 경계를 추가하며 중복 주파수는 제거한다. 검사는 독립적인 SciPy 아날로그 원형의 bilinear 변환과 C의 복소 응답을 대조한다.
+
+기존 완료 회차를 덮어쓰지 않으며 설정·코드·컴파일러·참조 분석이 계산 중 달라지면 결과를 게시하지 않는다. 이 명령은 음원이나 지표를 처리하지 않는다. 웹의 기존 소음별 초기 EQ 표는 보존된 이전 안이며, 새 공통 설계는 이번 단계에서 웹·exporter에 연결하지 않는다.
+
+## 피크·추적 안정성·Clean 중첩 발표 비교
+
+기존 12그룹 평균과 개별 C 분석을 준비한 뒤 프로젝트 루트에서 실행한다. 집계·구간 경계·미검출·정규화 기준은 [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md#2026-11-20-피크-유지추적-안정성clean-중첩-비교)를 따른다.
+
+```powershell
+& .\.venv\Scripts\python.exe -m experiment.src.noise_analysis.plot_peak_comparison
+& .\.venv\Scripts\python.exe export\export_results.py
+```
+
+실행기는 프로젝트 TinyCC로 집계 도구와 기존 분석 도구를 컴파일해 `.cache/noise_analysis/`에서 실행한다. 기존 전체 구간 통계와 그룹 PSD는 재사용하며, Changing 구간별 검출·추적만 별도 산출한다. 결과는 `experiment/outputs/mixture_summary/peak_comparison.json`과 새 회차의 PNG·구간 C 원출력에 보존하고 기존 결과는 덮어쓰지 않는다. 수치 검사는 `.venv/Scripts/python.exe -m unittest experiment.tests.noise_analysis.test_peak_comparison experiment.tests.noise_analysis.test_analyze_signals`, 전달 검사는 프로젝트 Node.js의 `node --test export/tests/mixture-summary.test.mjs`, 웹 검증은 `website/`의 `npm run build`다.
+
+## 완료 PSD로 발표용 SNR 비교 그래프 생성
+
+기존 12묶음 평균 분석이 완료된 상태에서 아래 명령만 실행한다. 추가 평균 계산 없이 저장된 Mixture mean PSD를 그린다. 표시 기준은 [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md#2026-11-20-snr-비교-발표-그래프)를 따른다.
+
+```powershell
+& .\.venv\Scripts\python.exe -m experiment.src.noise_analysis.plot_snr_comparison
+& .\.venv\Scripts\python.exe export\export_results.py
+```
+
+그래프와 출처 기록은 기존 `experiment/outputs/mixture_summary/` 안에 별도 렌더 회차로 보존한다. 선·축 검증은 `.venv/Scripts/python.exe -m unittest experiment.tests.noise_analysis.test_snr_comparison`, 웹 검증·빌드는 기존 `website/`의 `npm run build`를 사용한다.
+
+## 합성음 평균 요약 실행
+
+평균의 정규화·구간·시간축·비교 기준은 [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md#2026-11-20-합성음-평균-요약)에 모았다. 기존 개별 분석과 등록 발화 구간이 준비된 상태에서 프로젝트 루트에서 실행한다.
+
+```powershell
+& .\.tools\tcc\tcc.exe -std=c99 -Wall -Werror experiment\src\noise_analysis\analyze_signals.c -o .cache\noise_analysis\analyze_signals.exe
+& .\.venv\Scripts\python.exe -m experiment.src.noise_analysis.run_summary
+& .\.venv\Scripts\python.exe export\export_results.py
+```
+
+완료 회차는 `experiment/outputs/mixture_summary/`에 보존하며 웹에는 현재 참조하는 JSON·PNG만 전달한다. `npm run dev`도 검증된 완료 요약을 전달한다. 웹 검증·빌드는 기존과 같이 `website/`에서 `npm run build`로 실행한다. 독립 수치 검사는 `.venv/Scripts/python.exe -m unittest experiment.tests.noise_analysis.test_mixture_summary`, 전달 검사는 프로젝트 Node.js로 `node --test export/tests/mixture-summary.test.mjs`를 실행한다. 웹·내보내기에서 RMS·FFT·피크를 재계산하지 않는다.
+
 프로젝트 방향은 [README.md](README.md), 확정한 연구 자료는 [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md)를 따른다. 이 문서는 현재 실행 가능한 명령과 코드의 연결 지점을 관리한다.
 
 ## macOS 협업용 웹 실행
@@ -81,7 +203,7 @@ New-Item -ItemType Directory -Force .cache\noise_analysis | Out-Null
 
 ## 새 평가 기준으로 전환할 작업
 
-소음 특성 분석은 새 12문장·144조건으로 연결되어 있다. 음성 처리 결과·객관 평가·QR 청음평가는 아직 이전 3문장 ID를 사용하므로, 파일이 전달됐다는 이유만으로 이 메뉴까지 연결 완료로 판단하지 않는다.
+소음 특성 분석과 별도 필터 청음평가는 새 12문장으로 연결되어 있다. 일반 알고리즘의 음성 처리 결과·객관 평가·기존 진행자 제어 QR은 이전 3문장 ID를 사용한다. 아래 표는 이 일반 평가의 전환 작업이며, 새 필터 청음평가의 연결 상태와 구분한다.
 
 | 경로 | 현재 상태 | 전환 시 할 일 |
 | --- | --- | --- |
@@ -146,8 +268,8 @@ macOS에서는 같은 인수를 `.venv/bin/python -m experiment.src.mixtures.bui
 | 담당 위치 | 파일과 상태 |
 | --- | --- |
 | `src/validation/` | `inspect_mixtures.py` 구현 완료 |
-| `src/noise_analysis/` | 기존 FFT·실행·그래프 코드 재사용, `detect_peaks.c`는 검출 기준 확정 후 구현 |
-| `src/preprocessing/` | `prefilter.c`는 필터 조건 확정 후 구현 |
+| `src/noise_analysis/` | 기존 전체 C FFT 보존, `analyze_signals.c`에서 Welch·피크·STFT·인접 프레임 추적 수치 계산 |
+| `src/preprocessing/` | `design_peaking_eq.c`·`.py`로 설계·응답 검증, `prefilter.c`·`run_prefilter.py`로 144개 WAV 처리·회차 보존 |
 | `src/algorithms/` | `ss_fixed`·`ss_pattern_fixed`·`ss_pattern_update`·`wiener`·`logmmse`의 `main.c`와 `run_processing.py` 구현 예정 |
 | `src/evaluation/` | 기존 `calculate_metrics.py`를 새 목록에 연결하고 `plot_metrics.py` 구현 예정 |
 | `config/` | `experiment.yaml`의 미정 값은 유지, `listening_test.json`은 문항 확정 후 추가 |
@@ -155,7 +277,7 @@ macOS에서는 같은 인수를 `.venv/bin/python -m experiment.src.mixtures.bui
 
 표의 `src/`·`config/`는 `experiment/` 아래 경로다. 주석으로만 남아 있던 이전 SS C 파일은 정리했다. 구현 예정 파일은 해당 단계에서 실제 코드와 함께 생성한다.
 
-처리 WAV는 `outputs/enhanced/`, 계산 수치는 `outputs/`, 그래프는 `outputs/graphs/`에 생성한다. 현재 `outputs/enhanced/`는 비어 있으며 새 전처리·알고리즘 처리 결과는 아직 없다.
+처리 WAV는 `experiment/outputs/enhanced/`, 계산 수치와 그래프는 `experiment/outputs/`의 해당 회차에 보존한다. 현재 완료한 Butterworth·STOI/ESTOI·청음평가 배정 상태는 PROJECT_CONTEXT를 따른다. 후속 알고리즘 결과와 구분한다.
 
 ## 코드 검증
 
@@ -186,7 +308,11 @@ macOS에서는 같은 인수를 `.venv/bin/python -m experiment.src.mixtures.bui
 
 ## 공유와 문서
 
-코드·설정 정의·의존성 잠금 파일·테스트·작업 문서와 `experiment/`의 연구 음원·합성음원·완료 분석·처리 결과를 팀 자료로 공유한다. 설치 도구·의존성·캐시·생성된 웹 스냅샷·실행 중인 DB·백업·운영 배포 연결 정보·키는 Git에서 제외한다. 계산 이력과 입력 지문을 함께 보존하며, 공유 제외 규칙은 `.gitignore`, 업로드 검사는 [check_git_upload.py](scripts/check_git_upload.py)를 따른다.
+코드·설정 정의·의존성 잠금 파일·테스트·작업 문서와 **현재 사용하는 연구 자료만** GitHub로 공유한다. WAV는 원본/기준/소음/합성 171개와 Butterworth 처리 144개, 총 315개다. 완료 분석은 현재 결과 포인터와 선정 근거에서 참조하는 회차를 공유한다. 이전 분석 회차·중간 합성 소음·미사용 EQ 처리 WAV·예전 −1dB 무처리 비교 WAV는 로컬에 보존하며 Git에서는 제외한다. EQ 회귀 검사와 이력 표시에 필요한 설정·설계·처리 manifest만 남긴다. 설치 도구·의존성·캐시·생성된 웹 스냅샷·실행 중인 DB·백업·운영 배포 연결 정보·키도 제외한다. 공유 범위는 `.gitignore`, 업로드 검사는 [check_git_upload.py](scripts/check_git_upload.py)를 따른다.
+
+새 회차를 실제 사용 대상으로 전환할 때는 결과 포인터와 `.gitignore`의 활성 회차를 함께 갱신하고 입력·결과 지문을 검증한다. 새 복제본에서는 미사용 WAV가 없어도 내보내기·개발 서버·빌드가 동작한다. 보관 자료가 로컬에 존재하면 선택적으로 검증하며, 누락된 필수 원본/Butterworth 파일이나 존재하지만 지문이 다른 파일은 계속 거부한다.
+
+업로드 검사는 소스 파일 10MiB, 연구 입력·합성·결과 파일 100MiB 한도와 비밀정보 검사를 적용한다. 전체 스테이징 트리를 검사하되 Git blob을 하나씩 읽어 대용량 연구 자료 전체를 메모리에 쌓지 않는다. 테스트는 `python -m unittest scripts.tests.test_git_upload -v`로 실행한다.
 
 협업 PC에서 `git config core.hooksPath .githooks`를 설정하고 변경 내용을 검토한 뒤 공유한다. 스테이징 자료는 아래 명령으로 확인한다.
 
@@ -200,10 +326,21 @@ git diff --cached
 
 ## 피크·합성음 비교 웹 연결
 
-등록된 144개 합성음과 대응 기준음은 프로젝트 Python으로 `-m experiment.src.noise_analysis.analyze_mixture_peaks`를 실행해 분석한다. 완료 결과는 `experiment/outputs/peak_analysis/results.json`에 저장하며 이전 결과는 해시별 파일로 보존한다. 배치 조건과 해석 범위는 PROJECT_CONTEXT를 따른다.
+현재 주파수 수치는 C에서 계산한다. 프로젝트 Python은 C 실행·지문·기록·완료 수치의 그래프 생성을 묶는다. 계산 설정과 해석 범위는 [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md#2026-11-20-c-수치-계산과-noisemixture-화면-분리), 실제 파라미터는 [frequency_analysis.json](experiment/config/frequency_analysis.json)을 따른다.
+
+```powershell
+New-Item -ItemType Directory -Force .cache\noise_analysis | Out-Null
+& .\.tools\tcc\tcc.exe -std=c99 -Wall -Werror experiment\src\noise_analysis\analyze_signals.c -o .cache\noise_analysis\analyze_signals.exe
+& .\.venv\Scripts\python.exe -m experiment.src.noise_analysis.run_analysis
+& .\.venv\Scripts\python.exe export\export_results.py
+```
+
+이전 `-m experiment.src.noise_analysis.analyze_mixture_peaks` 명령은 동일한 C 실행 경로로 연결한다. 결과는 `experiment/outputs/peak_analysis/runs/<실행ID>/`의 `raw/*.json.gz`(C 원출력), `details/*.json`(저장된 추적 수치), `graphs/*.png`와 `manifest.json`에 보존한다. 모든 조건이 성공하고 입력 지문을 다시 확인한 뒤에만 `results.json`을 교체한다. 이전 결과는 해시별 JSON과 기존 실행 폴더로 보존한다. 연구 수치 원출력과 웹에 전달하는 PNG·상세 JSON을 구분한다.
 
 `export/export_results.py`의 전체 내보내기는 완료 분석과 원본/기준음/합성음 171개를 지문 검증 후 전달한다. `website/`의 `npm run dev`도 완료 자료만 전달한다. 웹은 DSP 계산을 실행하지 않는다. 입력이 바뀌면 내보내기/표시를 보류하며 이전 실측 점수·응답을 새 문장에 재할당하지 않는다.
 
-‘소음 특성 분석’에서 소음 3종 → 피크 표/확대 → 12문장·SNR 4단계 비교 → 피크 주변 검토 대역 순서로 확인한다. 기존 C FFT와 보조 Welch PSD의 단위·분석 조건은 구분한다. PNG 저장 링크는 현재 그려진 그래프를 이미지로 제공한다. 후보 대역은 필터 설정이 아니며 효과 검증 전이다.
+Noise·Mixture 분석은 각각 3개 세부 화면을 제공한다. 현재 사전 필터·지표·청음평가는 문서 위쪽의 Butterworth 경로로 연결한다. 초기 EQ 설정 `experiment/config/prefilter_initial.json`은 이력 정의로 보존하며 참조 분석의 회차·지문을 검증한다. 초기 설계 기록은 [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md#2026-11-20-사전-필터-준비와-초기-eq-설계안)을 따른다. PNG 저장 링크는 계산 회차에 저장된 파일을 사용하며 브라우저에서 그래프 수치를 재계산하지 않는다. 웹 데이터의 `engine`은 C 소스·실행파일·설정 지문과 실행 회차를 기록하고, `artifacts`는 상세 JSON·PNG 지문을 기록한다. 입력·결과가 변경되면 전달이나 표시를 보류한다.
+
+연구용 전체 프레임·궤적 기록은 `experiment/outputs/peak_analysis/`에 보존한다. 웹 전달은 PNG와 모든 혼합음 궤적의 C 통계 요약을 사용하며, 실제 추가 소음은 비교에 필요한 대표 궤적 통계만 전달한다. 전달기는 통계값을 재계산하지 않고 배열로 직렬화하며, 원래 결과의 SHA-256을 `delivery.source_sha256`에 기록한다. 웹은 이를 검증한 뒤 표의 필드로 복원한다.
 
 전달 검사는 `node --test export/tests/peak-analysis.test.mjs export/tests/local-dataset.test.mjs`, 웹 검증은 `website/`의 `npm run build`다. 이전 QR 규격·객관 평가 ID는 이 작업에서 변경하지 않는다.

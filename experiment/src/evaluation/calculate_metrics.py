@@ -1,8 +1,8 @@
 """깨끗한 기준 음성과 평가 음원을 비교해 실제 STOI·ESTOI를 계산한다.
 
 처리 순서: 음원 목록 확인 → WAV 읽기 → 리샘플링·시간 정렬 → 지표 계산 → 결과 저장.
-이전 3문장 평가 목록을 검증하는 계산기이며, 현재 새 12문장·144합성 배치는 아직 연결 전이다.
-새 기준 연결 시 문장·처리 방식·대응 기준음·웹 ID를 함께 전환한다(CONTRIBUTING.md).
+기존 3문장 평가 목록은 보존하며 --prefilter-bpf로 새 12문장·144조건의
+원본/BPF 대응 비교를 별도 회차에 계산한다(CONTRIBUTING.md).
 실제 지표 연산은 pystoi가 담당하며, 이 코드는 입력 준비·검증·결과 기록을 담당한다.
 
 공개 함수: prepare_signals, calculate_signals, calculate_wav_pair, calculate_dataset,
@@ -470,7 +470,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--algorithm", action="append", choices=ALGORITHMS, help="준비된 방식만 계산합니다. 여러 번 지정할 수 있습니다.")
     parser.add_argument("--sample-rate", type=int, default=DEFAULT_SAMPLE_RATE, help="계산 전 공통 샘플레이트. 기본 16000 Hz.")
     parser.add_argument("--max-delay-seconds", type=float, default=DEFAULT_MAX_DELAY_SECONDS, help="고정 지연 탐색 범위. 기본 ±0.5초, 0이면 시작 시점을 유지합니다.")
+    parser.add_argument("--prefilter-bpf", action="store_true", help="등록된 새 144조건의 원본/BPF를 같은 Clean 구간으로 비교해 별도 회차에 보존합니다.")
     args = parser.parse_args(argv)
+    if args.prefilter_bpf:
+        from .prefilter_metrics import generate
+        try:
+            result = generate(args.root,sample_rate=args.sample_rate,max_delay_seconds=args.max_delay_seconds)
+        except (ValueError,OSError) as error:
+            print(json.dumps({'status':'error','message':str(error)},ensure_ascii=False),file=sys.stderr)
+            return 1
+        print(json.dumps(result,ensure_ascii=False))
+        return 0
     try:
         # --algorithm을 여러 번 지정하면 해당 방식들의 ID를 합쳐 선택한다.
         # Python 모듈을 옵션 없이 직접 실행하면 전체 180개가 대상이 된다.

@@ -40,3 +40,20 @@ export const surveyResponses = sqliteTable('survey_responses', {
   recordedAt: text('recorded_at').notNull(),
   deletedAt: text('deleted_at'),
 }, table => [uniqueIndex('survey_response_participant_sample').on(table.participantId, table.sampleId)]);
+
+export const prefilterListeningStudies = sqliteTable('prefilter_listening_studies', {
+  id: text('id').primaryKey(), fingerprint: text('fingerprint').notNull(), snapshot: text('snapshot').notNull(), createdAt: text('created_at').notNull(),
+});
+export const prefilterListeningParticipants = sqliteTable('prefilter_listening_participants', {
+  id: text('id').primaryKey(), studyId: text('study_id').notNull().references(() => prefilterListeningStudies.id),
+  groupId: text('group_id').notNull(), tokenHash: text('token_hash').notNull(), orderJson: text('order_json').notNull(), joinedAt: text('joined_at').notNull(),
+}, table => [uniqueIndex('prefilter_listening_participant_token').on(table.studyId, table.tokenHash)]);
+export const prefilterListeningPlays = sqliteTable('prefilter_listening_plays', {
+  id: text('id').primaryKey(), participantId: text('participant_id').notNull().references(() => prefilterListeningParticipants.id),
+  trialIndex: integer('trial_index').notNull(), recordedAt: text('recorded_at').notNull(),
+});
+export const prefilterListeningResponses = sqliteTable('prefilter_listening_responses', {
+  id: text('id').primaryKey(), participantId: text('participant_id').notNull().references(() => prefilterListeningParticipants.id),
+  trialIndex: integer('trial_index').notNull(), pairIndex: integer('pair_index').notNull(), mode: text('mode').notNull(), payload: text('payload').notNull(),
+  choiceOrder: text('choice_order').notNull(), noise: integer('noise').notNull(), naturalness: integer('naturalness').notNull(), keyCorrect: integer('key_correct').notNull(), recordedAt: text('recorded_at').notNull(),
+}, table => [uniqueIndex('prefilter_listening_participant_trial').on(table.participantId, table.trialIndex)]);

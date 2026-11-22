@@ -1,0 +1,2203 @@
+{
+  "version": 1,
+  "status": "candidate_comparison_only",
+  "run_id": "20261121T105756Z-8555834e",
+  "calculated_at": "2026-11-21T10:58:07.401944+00:00",
+  "config": {
+    "version": 1,
+    "status": "exploratory_not_selected",
+    "filter_type": "digital_butterworth_bandpass",
+    "sample_rate_hz": 16000,
+    "lower_cutoffs_hz": [
+      20,
+      50,
+      75,
+      100,
+      125,
+      150,
+      200,
+      250,
+      300
+    ],
+    "upper_cutoffs_hz": [
+      3500,
+      4000,
+      4500,
+      5000,
+      5500,
+      6000,
+      6500,
+      7000
+    ],
+    "prototype_orders": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "digital_order_definition": "2 * prototype_order",
+    "cutoff_definition": "single_pass_power_half_of_passband_peak",
+    "comparison_mode": "causal_single_pass_magnitude_response",
+    "selected_candidate_id": null,
+    "selection_status": "Cutoffs, final order and processing scope are not yet selected.",
+    "evaluation_relationship": "Existing 12 statements, 144 mixtures and their completed C analysis inform candidate selection. This is not independent final evaluation or an intelligibility measurement.",
+    "design_evidence": [
+      {
+        "path": "experiment/outputs/peak_analysis/results.json",
+        "sha256": "fe95da6e4fa02fd9b692dd523ceb3deede8a28cfa3c42aeede316cdd751edc2c"
+      },
+      {
+        "path": "experiment/outputs/mixture_summary/results.json",
+        "sha256": "d8e855324c0610fec75324db27d495e6c80639b8f5f31bf7d2672f7afed6b15f"
+      },
+      {
+        "path": "experiment/outputs/mixture_summary/peak_comparison.json",
+        "sha256": "878118a4b40fc6141435b81bf74ee02b5c50707256eeb752ccfd5a3469a9215e"
+      }
+    ]
+  },
+  "config_sha256": "d0c16fe936926024338483f92ce36bd5736ae494af171bc676717f46f5d96bc4",
+  "engine": {
+    "language": "C",
+    "source_sha256": "d7f8f714a0a2a1897488f3afb3fe643cc61039b19d5ad63171f62ebe8a3b18c4",
+    "runner_sha256": "1636fa17de844c31e0b87ec5a47be11d30b3079754b6f627c72dcd7206757c57",
+    "compiler_sha256": "e9cb3e89e20a9efead83cc9e6b100314275634c2f705056da71f424ea9b0cdf0",
+    "executable_sha256": "7c724773b7ca6cc71dfbd1c6276995c85b51f73c7fb6b18ac2c0f6b3455a5767",
+    "transport_sha256": "1e5758bc5595ce22322b3d621ceb59b5f3e583d1da1205504701712710bec319"
+  },
+  "inputs": [
+    {
+      "path": "experiment/outputs/peak_analysis/results.json",
+      "sha256": "fe95da6e4fa02fd9b692dd523ceb3deede8a28cfa3c42aeede316cdd751edc2c"
+    },
+    {
+      "path": "experiment/outputs/mixture_summary/results.json",
+      "sha256": "d8e855324c0610fec75324db27d495e6c80639b8f5f31bf7d2672f7afed6b15f"
+    },
+    {
+      "path": "experiment/outputs/mixture_summary/peak_comparison.json",
+      "sha256": "878118a4b40fc6141435b81bf74ee02b5c50707256eeb752ccfd5a3469a9215e"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr20_instruction01.json",
+      "sha256": "c204bf7606ef0d606bf0f2d33ef401448a01e7336bbd8f00f3d40e6a5ce51e05"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr20_instruction02.json",
+      "sha256": "f5c1219b5e05fa6339fa915798b6af5ddf764f5d0c20659b9d5e197419f7f333"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr20_instruction03.json",
+      "sha256": "d2fd0749c6cd17f44f366a97dbf0e2f2af3f7d6f407d79612a2ec38a73e823a6"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr20_instruction04.json",
+      "sha256": "f48efd127b65a35db921aed61027822e2ca032431923da03700256f240301691"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr20_instruction05.json",
+      "sha256": "2d2e71dbe682e62977de9f6a9cd59f31118482a58bc0fefce340e9eec7a95f7d"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr20_instruction06.json",
+      "sha256": "e800868996440e89cd3eac247ed8008efd2faacbb9a6385dcbeb131fe95100ec"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr20_warning01.json",
+      "sha256": "d4dfca3e07249d94327490a36c5b939976568647ceb84ed597334c92358b7e88"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr20_warning02.json",
+      "sha256": "df0ce41471c19273947f21960332ea5af8cec836e5d62a8664af05dbae425c53"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr20_warning03.json",
+      "sha256": "73745fb96b510f29bc90beafd457801b05c98d91d59784747e87ac646851fb27"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr20_warning04.json",
+      "sha256": "c18e852fa8308fb6920d33364dbb92c7b357e6acdcb810242c351f4b03ac64dc"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr20_warning05.json",
+      "sha256": "cad14403467c0fbae4685f326c21b19d8cbcecd9bc7c8263cd304385c2e766dd"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr20_warning06.json",
+      "sha256": "766c979eabbd8a0b7f6b25201a54bd234bd756dc94be773e25b8287fd9ea054a"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr10_instruction01.json",
+      "sha256": "b550f32f3ee915c671cafe9aecfd07d40f24a999a37ca3e191a66066b27904e3"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr10_instruction02.json",
+      "sha256": "a18d9835f192854e9e7d0674dc3a8da69c1418f54ac768c6f1c4cfb4e742cf4a"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr10_instruction03.json",
+      "sha256": "773554019b23908966af8ff4e00189dc17b84b2a5a638f15a7914503e6ea1c59"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr10_instruction04.json",
+      "sha256": "73678c9d1a510230c5b55d9c0cb24e9cc88b2e8c799ba3492e216bfa52c29150"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr10_instruction05.json",
+      "sha256": "0486736b495d74a94aa9b99737caf02818265f42f1b8f8dee80d98092b35890d"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr10_instruction06.json",
+      "sha256": "9947f0e8fd11ccdb14d91174076992320144be69cbc9018c323f09815868f67a"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr10_warning01.json",
+      "sha256": "3e0c8829435f51fb1236a0a4944d3c3c39e920e0e056bd31fa18ec5310cccd36"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr10_warning02.json",
+      "sha256": "cdfff1cbf638bc2280b4459f54e1bb0914dc57766edd8f8a1bbcc982ffd2dcbb"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr10_warning03.json",
+      "sha256": "005f13b7a4cb2db67f047411f5fdbe7f7788a3be1b1f8269f7bae5d63038701d"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr10_warning04.json",
+      "sha256": "b281248c0d4fd7ad7851b2ec296afd187c667db0f0e1c83f4889986d02d7a225"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr10_warning05.json",
+      "sha256": "e464642c47e3cffb3706406c696ca8d95fb20f2d3d6185c660f4789eab405015"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr10_warning06.json",
+      "sha256": "42d11bb7cdbc64ed094d2eb4dcf86179f6641995ed9768e02d574f1581f6e36a"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr05_instruction01.json",
+      "sha256": "fee1a6de6d0c409a52d217ea6311ab5b1f2b863c96c1156ff656bfd69442bbdc"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr05_instruction02.json",
+      "sha256": "9103009eba82dfe194784261ac5449afe71707a01d884e22685e81327e498507"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr05_instruction03.json",
+      "sha256": "ec14cbed7238b077015a9d126ede376ac5cfe2e88ea79de1eb40a33dc1042b15"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr05_instruction04.json",
+      "sha256": "32c58bdc3f2aac599fdff670b851b9e7540d2f23dd25c0f04313912caa06313c"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr05_instruction05.json",
+      "sha256": "1eaf2fc9f547b78007ffd62055a4a35bd13181034c1e7b1b826da2bed27958ac"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr05_instruction06.json",
+      "sha256": "378caacf45f3ffaf054303c9b6aed00bad973fff49a4f5de57381cc145055638"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr05_warning01.json",
+      "sha256": "ba30a5cb0dafce0f88a186c2fd96429ff627bcc45803b0112f34dddd731c084d"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr05_warning02.json",
+      "sha256": "070d9ec7780f61394f947fa538f5c2bebc1a0a9fa909c9b5b101feeda5b361a8"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr05_warning03.json",
+      "sha256": "5e29191466b4c002d28f8433b051ef69a43417ef7040812971713f10bba541ce"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr05_warning04.json",
+      "sha256": "76a46a59526e41a189f4f65d9bd89fd30c54ad4f623f16ba5bcb39871ceca2db"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr05_warning05.json",
+      "sha256": "7768ea6e37025fabb51a535741aab7d57d65f7ec29e9b26a8bd2157a3b2508b2"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr05_warning06.json",
+      "sha256": "6619bcc69c66632f6e12777a1b0ef483f922b6e7ea581fb3439b53c5b83e4d9a"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr00_instruction01.json",
+      "sha256": "0554b29883fdf565c11137664a449f9f1414c2100da85e55bd73d6a45cbba88f"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr00_instruction02.json",
+      "sha256": "a7f8c39b592afb95abd0cc532af8d4d1b06e783d17ba7e8df7abaeaaf7e39c08"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr00_instruction03.json",
+      "sha256": "f1d105b55f242183afa8b227cb4ebe9005294bc43716e38ec82488aa75761934"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr00_instruction04.json",
+      "sha256": "354543c7a5fe65efcb21faba96e7610c2368955909467f53413552e2474eb4df"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr00_instruction05.json",
+      "sha256": "793a8e78a6febb9ace96a653bae6fb49e2f52fa7dfbeb50bfcc04542fbbd998e"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr00_instruction06.json",
+      "sha256": "1390fe80fb4acd5deacf7eaa4596a9a07579b347c2f1d671018ecd046c4541a1"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr00_warning01.json",
+      "sha256": "e2e9096cdc216f677414ad6b2839b615f2ffe06dc26f63a59f426029a44a01b3"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr00_warning02.json",
+      "sha256": "78d5da61d082d191a1e4a23a02b20a867cddce33b4fb1bed6d3a4e23db79f116"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr00_warning03.json",
+      "sha256": "e37e4a43c5d05cab04c4dcccf455dc379fea01d8e864bf5ae2ecfdfb8339c1ff"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr00_warning04.json",
+      "sha256": "b41c585e7b7f3eec6033f1a3c1acc0b3bcfdfee323a886f2c561757a3d1020dc"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr00_warning05.json",
+      "sha256": "ceac092a037f09c2c238fbe2997230e63efc059b42a59170cae2f8f72864b7c5"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single_snr00_warning06.json",
+      "sha256": "77848f30c416875eeac19c6348111d59ea69dc23887adda85d54a0de49ef9552"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr20_instruction01.json",
+      "sha256": "f9d41d527217fe777af9b5b454c25cc14fc67cf1e873b4b9923d30e41d290397"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr20_instruction02.json",
+      "sha256": "026045a90174ab2828ac1ffd6623001598ffeb294755bb2f1259a580340afe0a"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr20_instruction03.json",
+      "sha256": "edd344a4d7bd9eb40f67abdb8af29e7724ab6b3fb33b4b66971d1c5e4d9d6ba5"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr20_instruction04.json",
+      "sha256": "4adacc20417637afbe8e6e591106e264f59169e8b86fa0300bb6c4b5d05917fb"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr20_instruction05.json",
+      "sha256": "e1ed4a13e3de5e7bbcaaa86564f908358f456979bc8f07e9f748fc3fb0b867a4"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr20_instruction06.json",
+      "sha256": "1092afc433ac796d666cada06b3a716dfb22788b472d791fb865d9b243dae4f1"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr20_warning01.json",
+      "sha256": "c99e0f47f2827d67063ae859f54b56e43e0d56935a0331463d48b492a0feae26"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr20_warning02.json",
+      "sha256": "b4df17b0ead2fabf381385db846ec4a7501b6d06865eff812b288227d33f429c"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr20_warning03.json",
+      "sha256": "b418ca2a5016697f0b2ec4186d82864a9e75d352ee29ee97cdd2ac3088b3d2f1"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr20_warning04.json",
+      "sha256": "e9392c5582dce71011ae9892cf29fe5912ce99f16f9750dd8dcade284c720821"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr20_warning05.json",
+      "sha256": "27f98d746ea21775d4236fdbbb1cf9a89168e29c7684ceee07f412301d97ce2d"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr20_warning06.json",
+      "sha256": "04ba582b5e380c6aee94b561f2d8e906c3be59c40400ed99b2dd85a2ed459d89"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr10_instruction01.json",
+      "sha256": "e20b1fe9971083c27b89006e8d6d0c9b7e68e39d016bad8c84474d5dce12bc09"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr10_instruction02.json",
+      "sha256": "d37009c97faa0d90f94d7cc02d507fec6f0f7959002f389de57f28d462b4f5d0"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr10_instruction03.json",
+      "sha256": "ee981133d0fbd3a79778cdb984e63467e4816bb884c0f4bc1adad664130c4893"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr10_instruction04.json",
+      "sha256": "5a7bb91d4456d4935e18c73f1276bf9e7f6ab0bab78eb075f732bd58274dd54d"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr10_instruction05.json",
+      "sha256": "7de22428675e3663891b88c26a28291e255460a8126b054262743243925f0956"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr10_instruction06.json",
+      "sha256": "a30a8599ac1fc1256e375ad4564930bc76279a6c1a58188bb6d1710ad1b92d8d"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr10_warning01.json",
+      "sha256": "c30eea91fb275cc917fbdb7d49b48596158aa2835b716ea9118bc717b9207e79"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr10_warning02.json",
+      "sha256": "b3e677d7bcfd015035be0efebd9ce05f0bc9fad1f99ded4b9941d05f19f8e51e"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr10_warning03.json",
+      "sha256": "571898c8e79c2db84f4674d576e131d205903195919bc12a9beac427597da1f1"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr10_warning04.json",
+      "sha256": "306d6d9f6c68b0964462ba7176371709ae46e34090ac0985ceaa2f90df17135d"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr10_warning05.json",
+      "sha256": "e5589f70b87dc091aa41f95bc3db351a4cb8d211b29ba68b62a9dc4c9d2b5713"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr10_warning06.json",
+      "sha256": "2304cc154ed6312a32599e02ec69f031ee5d5a9607658526741dbbee86c6c22d"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr05_instruction01.json",
+      "sha256": "5c2b971b6b2321c1bd77a4d2500e3a6054ee4f654d6327881fcb4f4cf93fd1ee"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr05_instruction02.json",
+      "sha256": "0592e99fc393e7ee3d8b9b96695160a344ac6b13628fa275664b6aecd296a4e8"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr05_instruction03.json",
+      "sha256": "389150b5488cf6daaf23ca69dec60ddbd082d63ce6f9d1b32b442a41363f8d0f"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr05_instruction04.json",
+      "sha256": "4ddae9abc15249dca32c2913442a6cd9c62568b11e74b9ab2bd7e2a2f83e88bd"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr05_instruction05.json",
+      "sha256": "9947436fc82ac290a2e2aca0391278ebd29ae84d65d172f6d8c3c32ee99e3328"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr05_instruction06.json",
+      "sha256": "c08d2dbdfd5a4b212f68b872cbb0009fc43a1731bed37b4646109ab70cfc7507"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr05_warning01.json",
+      "sha256": "944e9d02563dc545e4ac80dff8018adb55b921565ad413226580da4002e24a8a"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr05_warning02.json",
+      "sha256": "ab1a724f5393288b22b370cfcfad854eadec43c4fe6dbfb1363c3cfb2a108a81"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr05_warning03.json",
+      "sha256": "58282c94a467f0664d975fa4e57621de23375119003e2db904cf4064168308ab"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr05_warning04.json",
+      "sha256": "d28380fe4dec3f6feef0bd580b882b0e4b0d52568b90d00f6eb5451f5b6d8ce2"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr05_warning05.json",
+      "sha256": "3bf0a4dd70b53f75d50ba3fce091c440f77b3fc006989b9412bfcea680fa2141"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr05_warning06.json",
+      "sha256": "dbd8bbf6ba9ad8622340fa7639d9a5d72451dbf0f76cf9c5fa5e5909f3a15949"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr00_instruction01.json",
+      "sha256": "bf79f72b9e1b9e713213056d4697c8523a025af3038f674dd1a85966b6911fbf"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr00_instruction02.json",
+      "sha256": "fb0dbda0f7ab988e1e080529e712edb8312637926f8682c00195d8453088d073"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr00_instruction03.json",
+      "sha256": "ff728be9556311776d25e0c000b20db5d0666df354a9c8fca4140981b288a64a"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr00_instruction04.json",
+      "sha256": "c4a8ad56caf873450c567bdfff1a78f5a3a0640552c0f98ff5e8a4a9ffd1f250"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr00_instruction05.json",
+      "sha256": "c77b17118c7ddd95a6d4ef6d80724d2d62a988994b7a1662cd48deddd3aa5995"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr00_instruction06.json",
+      "sha256": "ade860b2764ebca992f7722e1eb8999c48a2a3d02b6b24a37c5ecc94b9603e78"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr00_warning01.json",
+      "sha256": "af677c52c3b9e760c66564eb3a5a6e4f0ff215044df0b5ed1c4f18590182d6c5"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr00_warning02.json",
+      "sha256": "5a847dbb6a8fb11f57fbdfe78ce564d1025ea6b49d7de1378214d7137a124d6d"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr00_warning03.json",
+      "sha256": "be0020ff03c5f4c657261490674d869c188928cd6e1f55b07e08cc1d3f3b007b"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr00_warning04.json",
+      "sha256": "944f89f78054987af0614d1f7361ccfa74b5ec5cdab64fe0eed3e9d4efd9b8a9"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr00_warning05.json",
+      "sha256": "29c19ee6fe0ced6ace2b54002fd1a0c88390fbaade19b5550df313323ca13ef3"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/complex_snr00_warning06.json",
+      "sha256": "2caf40bc71ec1651fc887c54e33668b57f7e57be6207954d562017c56c0ef006"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr20_instruction01.json",
+      "sha256": "b50f3174cebca0f1a27a982aa1903dfbb2f5cb01be26cc7373644e78632c9207"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr20_instruction02.json",
+      "sha256": "033bec73e54d7ff0e311ba141caf53ea85a169740f5edcf965fa647fd5d32ddd"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr20_instruction03.json",
+      "sha256": "769274df3bea6a26ec0b9f362756bf2faee28562074ccf46500c8d5be22b45e5"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr20_instruction04.json",
+      "sha256": "d3b2a7bfb732d5e0f0a14a10cd548c4d47372875b09a33b5b8286cc278079c16"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr20_instruction05.json",
+      "sha256": "d8c9c15b6c5bc86c787021ec289e325338c7d0cd75a69e9b956a240b6bbd28a0"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr20_instruction06.json",
+      "sha256": "c31267b71633a54a8aa7d66a992caa5c9430151bc11ff2e9a08dfc7a68209c27"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr20_warning01.json",
+      "sha256": "ed5ea76b18767384bf72b89345fce1addd57efd981cc4ba7db43845ed2d46f9f"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr20_warning02.json",
+      "sha256": "8aed4eae949eb9ae1b78250eef91f310c768754a05402dbb351ba7e0077ace91"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr20_warning03.json",
+      "sha256": "5097dd5ebf8d9c5a46a86cb3bb5eab7f12df47b6910ea1a158b389e6229e7f8c"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr20_warning04.json",
+      "sha256": "b2a962ec60eefe91c6c6e895eea0960288c34e292a611530f8349d6e46cfacb1"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr20_warning05.json",
+      "sha256": "39fb31f36b37181babdafe7842db4153cee170354db1b7a0412113ce318ea7fa"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr20_warning06.json",
+      "sha256": "25744be6e1b108583afdda0b9e9777e7a3a3803baf7c6593cb7a9dff9952eb54"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr10_instruction01.json",
+      "sha256": "7a3d39995cbc699bdb5c00788ae810750b6905e8369ea7d00b67b7d8e9cc712c"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr10_instruction02.json",
+      "sha256": "d563244ec653ec6c5715ea783f36eb820d202060abc048ebd02ea624894a418a"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr10_instruction03.json",
+      "sha256": "034f7a34717d2d81c1756192c820d2cc71b51a5088ccfee4fb132e098ffcb445"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr10_instruction04.json",
+      "sha256": "b5f2baf9e2caf84e9ebe2c2d861d53c4e230aa3e4079cad61627fd6c92545229"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr10_instruction05.json",
+      "sha256": "683456b26be1a988c792f9a871928eddfa34d8db0d21c8048ae3d8e3f9a5762e"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr10_instruction06.json",
+      "sha256": "7beee8a046c7534fd6ce529ae78e63b0125144822d396cba173d4108bc6138e2"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr10_warning01.json",
+      "sha256": "8e77cc31351a500a25bd8a24e3d39926bc60c7473edc0352f40a0a838b52b41b"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr10_warning02.json",
+      "sha256": "5c22d6ff5055eea9ee1aeeb79229536eba900de8b84295163c5f0230fe01818d"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr10_warning03.json",
+      "sha256": "9cdbd64e4603971265de76bfada7d7dd615b314f08ff1270a37f4ed74711087f"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr10_warning04.json",
+      "sha256": "8d39e4def38112a364eecbd8981e96f467159de499851bcf837439f43dbc6d6f"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr10_warning05.json",
+      "sha256": "5ec005dcb053cd0c35fe2a7697ed338e1313f6523191d93072cbcdc39ca73c41"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr10_warning06.json",
+      "sha256": "3cd282e2dec0d4adccbdde005a75e36d2774b3a61cce21a67d7ee68cb1a323b9"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr05_instruction01.json",
+      "sha256": "a92d06e27254be0fdb5a955bf51a6fc2079f71edebc62b90fa79b052ff72f20d"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr05_instruction02.json",
+      "sha256": "457f102e52f08c1922dcb7f5613d8f9a24dfd46771169559e3080e6ffaa8d27f"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr05_instruction03.json",
+      "sha256": "3b0c7597417c0f6df1fb9cea0dab0238b0881785b19f1b603f447e7474214486"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr05_instruction04.json",
+      "sha256": "f3b6114ccf8b6712a18f0ef8182fa91957499e6acc63e384bbf6cf4663bc5ec0"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr05_instruction05.json",
+      "sha256": "06773c8f88173159bf25ba023394c68ae63f1c24c5ce90f89ea443af793992a1"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr05_instruction06.json",
+      "sha256": "eb6aba1e327f54b7bb8e423d7457034f0d53b25d386f9416414c21387716da04"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr05_warning01.json",
+      "sha256": "8032415f45727433823053dc4a4bcd2e040919b310639df4e1339f9ad6c5d970"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr05_warning02.json",
+      "sha256": "3975a1d717cc1c9d66627f622e3cb06d7c889db3f6786b7027686a02177649a1"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr05_warning03.json",
+      "sha256": "70fda8aaeb54100bfa982640c7709e248c7c2111b9450d125f1640c4f5aef09a"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr05_warning04.json",
+      "sha256": "eeaa70c9ca8b71a7038d1edb4897e6f7c9ac55b1f08671ec6d1987ac91ad15d5"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr05_warning05.json",
+      "sha256": "9bd1062472593d8e3d0e73d11cf7e40e094bab2837389adfae21cc9096e7da08"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr05_warning06.json",
+      "sha256": "24ed6bb1acbc62d0447a6186ee50288de67bd0528f0396f1090abdc1284e148e"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr00_instruction01.json",
+      "sha256": "8c24c5005df4bfd925d75c88353dc42bcb1b3c04fae3494be766cfc0cfb9b20b"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr00_instruction02.json",
+      "sha256": "ccf5d0c9f3a16fbf6e1b90f32c51b198936a98e7d5eb9b3ef76a5163ab85401a"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr00_instruction03.json",
+      "sha256": "49a5a79d37d4e71fad1b644f9f2b39aa7420f54a712f970cdc87309cba0c5f1e"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr00_instruction04.json",
+      "sha256": "a013d228131c049f82463ea1a204e860d5e30115a417718f9ee1e1f7e9ba1ebf"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr00_instruction05.json",
+      "sha256": "ffd8e3d207dff7e035d2962d26e6f2af5cb8af6eee4978b75f36903802e2dc74"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr00_instruction06.json",
+      "sha256": "6e7995f057c81ab1f57bcf7619950897231f7c780b6147080182dcdfd1152f6b"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr00_warning01.json",
+      "sha256": "06b2bd3c42d639e170df3331134500c24a83577499668be2b92a471589c96ef1"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr00_warning02.json",
+      "sha256": "debf29c40788ac56060fbc74c09fefb50eeb6d7bd0ba0b7992c4324012514efc"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr00_warning03.json",
+      "sha256": "eebc1a97fdad48869337d4ea2e52fe47c9be2a992002238fefe362182db7f39e"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr00_warning04.json",
+      "sha256": "e1c5f0e6e4a252bb90c3ee6ab5fde2db24c0a038bbe5422290e63d98a3b562eb"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr00_warning05.json",
+      "sha256": "7f4f12efe83522a9f74444ef2ac4be18d77f3c9f9e92e3f0f66d71e65b8b33d1"
+    },
+    {
+      "path": "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/changing_snr00_warning06.json",
+      "sha256": "00dcb338c7818cecb322308156de4e5886a339155fbfce23970876ef41d2e565"
+    }
+  ],
+  "cases": [
+    {
+      "id": "noise_single_whole",
+      "kind": "raw_noise",
+      "noise": "single",
+      "snr": null,
+      "statement": null,
+      "period": "whole",
+      "has_speech": false
+    },
+    {
+      "id": "noise_complex_whole",
+      "kind": "raw_noise",
+      "noise": "complex",
+      "snr": null,
+      "statement": null,
+      "period": "whole",
+      "has_speech": false
+    },
+    {
+      "id": "noise_changing_whole",
+      "kind": "raw_noise",
+      "noise": "changing",
+      "snr": null,
+      "statement": null,
+      "period": "whole",
+      "has_speech": false
+    },
+    {
+      "id": "noise_changing_before",
+      "kind": "raw_noise",
+      "noise": "changing",
+      "snr": null,
+      "statement": null,
+      "period": "before",
+      "has_speech": false
+    },
+    {
+      "id": "noise_changing_after",
+      "kind": "raw_noise",
+      "noise": "changing",
+      "snr": null,
+      "statement": null,
+      "period": "after",
+      "has_speech": false
+    },
+    {
+      "id": "group_single_snr20_whole",
+      "kind": "group_mean",
+      "noise": "single",
+      "snr": 20,
+      "statement": null,
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "group_single_snr10_whole",
+      "kind": "group_mean",
+      "noise": "single",
+      "snr": 10,
+      "statement": null,
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "group_single_snr05_whole",
+      "kind": "group_mean",
+      "noise": "single",
+      "snr": 5,
+      "statement": null,
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "group_single_snr00_whole",
+      "kind": "group_mean",
+      "noise": "single",
+      "snr": 0,
+      "statement": null,
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "group_complex_snr20_whole",
+      "kind": "group_mean",
+      "noise": "complex",
+      "snr": 20,
+      "statement": null,
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "group_complex_snr10_whole",
+      "kind": "group_mean",
+      "noise": "complex",
+      "snr": 10,
+      "statement": null,
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "group_complex_snr05_whole",
+      "kind": "group_mean",
+      "noise": "complex",
+      "snr": 5,
+      "statement": null,
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "group_complex_snr00_whole",
+      "kind": "group_mean",
+      "noise": "complex",
+      "snr": 0,
+      "statement": null,
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "group_changing_snr20_whole",
+      "kind": "group_mean",
+      "noise": "changing",
+      "snr": 20,
+      "statement": null,
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "group_changing_snr20_before",
+      "kind": "group_mean",
+      "noise": "changing",
+      "snr": 20,
+      "statement": null,
+      "period": "before",
+      "has_speech": true
+    },
+    {
+      "id": "group_changing_snr20_after",
+      "kind": "group_mean",
+      "noise": "changing",
+      "snr": 20,
+      "statement": null,
+      "period": "after",
+      "has_speech": true
+    },
+    {
+      "id": "group_changing_snr10_whole",
+      "kind": "group_mean",
+      "noise": "changing",
+      "snr": 10,
+      "statement": null,
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "group_changing_snr10_before",
+      "kind": "group_mean",
+      "noise": "changing",
+      "snr": 10,
+      "statement": null,
+      "period": "before",
+      "has_speech": true
+    },
+    {
+      "id": "group_changing_snr10_after",
+      "kind": "group_mean",
+      "noise": "changing",
+      "snr": 10,
+      "statement": null,
+      "period": "after",
+      "has_speech": true
+    },
+    {
+      "id": "group_changing_snr05_whole",
+      "kind": "group_mean",
+      "noise": "changing",
+      "snr": 5,
+      "statement": null,
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "group_changing_snr05_before",
+      "kind": "group_mean",
+      "noise": "changing",
+      "snr": 5,
+      "statement": null,
+      "period": "before",
+      "has_speech": true
+    },
+    {
+      "id": "group_changing_snr05_after",
+      "kind": "group_mean",
+      "noise": "changing",
+      "snr": 5,
+      "statement": null,
+      "period": "after",
+      "has_speech": true
+    },
+    {
+      "id": "group_changing_snr00_whole",
+      "kind": "group_mean",
+      "noise": "changing",
+      "snr": 0,
+      "statement": null,
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "group_changing_snr00_before",
+      "kind": "group_mean",
+      "noise": "changing",
+      "snr": 0,
+      "statement": null,
+      "period": "before",
+      "has_speech": true
+    },
+    {
+      "id": "group_changing_snr00_after",
+      "kind": "group_mean",
+      "noise": "changing",
+      "snr": 0,
+      "statement": null,
+      "period": "after",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr20_instruction01",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 20,
+      "statement": "instruction01",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr20_instruction02",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 20,
+      "statement": "instruction02",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr20_instruction03",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 20,
+      "statement": "instruction03",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr20_instruction04",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 20,
+      "statement": "instruction04",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr20_instruction05",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 20,
+      "statement": "instruction05",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr20_instruction06",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 20,
+      "statement": "instruction06",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr20_warning01",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 20,
+      "statement": "warning01",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr20_warning02",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 20,
+      "statement": "warning02",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr20_warning03",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 20,
+      "statement": "warning03",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr20_warning04",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 20,
+      "statement": "warning04",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr20_warning05",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 20,
+      "statement": "warning05",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr20_warning06",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 20,
+      "statement": "warning06",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr10_instruction01",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 10,
+      "statement": "instruction01",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr10_instruction02",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 10,
+      "statement": "instruction02",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr10_instruction03",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 10,
+      "statement": "instruction03",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr10_instruction04",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 10,
+      "statement": "instruction04",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr10_instruction05",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 10,
+      "statement": "instruction05",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr10_instruction06",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 10,
+      "statement": "instruction06",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr10_warning01",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 10,
+      "statement": "warning01",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr10_warning02",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 10,
+      "statement": "warning02",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr10_warning03",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 10,
+      "statement": "warning03",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr10_warning04",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 10,
+      "statement": "warning04",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr10_warning05",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 10,
+      "statement": "warning05",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr10_warning06",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 10,
+      "statement": "warning06",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr05_instruction01",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 5,
+      "statement": "instruction01",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr05_instruction02",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 5,
+      "statement": "instruction02",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr05_instruction03",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 5,
+      "statement": "instruction03",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr05_instruction04",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 5,
+      "statement": "instruction04",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr05_instruction05",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 5,
+      "statement": "instruction05",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr05_instruction06",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 5,
+      "statement": "instruction06",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr05_warning01",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 5,
+      "statement": "warning01",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr05_warning02",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 5,
+      "statement": "warning02",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr05_warning03",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 5,
+      "statement": "warning03",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr05_warning04",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 5,
+      "statement": "warning04",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr05_warning05",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 5,
+      "statement": "warning05",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr05_warning06",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 5,
+      "statement": "warning06",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr00_instruction01",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 0,
+      "statement": "instruction01",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr00_instruction02",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 0,
+      "statement": "instruction02",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr00_instruction03",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 0,
+      "statement": "instruction03",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr00_instruction04",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 0,
+      "statement": "instruction04",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr00_instruction05",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 0,
+      "statement": "instruction05",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr00_instruction06",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 0,
+      "statement": "instruction06",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr00_warning01",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 0,
+      "statement": "warning01",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr00_warning02",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 0,
+      "statement": "warning02",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr00_warning03",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 0,
+      "statement": "warning03",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr00_warning04",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 0,
+      "statement": "warning04",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr00_warning05",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 0,
+      "statement": "warning05",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "single_snr00_warning06",
+      "kind": "individual_mixture",
+      "noise": "single",
+      "snr": 0,
+      "statement": "warning06",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr20_instruction01",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 20,
+      "statement": "instruction01",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr20_instruction02",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 20,
+      "statement": "instruction02",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr20_instruction03",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 20,
+      "statement": "instruction03",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr20_instruction04",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 20,
+      "statement": "instruction04",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr20_instruction05",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 20,
+      "statement": "instruction05",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr20_instruction06",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 20,
+      "statement": "instruction06",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr20_warning01",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 20,
+      "statement": "warning01",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr20_warning02",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 20,
+      "statement": "warning02",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr20_warning03",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 20,
+      "statement": "warning03",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr20_warning04",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 20,
+      "statement": "warning04",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr20_warning05",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 20,
+      "statement": "warning05",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr20_warning06",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 20,
+      "statement": "warning06",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr10_instruction01",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 10,
+      "statement": "instruction01",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr10_instruction02",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 10,
+      "statement": "instruction02",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr10_instruction03",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 10,
+      "statement": "instruction03",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr10_instruction04",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 10,
+      "statement": "instruction04",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr10_instruction05",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 10,
+      "statement": "instruction05",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr10_instruction06",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 10,
+      "statement": "instruction06",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr10_warning01",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 10,
+      "statement": "warning01",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr10_warning02",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 10,
+      "statement": "warning02",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr10_warning03",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 10,
+      "statement": "warning03",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr10_warning04",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 10,
+      "statement": "warning04",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr10_warning05",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 10,
+      "statement": "warning05",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr10_warning06",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 10,
+      "statement": "warning06",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr05_instruction01",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 5,
+      "statement": "instruction01",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr05_instruction02",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 5,
+      "statement": "instruction02",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr05_instruction03",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 5,
+      "statement": "instruction03",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr05_instruction04",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 5,
+      "statement": "instruction04",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr05_instruction05",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 5,
+      "statement": "instruction05",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr05_instruction06",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 5,
+      "statement": "instruction06",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr05_warning01",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 5,
+      "statement": "warning01",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr05_warning02",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 5,
+      "statement": "warning02",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr05_warning03",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 5,
+      "statement": "warning03",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr05_warning04",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 5,
+      "statement": "warning04",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr05_warning05",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 5,
+      "statement": "warning05",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr05_warning06",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 5,
+      "statement": "warning06",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr00_instruction01",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 0,
+      "statement": "instruction01",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr00_instruction02",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 0,
+      "statement": "instruction02",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr00_instruction03",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 0,
+      "statement": "instruction03",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr00_instruction04",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 0,
+      "statement": "instruction04",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr00_instruction05",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 0,
+      "statement": "instruction05",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr00_instruction06",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 0,
+      "statement": "instruction06",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr00_warning01",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 0,
+      "statement": "warning01",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr00_warning02",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 0,
+      "statement": "warning02",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr00_warning03",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 0,
+      "statement": "warning03",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr00_warning04",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 0,
+      "statement": "warning04",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr00_warning05",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 0,
+      "statement": "warning05",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "complex_snr00_warning06",
+      "kind": "individual_mixture",
+      "noise": "complex",
+      "snr": 0,
+      "statement": "warning06",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr20_instruction01",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 20,
+      "statement": "instruction01",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr20_instruction02",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 20,
+      "statement": "instruction02",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr20_instruction03",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 20,
+      "statement": "instruction03",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr20_instruction04",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 20,
+      "statement": "instruction04",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr20_instruction05",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 20,
+      "statement": "instruction05",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr20_instruction06",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 20,
+      "statement": "instruction06",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr20_warning01",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 20,
+      "statement": "warning01",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr20_warning02",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 20,
+      "statement": "warning02",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr20_warning03",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 20,
+      "statement": "warning03",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr20_warning04",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 20,
+      "statement": "warning04",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr20_warning05",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 20,
+      "statement": "warning05",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr20_warning06",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 20,
+      "statement": "warning06",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr10_instruction01",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 10,
+      "statement": "instruction01",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr10_instruction02",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 10,
+      "statement": "instruction02",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr10_instruction03",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 10,
+      "statement": "instruction03",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr10_instruction04",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 10,
+      "statement": "instruction04",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr10_instruction05",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 10,
+      "statement": "instruction05",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr10_instruction06",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 10,
+      "statement": "instruction06",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr10_warning01",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 10,
+      "statement": "warning01",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr10_warning02",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 10,
+      "statement": "warning02",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr10_warning03",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 10,
+      "statement": "warning03",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr10_warning04",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 10,
+      "statement": "warning04",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr10_warning05",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 10,
+      "statement": "warning05",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr10_warning06",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 10,
+      "statement": "warning06",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr05_instruction01",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 5,
+      "statement": "instruction01",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr05_instruction02",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 5,
+      "statement": "instruction02",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr05_instruction03",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 5,
+      "statement": "instruction03",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr05_instruction04",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 5,
+      "statement": "instruction04",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr05_instruction05",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 5,
+      "statement": "instruction05",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr05_instruction06",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 5,
+      "statement": "instruction06",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr05_warning01",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 5,
+      "statement": "warning01",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr05_warning02",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 5,
+      "statement": "warning02",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr05_warning03",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 5,
+      "statement": "warning03",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr05_warning04",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 5,
+      "statement": "warning04",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr05_warning05",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 5,
+      "statement": "warning05",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr05_warning06",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 5,
+      "statement": "warning06",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr00_instruction01",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 0,
+      "statement": "instruction01",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr00_instruction02",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 0,
+      "statement": "instruction02",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr00_instruction03",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 0,
+      "statement": "instruction03",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr00_instruction04",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 0,
+      "statement": "instruction04",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr00_instruction05",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 0,
+      "statement": "instruction05",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr00_instruction06",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 0,
+      "statement": "instruction06",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr00_warning01",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 0,
+      "statement": "warning01",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr00_warning02",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 0,
+      "statement": "warning02",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr00_warning03",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 0,
+      "statement": "warning03",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr00_warning04",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 0,
+      "statement": "warning04",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr00_warning05",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 0,
+      "statement": "warning05",
+      "period": "whole",
+      "has_speech": true
+    },
+    {
+      "id": "changing_snr00_warning06",
+      "kind": "individual_mixture",
+      "noise": "changing",
+      "snr": 0,
+      "statement": "warning06",
+      "period": "whole",
+      "has_speech": true
+    }
+  ],
+  "actual_counts": {
+    "candidates": 288,
+    "cases": 169,
+    "individual_mixtures": 144,
+    "graphs": 3,
+    "filtered_wavs": 0,
+    "intelligibility_scores": 0
+  },
+  "limitations": [
+    "PSD-weighted steady-state estimates do not include startup or boundary transients.",
+    "Clean power retention is not phonetic information retention or measured intelligibility.",
+    "Whole-interval SNR change differs from the registered active-interval input SNR label.",
+    "Candidates were compared on design material, not an independent final evaluation set."
+  ],
+  "artifacts": {
+    "results.json": "c088f88932029506b2b04cbd0bfcddaa54900c01c6dfe868c874ee55817c555b",
+    "cases.csv": "d8d5169c25ca6b059c0b9ed8f58ab554d584fe258a61b98d30b6a12214bd2bb7",
+    "responses.csv": "fc3aed1227f3181d67b6e05c4c0469179a327a9af269addeb68a77aea166ce3a",
+    "cutoff_comparison.png": "71124a6b37a067e272eb4477e825cb1ce2152233715cb1ec9c4dc3fdd9c6159c",
+    "lower_cutoff_comparison.png": "db3120221c6e93e9fbaf897bf9832a287ddf1fbfc0b22fbfdfff6a8173b6b084",
+    "upper_cutoff_comparison.png": "a6776f48501dd50d7608329705c0858bd3980011bc0330a6d4c0fa92a916d5bb"
+  }
+}

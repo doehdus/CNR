@@ -3,6 +3,7 @@ import { readFile, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { localPath } from '../shared/research/dataset.js';
+import { normalizeBpfPrefilter } from '../shared/research/prefilter-bpf-data.js';
 
 const defaultSiteRoot = fileURLToPath(new URL('../', import.meta.url));
 
@@ -30,7 +31,13 @@ export async function prepareAudio(siteRoot = defaultSiteRoot) {
       throw new Error(`${relative}: 내보낸 음원이 변경되었습니다. export_results.py를 다시 실행하세요.`);
     }
   }
-  return catalog;
+  // Keep the complete local dataset; publish only the active raw/BPF pair.
+  // Historical gain-matched listening copies remain available in the source snapshot.
+  let bpf;
+  try { bpf = normalizeBpfPrefilter(JSON.parse(await readFile(path.join(root, 'public/dataset/prefilter_bpf/results.json'), 'utf8'))); }
+  catch (error) { if (error.code !== 'ENOENT') throw error; }
+  const archived = new Set(bpf?.conditions.map(row => row.comparison_input_path) || []);
+  return { ...catalog, files: catalog.files.filter(file => !archived.has(file.path)) };
 }
 
 if (process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url) {
