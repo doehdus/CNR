@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { SAMPLES, NOISE_SOURCES, normalizeManifest, normalizeNoiseSources } from '../shared/research/dataset.js';
 import { validateMetricResults } from './validate-metric-results.mjs';
+import { prepareAudio } from './prepare-audio.mjs';
 
 const siteRoot = fileURLToPath(new URL('../', import.meta.url));
 
@@ -25,12 +26,13 @@ export async function prepareBackend() {
     throw new Error('Backend snapshots must stay inside this Site.');
   }
   const dataset = await readSnapshot('public/dataset/manifest.json', { version: 1, samples: SAMPLES, noise_sources: NOISE_SOURCES });
-  const catalog = await readSnapshot('public/dataset/audio/catalog.json', { version: 1, files: [] });
+  const catalog = await prepareAudio(siteRoot);
   const metrics = await readSnapshot('public/dataset/results.json', []);
+  const listening = await readSnapshot('public/dataset/prefilter_listening/assignment.json', null);
   normalizeManifest(dataset);
   normalizeNoiseSources(dataset.noise_sources || []);
   if (metrics.length) validateMetricResults(metrics);
-  for (const [name, value] of [['dataset', dataset], ['audio-catalog', catalog], ['metrics', metrics]]) {
+  for (const [name, value] of [['dataset', dataset], ['audio-catalog', catalog], ['metrics', metrics], ['prefilter-listening', listening]]) {
     await writeFile(path.join(target, name + '.json'), JSON.stringify(value, null, 2) + '\n');
   }
 }

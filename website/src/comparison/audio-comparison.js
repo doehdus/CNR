@@ -9,6 +9,9 @@ import { renderMetricTrend } from './graphs.js';
 import { download, readServerJSON } from './files.js';
 import { createNoiseAnalysis } from './noise-analysis.js';
 import { createCleanLibrary } from './clean-library.js';
+import { createBpfPrefilter as createFixedPrefilter } from './butterworth-prefilter.js';
+import { createPrefilterAnalysis } from './prefilter-analysis.js';
+import { createPrefilterListening } from './prefilter-listening.js';
 
 const $ = selector => document.querySelector(selector);
 const node = (tag, className = '', text = '') => { const result = document.createElement(tag); result.className = className; result.textContent = text; return result; };
@@ -22,8 +25,11 @@ let surveyResponses = [];
 let qrSessions = [], qrListRevision = 0, qrListReady = false;
 let refreshingResults = false;
 let state = { version: 1, paths: {}, noise_paths: {}, metrics: [], ratings: [] }, serverPaths = {}, serverNoisePaths = {}, serverMetrics = [], availablePaths = new Set(), inputFingerprints = {}, scanError = '', selectedObjective = 'stoi', storageError = '', noticeTimer;
-const noiseAnalysisPage = createNoiseAnalysis({ audioCard, pathFor, fingerprints: () => inputFingerprints });
+const noiseAnalysisPage = createNoiseAnalysis({ fingerprints: () => inputFingerprints, stopAudio });
 const cleanLibrary = createCleanLibrary({ fingerprints: () => inputFingerprints, stopAudio });
+const fixedPrefilter = createFixedPrefilter({ fingerprints: () => inputFingerprints, stopAudio });
+const prefilterAnalysis = createPrefilterAnalysis({ fingerprints: () => inputFingerprints });
+const prefilterListening = createPrefilterListening();
 
 function notify(message, error = false) {
   const target = $('#notice'); target.textContent = message; target.classList.toggle('error', error); target.hidden = false;
@@ -134,16 +140,7 @@ function audioCard(sample, label, index = 1, processed = false) {
 function renderNoiseAnalysis() {
   noiseAnalysisPage.render();
 }
-function renderPrefilter() {
-  for (const key of ['noise', 'snr', 'statement']) $('#prefilter-condition-form [name=' + key + ']').value = String(condition[key]);
-  const id = conditionId(condition.noise, condition.snr, condition.statement), scores = metricMap(allMetrics());
-  const original = SAMPLE_INDEX.get(id + '_noisy'), filtered = SAMPLE_INDEX.get(id + '_prefilter_only');
-  const files = SAMPLES.filter(sample => sample.algorithm === 'prefilter_only' && isConnected(sample)).length;
-  const metrics = allMetrics().filter(row => SAMPLE_INDEX.get(row.sample_id).algorithm === 'prefilter_only').length;
-  $('#prefilter-stats').replaceChildren(statCard('전처리만 적용한 음원', files, 36, '무처리 입력과 같은 조건으로 비교'), statCard('등록된 객관 지표', metrics, 36, '실제로 계산한 결과만 표시'), statCard('필터 설정', '미등록', '', '대역·Q·감쇠량 분석 후 확정'));
-  $('#prefilter-players').replaceChildren(audioCard(original, '무처리 · 혼합 입력', 1), audioCard(filtered, '전처리만 · 알고리즘 미적용', 2, true));
-  $('#prefilter-result-note').textContent = conditionLabel() + ' · 전처리만 STOI ' + format(scores.get(filtered.id)?.stoi) + ' / ESTOI ' + format(scores.get(filtered.id)?.estoi) + '. 미등록 값은 계산 결과로 해석하지 않습니다.';
-}
+function renderPrefilter() { fixedPrefilter.render(); }
 
 function initializeControls() {
   $('#noise-options').innerHTML = NOISES.map((noise, index) => '<label class="noise-option"><input type="radio" name="noise" value="' + noise.id + '" ' + (index === 0 ? 'checked' : '') + '><span>' + noise.label + '</span><small>' + noise.short + '</small></label>').join('');
@@ -155,14 +152,13 @@ function initializeControls() {
   $('#rating-table-algorithm').insertBefore(option('all', '응답이 있는 전체 방식'), $('#rating-table-algorithm').firstChild);
   $('#rating-table-algorithm').value = 'all'; $('#chart-algorithm').value = 'ss_fixed';
   $('#objective-noise').add(option('all', '전체 소음')); $('#objective-snr').add(option('all', '전체 SNR'));
-  NOISES.forEach(noise => { for (const selector of ['#analysis-filters [name=noise]', '#listening-condition [name=noise]', '#objective-noise', '#graph-filters [name=noise]', '#prefilter-condition-form [name=noise]', '#noise-analysis-source']) $(selector).add(option(noise.id, noise.label)); });
-  SNRS.forEach(snr => { for (const selector of ['#analysis-filters [name=snr]', '#listening-condition [name=snr]', '#objective-snr', '#prefilter-condition-form [name=snr]']) $(selector).add(option(String(snr), snr + ' dB')); });
+  NOISES.forEach(noise => { for (const selector of ['#analysis-filters [name=noise]', '#listening-condition [name=noise]', '#objective-noise', '#graph-filters [name=noise]', '#noise-analysis-source']) $(selector).add(option(noise.id, noise.label)); });
+  SNRS.forEach(snr => { for (const selector of ['#analysis-filters [name=snr]', '#listening-condition [name=snr]', '#objective-snr']) $(selector).add(option(String(snr), snr + ' dB')); });
   STATEMENTS.forEach(statement => {
     $('#listening-condition [name=statement]').add(option(statement.id, statement.label));
     $('#graph-filters [name=statement]').add(option(statement.id, statement.label));
     $('#analysis-filters [name=statement]').add(option(statement.id, statement.label));
     $('#objective-statement').add(option(statement.id, statement.label));
-    $('#prefilter-condition-form [name=statement]').add(option(statement.id, statement.label));
   });
   $('#rating-scales').innerHTML = RATING_SCALES.map(({ name, label, levels }) => '<fieldset class="rating-scale"><legend>' + label + '</legend><div class="scale-options">' + SCORE_LEVELS.map((value, index) => '<label title="' + levels[index] + '"><input type="radio" name="' + name + '" value="' + value + '" required>' + value + '</label>').join('') + '</div><div class="scale-hint"><span>' + levels[0] + '</span><span>' + levels.at(-1) + '</span></div></fieldset>').join('');
 }
@@ -356,7 +352,7 @@ function renderSettings() {
   $('#storage-status').textContent = storageError || `클라우드 DB에 청음 응답 ${allRatings().length}개 · 가져온 지표 ${state.metrics.length}개 저장 · 자료 버전 ${revision}. 로컬 폴더의 음원은 배포할 때 반영됩니다.`;
   $('#storage-status').classList.toggle('error', Boolean(storageError));
 }
-function renderAll() { renderStats(); cleanLibrary.render(); renderComparison(); renderNoiseAnalysis(); renderPrefilter(); renderEvaluation(); renderMatrices(); renderObjective(); renderGraphs(); renderAnalysis(); renderSettings(); }
+function renderAll() { renderStats(); cleanLibrary.render(); renderComparison(); renderNoiseAnalysis(); renderPrefilter(); prefilterAnalysis.render(); prefilterListening.render(); renderEvaluation(); renderMatrices(); renderObjective(); renderGraphs(); renderAnalysis(); renderSettings(); }
 async function scanFiles(render = true) {
   const previousCatalog = JSON.stringify([...[...availablePaths].sort(), inputFingerprints]);
   $('#refresh-files').disabled = true;
@@ -383,8 +379,7 @@ function bindEvents() {
   document.querySelectorAll('[data-open-processing]').forEach(button => button.addEventListener('click', () => { setProcessingScope(button.dataset.openProcessing === 'on'); location.hash = 'demo'; }));
   document.querySelectorAll('[data-objective-view]').forEach(button => button.addEventListener('click', () => { history.replaceState(null, '', button.dataset.objectiveView === 'trends' ? '#graphs' : '#metrics'); navigate(); }));
   document.querySelectorAll('[data-listening-view]').forEach(button => button.addEventListener('click', () => { history.replaceState(null, '', button.dataset.listeningView === 'results' ? '#listening' : '#listening-test'); navigate(); }));
-  noiseAnalysisPage.initialize();
-  $('#prefilter-condition-form').addEventListener('change', () => { const values = Object.fromEntries(new FormData($('#prefilter-condition-form'))); selectCondition({ ...values, snr: Number(values.snr) }); });
+  noiseAnalysisPage.initialize(); fixedPrefilter.initialize(); prefilterAnalysis.initialize(); prefilterListening.initialize();
   $('#rating-table-prefilter').addEventListener('change', renderMatrices);
   $('#objective-prev').addEventListener('click', () => { objectivePage--; renderObjective(); });
   $('#objective-next').addEventListener('click', () => { objectivePage++; renderObjective(); });
@@ -400,7 +395,12 @@ function bindEvents() {
   $('#go-rating-form').addEventListener('click', openRatingForm);
   $('#listening-condition').addEventListener('change', () => { const fields = Object.fromEntries(new FormData($('#listening-condition'))); selectCondition({ ...fields, snr: Number(fields.snr) }); });
   $('#rating-form').addEventListener('input', renderRatingPreview);
-  $('#print-report').addEventListener('click', () => { prepareReport(); window.print(); });
+  $('#print-report').addEventListener('click', async event => {
+    const button = event.currentTarget; button.disabled = true;
+    try { await prepareReport(); window.print(); }
+    catch (error) { notify(error.message, true); }
+    finally { button.disabled = false; }
+  });
   $('#export-results').addEventListener('click', () => download('research-results.csv', csvText(resultRows(allMetrics(), allRatings()), REPORT_FIELDS), 'text/csv;charset=utf-8'));
   $('#export-listening').addEventListener('click', () => download('listening-results.csv', csvText(resultRows(allMetrics(), allRatings()).filter(row => row.responses), REPORT_FIELDS), 'text/csv;charset=utf-8'));
   $('#condition-form').addEventListener('submit', event => event.preventDefault());
@@ -445,13 +445,18 @@ function bindEvents() {
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshListeningResults(); });
 }
 function navigate() {
-  let requested = location.hash.slice(1);
+  let [requested, analysisView] = location.hash.slice(1).split('/');
+  if (requested === 'mixture-analysis' && analysisView === 'comparison') {
+    analysisView = 'welch';
+    history.replaceState(null, '', '#mixture-analysis/welch');
+  }
+  if (requested === 'prefilter-preparation') { requested = 'prefilter'; history.replaceState(null, '', '#prefilter'); }
   if (requested === 'comparison') requested = 'demo';
   if (requested === 'evaluation') requested = 'metrics';
   const objectiveView = requested === 'graphs' ? 'trends' : 'table', listeningView = requested === 'listening' ? 'results' : 'input';
   if (requested === 'graphs') requested = 'metrics';
   if (requested === 'listening') requested = 'listening-test';
-  const valid = ['collection', 'noise-analysis', 'prefilter', 'demo', 'metrics', 'listening-test', 'analysis', 'settings'], page = valid.includes(requested) ? requested : 'collection';
+  const valid = ['collection', 'noise-analysis', 'mixture-analysis', 'prefilter', 'prefilter-analysis', 'prefilter-listening', 'demo', 'metrics', 'listening-test', 'analysis', 'settings'], page = valid.includes(requested) ? requested : 'collection';
   stopAudio();
   document.querySelectorAll('.page-section').forEach(section => { section.hidden = section.id !== page; });
   document.querySelectorAll('.nav-link').forEach(link => { const active = link.hash === '#' + page; link.classList.toggle('active', active); if (active) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current'); });
@@ -459,10 +464,12 @@ function navigate() {
     document.querySelectorAll('[data-' + type + '-panel]').forEach(panel => { panel.hidden = panel.dataset[type + 'Panel'] !== value; });
     document.querySelectorAll('[data-' + type + '-view]').forEach(button => { const active = button.dataset[type + 'View'] === value; button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active)); });
   }
-  $('#page-name').textContent = { collection: '실험 자료', 'noise-analysis': '소음 특성 분석', prefilter: '사전 필터링', demo: '음성 처리 결과', metrics: '객관 성능 평가', 'listening-test': '청음평가', analysis: '종합 비교·보고서', settings: '데이터 설정 · 백업' }[page];
+  $('#page-name').textContent = { collection: '실험 자료', 'noise-analysis': 'Noise 분석', 'mixture-analysis': 'Mixture 분석', prefilter: '사전 필터링', 'prefilter-analysis': '필터링 결과 분석', 'prefilter-listening': '필터링 청음평가', demo: '음성 처리 결과', metrics: '객관 성능 평가', 'listening-test': '청음평가', analysis: '종합 비교·보고서', settings: '데이터 설정 · 백업' }[page];
+  noiseAnalysisPage.navigate(page, analysisView);
   document.querySelector('.nav-link.active')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   window.scrollTo(0, 0);
   if (storageReady && ['listening-test', 'analysis'].includes(page)) refreshListeningResults();
+  if (page === 'prefilter-listening') prefilterListening.load();
 }
 function openRatingForm() {
   if (location.hash !== '#listening-test') history.pushState(null, '', '#listening-test');
@@ -472,7 +479,7 @@ function openRatingForm() {
 }
 async function refreshServerData() {
   try { await readCloudState(); } catch (error) { storageError = error.message; notify(storageError, true); }
-  const loads = await Promise.allSettled([readServerJSON('dataset/manifest.json'), readServerJSON('dataset/results.json'), noiseAnalysisPage.load(), cleanLibrary.load()]);
+  const loads = await Promise.allSettled([readServerJSON('dataset/manifest.json'), readServerJSON('dataset/results.json'), noiseAnalysisPage.load(), cleanLibrary.load(), fixedPrefilter.load(), prefilterAnalysis.load(), prefilterListening.load()]);
   try { if (loads[0].status === 'fulfilled' && loads[0].value) { serverPaths = normalizeManifest(loads[0].value); serverNoisePaths = normalizeNoiseSources(loads[0].value.noise_sources || []); } else throw new Error('기본 경로 설정을 확인하지 못했습니다.'); }
   catch (error) { notify(error.message, true); }
   serverMetrics = [];
@@ -549,7 +556,7 @@ function selectCondition(cell) {
   renderAll();
 }
 function renderMatrices() {
-  for (const [container, mode] of [['prefilter-matrix', 'prefilter_only'], ['demo-matrix', condition.algorithm], ['accuracy-matrix', 'accuracy'], ['human-matrix', 'human']]) document.getElementById(container).replaceChildren(createMatrix(mode));
+  for (const [container, mode] of [['demo-matrix', condition.algorithm], ['accuracy-matrix', 'accuracy'], ['human-matrix', 'human']]) document.getElementById(container).replaceChildren(createMatrix(mode));
   const rows = allRatings(), algorithm = $('#rating-table-algorithm').value;
   const visible = rows.filter(row => (algorithm === 'all' || SAMPLE_INDEX.get(row.sample_id).algorithm === algorithm) && matchesFilters(SAMPLE_INDEX.get(row.sample_id), { prefilter: $('#rating-table-prefilter').value }));
   $('#listening-results-status').textContent = '저장된 전체 응답 ' + rows.length + '개 · 현재 표에 포함된 응답 ' + visible.length + '개' + (algorithm !== 'all' && !visible.length && rows.length ? ' · 전체 방식을 선택하면 다른 방식의 응답을 확인할 수 있습니다.' : '');
@@ -587,7 +594,7 @@ function createMatrix(mode, printable = false) {
         const sample = SAMPLE_INDEX.get(cell[mode]), button = node(printable ? 'span' : 'button', 'matrix-button');
         if (!printable) button.type = 'button';
         button.textContent = isConnected(sample) ? printable ? '연결됨' : '재생 ▶' : '연결 대기';
-        if (!printable) { button.disabled = !isConnected(sample); button.dataset.sampleId = sample.id; button.addEventListener('click', () => { selectCondition(cell); const target = mode === 'prefilter_only' ? $('#prefilter-players') : $('#demo-detail'); target.scrollIntoView({ block: 'start' }); const audio = target.querySelector('[data-sample-id="' + sample.id + '"] audio'); if (audio) playAudioElement(audio); }); }
+        if (!printable) { button.disabled = !isConnected(sample); button.dataset.sampleId = sample.id; button.addEventListener('click', () => { selectCondition(cell); const target = $('#demo-detail'); target.scrollIntoView({ block: 'start' }); const audio = target.querySelector('[data-sample-id="' + sample.id + '"] audio'); if (audio) playAudioElement(audio); }); }
         if (!printable) button.setAttribute('aria-label', group.noise.label + ' ' + group.statement.label + ' ' + cell.snr + ' dB ' + algorithmLabel(mode) + ' 재생');
         td.append(button);
       }
@@ -597,16 +604,15 @@ function createMatrix(mode, printable = false) {
   });
   table.append(caption, head, body); return table;
 }
-function prepareReport() {
+async function prepareReport() {
   let report = $('#print-report-content');
   if (!report) { report = node('div'); report.id = 'print-report-content'; $('main').append(report); }
   report.replaceChildren();
   const section = (title, content) => { const article = node('section', 'report-section'); article.append(node('h2', '', title), content); report.append(article); };
   section('01. 실험 자료', cleanLibrary.report());
-  section('02. 소음 특성 분석', noiseAnalysisPage.report());
-  const prefilterCount = SAMPLES.filter(sample => sample.algorithm === 'prefilter_only' && isConnected(sample)).length;
-  section('03. 사전 필터링', node('p', '', '전처리만 적용한 음원 ' + prefilterCount + '/36개. 대상 대역·Q·감쇠량과 선정 근거는 미등록 상태입니다.'));
-  if (prefilterCount) report.lastElementChild.append(createMatrix('prefilter_only', true));
+  section('02. 소음 특성 분석', await noiseAnalysisPage.report());
+  section('03. 사전 필터링', fixedPrefilter.report());
+  section('필터링 결과 분석', prefilterAnalysis.report());
   for (const prefilter of [false, true]) {
     const group = node('div'), methods = methodsForPrefilter(prefilter).filter(method => SAMPLES.some(sample => sample.algorithm === method.id && isConnected(sample)));
     if (!methods.length) group.append(node('p', '', '등록된 처리 음원이 없습니다.'));

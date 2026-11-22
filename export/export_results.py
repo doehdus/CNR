@@ -6,10 +6,12 @@ import hashlib
 import io
 import json
 import math
+import os
 from pathlib import Path
 import re
 import shutil
 import sys
+import subprocess
 import tempfile
 import uuid
 import wave
@@ -173,11 +175,71 @@ def export_noise_analysis(root, stage, manifest, catalog):
     return {"sources": len(sources), "graphs": len(images)}
 
 
+def peak_details_for_web(data, source_hash, observations):
+    """Copy C statistics into a compact web representation; retain full research output."""
+    def summarize(signal, keep=None):
+        tracks = signal["tracking"]
+        return {"frame_count": signal["frame_count"], "peaks": signal["peaks"], "tracking": {
+            "method": tracks["method"], "frame_count": signal["frame_count"],
+            "interval_frame_count": tracks["interval_frame_count"], "peak_track_ids": tracks["peak_track_ids"],
+            "tracks": [[t["id"], t["count"], t["mean_hz"], t["std_hz"], t["mean_width_hz"], t["appearance_percent"],
+                        t["start_sec"], t["end_sec"], t["interval"]["count"], t["interval"]["appearance_percent"],
+                        t["interval"]["mean_hz"], t["interval"]["std_hz"], t["interval"]["mean_width_hz"]]
+                       for t in tracks["tracks"] if keep is None or t["id"] in keep]}}
+    result = {"version": 1, "engine": data["engine"], "sample_count": data["sample_count"],
+              "interval_sec": data.get("interval_sec"), "delivery": {"version": 1, "format": "track-summaries", "source_sha256": source_hash},
+              "signal": summarize(data["signal"])}
+    if "added_noise" in data:
+        keep = set(data["added_noise"]["tracking"]["peak_track_ids"]) | {row["noise_track_id"] for row in observations}
+        result["added_noise"] = summarize(data["added_noise"], keep)
+    return result
+
+
+def prefilter_initial_for_analysis(root, analysis, source_hash):
+    """Deliver a validated initial design only with its original measured analysis."""
+    path = project_path(root, "experiment/config/prefilter_initial.json")
+    if not path.is_file():
+        return None
+    data = load_json(path)
+    if (data.get("version") != 1 or data.get("status") != "initial" or data.get("filter_type") != "peaking_eq"
+            or data.get("scope") != "fixed_per_noise" or data.get("bandwidth_definition") != "half_gain_db"
+            or data.get("sample_rate_hz") != 16000 or not re.fullmatch(r"[0-9]{8}T[0-9]{6}Z-[0-9a-f]{8}", str(data.get("analysis_run_id", "")))
+            or not re.fullmatch(r"[a-f0-9]{64}", str(data.get("analysis_source_sha256", "")))):
+        raise ValueError("Invalid initial EQ settings.")
+    presets = data.get("presets", [])
+    if (not isinstance(presets, list) or len(presets) != 3 or any(not isinstance(p, dict) for p in presets)
+            or {p.get("noise") for p in presets} != {"single", "complex", "changing"}):
+        raise ValueError("Three unique initial EQ presets are required.")
+    for preset in presets:
+        if (not re.fullmatch(r"p[1-8]", str(preset.get("source_peak_id", ""))) or
+                any(type(preset.get(key)) not in (int, float) or not math.isfinite(preset[key])
+                    for key in ("center_hz", "measured_width_hz", "bandwidth_hz", "q", "gain_db"))):
+            raise ValueError("Invalid initial EQ parameters.")
+        if (not 0 < preset["center_hz"] < 8000 or not 0 < preset["bandwidth_hz"] < 8000 or
+                preset["measured_width_hz"] <= 0 or preset["q"] <= 0 or preset["gain_db"] >= 0):
+            raise ValueError("Initial EQ parameters are outside their valid range.")
+        q = math.sin(2 * math.pi * preset["center_hz"] / 16000) / (2 * math.tan(math.pi * preset["bandwidth_hz"] / 16000))
+        if abs(q - preset["q"]) > 1e-7:
+            raise ValueError("Initial EQ Q does not match its half-gain bandwidth.")
+    if (data["analysis_run_id"] != analysis.get("engine", {}).get("run_id") or data["analysis_source_sha256"] != source_hash
+            or data["sample_rate_hz"] != analysis["method"]["sample_rate_hz"]):
+        return None
+    for preset in presets:
+        source = next((s for s in analysis["sources"] if s["noise"] == preset["noise"]), None)
+        peak = next((p for p in source["peaks"] if p["id"] == preset["source_peak_id"]), None) if source else None
+        if not peak or abs(peak["frequency_hz"] - preset["center_hz"]) >= 1e-7 or abs(peak["bandwidth_hz"] - preset["measured_width_hz"]) >= 1e-7:
+            return None
+    return data
+
+
 def export_peak_analysis(root, stage, files):
     source = project_path(root, "experiment/outputs/peak_analysis/results.json")
     if not source.is_file():
         return 0
     data = load_json(source)
+    initial = prefilter_initial_for_analysis(root, data, hashlib.sha256(source.read_bytes()).hexdigest())
+    if initial is not None:
+        data["prefilter_initial"] = initial
     if data.get("version") != 1 or len(data.get("conditions", [])) != 144 or len(data.get("files", [])) != 171:
         raise ValueError("A complete measured 144-condition peak analysis is required.")
     catalog = {entry["path"]: entry for entry in files}
@@ -203,8 +265,69 @@ def export_peak_analysis(root, stage, files):
     files[:] = sorted(catalog.values(), key=lambda entry: entry["path"])
     destination = stage / "peak_analysis"
     destination.mkdir(exist_ok=True)
+    for relative, expected_hash in data.get("artifacts", {}).items():
+        if not re.fullmatch(r"runs/[0-9]{8}T[0-9]{6}Z-[0-9a-f]{8}/(?:graphs/[a-z0-9_]+\.png|details/[a-z0-9_]+\.json)", relative):
+            raise ValueError("Invalid C analysis artifact path.")
+        artifact = project_path(root, "experiment/outputs/peak_analysis/" + relative)
+        contents = artifact.read_bytes()
+        if hashlib.sha256(contents).hexdigest() != expected_hash:
+            raise ValueError("Completed C analysis artifact changed after calculation.")
+        if relative.endswith(".json"):
+            detail = json.loads(contents)
+            if detail.get("engine", {}).get("run_id") != data.get("engine", {}).get("run_id"):
+                raise ValueError("C analysis artifact belongs to another run.")
+            observations = next((row["observations"] for row in data["conditions"] if row.get("details") == relative), [])
+            detail = peak_details_for_web(detail, expected_hash, observations)
+            contents = (json.dumps(detail, ensure_ascii=False, allow_nan=False, separators=(",", ":")) + "\n").encode("utf-8")
+            data["artifacts"][relative] = hashlib.sha256(contents).hexdigest()
+        elif not contents.startswith(b"\x89PNG\r\n\x1a\n"):
+            raise ValueError("A valid completed C analysis PNG is required.")
+        target = project_path(destination, relative)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(contents)
+    if data.get("engine"):
+        data["delivery"] = {"version": 1, "format": "track-summaries", "source_sha256": hashlib.sha256(source.read_bytes()).hexdigest()}
     write_json(destination / "results.json", data)
     return len(data["conditions"])
+
+
+def export_mixture_summary(root, stage):
+    """Use the shared schema validator to deliver completed C summary artifacts."""
+    if not project_path(root, 'experiment/outputs/mixture_summary/results.json').is_file():
+        return 0
+    node = PROJECT_ROOT / '.tools/node-v22.23.4-win-x64/node.exe' if sys.platform == 'win32' else shutil.which('node')
+    if not node:
+        raise ValueError('Prepare Node.js before exporting mixture summaries.')
+    environment = dict(os.environ)
+    environment['PATH'] = str(Path(node).parent) + os.pathsep + environment.get('PATH', '')
+    completed = subprocess.run([str(node), str(Path(__file__).with_name('mixture_summary.mjs')), '--root', str(root),
+                                '--destination', str(stage)], capture_output=True, text=True, env=environment)
+    if completed.returncode:
+        raise ValueError(completed.stderr.strip() or 'Completed mixture summary could not be verified.')
+    return json.loads(completed.stdout)['groups']
+
+
+def export_fixed_prefilter(root, stage, files, bpf=False):
+    """Validate completed fixed-EQ WAVs through the same Node delivery path as local preparation."""
+    if not project_path(root, 'experiment/outputs/bpf_results.json' if bpf else 'experiment/outputs/prefilter_results.json').is_file():
+        return 0
+    node = PROJECT_ROOT / '.tools/node-v22.23.4-win-x64/node.exe' if sys.platform == 'win32' else shutil.which('node')
+    environment = dict(os.environ)
+    environment['PATH'] = str(Path(node).parent) + os.pathsep + environment.get('PATH', '')
+    arguments = [str(node), str(Path(__file__).with_name('bpf.mjs' if bpf else 'prefilter.mjs')), '--root', str(root), '--destination', str(stage)]
+    if not bpf and project_path(root, 'experiment/outputs/bpf_results.json').is_file():
+        arguments.append('--metadata-only')
+    completed = subprocess.run(arguments, capture_output=True, text=True, env=environment)
+    if completed.returncode:
+        raise ValueError(completed.stderr.strip() or 'Completed fixed EQ could not be verified.')
+    payload = json.loads(completed.stdout)
+    catalog = {entry['path']: entry for entry in files}
+    for entry in payload['files']:
+        if entry['path'] in catalog and catalog[entry['path']]['sha256'] != entry['sha256']:
+            raise ValueError('Prefilter input fingerprint conflict.')
+        catalog[entry['path']] = entry
+    files[:] = sorted(catalog.values(), key=lambda entry: entry['path'])
+    return payload['count']
 
 
 def copy_clean_collection(root, stage, files):
@@ -308,6 +431,9 @@ def export_results(root=PROJECT_ROOT):
         analysis = export_noise_analysis(root, stage, manifest, fingerprints)
         clean_recordings = copy_clean_collection(root, stage, files)
         peak_comparisons = export_peak_analysis(root, stage, files)
+        export_mixture_summary(root, stage)
+        export_fixed_prefilter(root, stage, files)
+        export_fixed_prefilter(root, stage, files, bpf=True)
         write_json(stage / "audio/catalog.json", {"version": 1, "files": files})
         write_json(stage / "manifest.json", manifest)
         write_json(stage / "results.json", rows)

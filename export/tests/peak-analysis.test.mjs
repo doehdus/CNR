@@ -9,6 +9,8 @@ const root = fileURLToPath(new URL('../../', import.meta.url));
 test('171개 실제 입력 지문을 검증한 완료 분석만 전달한다', async () => {
   const measured = await loadPeakAnalysis(root);
   assert.equal(measured.files.length, 171); assert.equal(measured.data.conditions.length, 144);
+  assert.equal(measured.data.prefilter_initial?.status, 'initial');
+  assert.equal(measured.data.prefilter_initial?.analysis_source_sha256, measured.data.delivery.source_sha256);
 });
 test('계산 후 교체된 음원을 검출하고 기존 웹 자료를 건드리지 않는다', async t => {
   const base = await realpath(tmpdir()), temporary = await mkdtemp(path.join(base, 'cnr-peak-export-'));

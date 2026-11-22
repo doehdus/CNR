@@ -1,4 +1,7 @@
 import { loadPeakAnalysis } from './peak_analysis.mjs';
+import { loadFixedPrefilter, deliverFixedPrefilter } from './prefilter.mjs';
+import { loadBpfPrefilter, deliverBpfPrefilter } from './bpf.mjs';
+import { loadMixtureSummary, deliverMixtureSummary } from './mixture_summary.mjs';
 // Deliver the shared inputs and previously calculated reference plots; no FFT or metrics run here.
 import { createHash, randomUUID } from 'node:crypto';
 import { cp, mkdir, mkdtemp, readFile, realpath, rename, rm, writeFile } from 'node:fs/promises';
@@ -66,13 +69,24 @@ export async function prepareLocalDataset(root = projectRoot) {
   for (const noise of manifest.noise_sources) await input('experiment/' + noise.path, noise.path);
   if (inputFiles.size !== 15) throw new Error('Expected twelve shared clean recordings and three noises.');
   const peakAnalysis = await loadPeakAnalysis(root);
+  const mixtureSummary = await loadMixtureSummary(root);
+  const bpf = await loadBpfPrefilter(root);
+  const prefilter = await loadFixedPrefilter(root, { metadataOnly: Boolean(bpf) });
+  if (prefilter && !bpf) for (const file of prefilter.files) {
+    if (inputFiles.has(file.path) && inputFiles.get(file.path).sha256 !== file.sha256) throw new Error('Prefilter input fingerprint conflict.');
+    inputFiles.set(file.path, file);
+  }
+  if (bpf) for (const file of bpf.files) {
+    if (inputFiles.has(file.path) && inputFiles.get(file.path).sha256 !== file.sha256) throw new Error('BPF input fingerprint conflict.');
+    inputFiles.set(file.path,file);
+  }
   if (peakAnalysis) for (const { bytes, path: logical, sha256, size } of peakAnalysis.files) {
     if (inputFiles.has(logical) && inputFiles.get(logical).sha256 !== sha256) throw new Error('Peak analysis input conflict.');
     inputFiles.set(logical, { bytes, path: logical, sha256, size });
   }
   const referenceRoot = inside(root, 'experiment/outputs/noise_analysis');
   const reference = await optionalJSON(path.join(referenceRoot, 'results.json'));
-  const sourceFingerprint = sha256(JSON.stringify([definition, manifest, [...inputFiles.values()].map(({ path, sha256 }) => [path, sha256]), reference, peakAnalysis?.sha256 || null]));
+  const sourceFingerprint = sha256(JSON.stringify([definition, manifest, [...inputFiles.values()].map(({ path, sha256 }) => [path, sha256]), reference, peakAnalysis?.sha256 || null, mixtureSummary?.sha256 || null, prefilter?.sha256 || null, bpf?.sha256 || null, bpf?.metrics?.sha256 || null, bpf?.listening?.sha256 || null]));
   const publicRoot = inside(root, 'website/public');
   const destination = path.join(publicRoot, 'dataset');
   await mkdir(publicRoot, { recursive: true });
@@ -100,7 +114,21 @@ export async function prepareLocalDataset(root = projectRoot) {
     await writeJSON(path.join(stage, 'manifest.json'), manifest);
     await writeJSON(path.join(stage, 'collection.json'), { version: 1, recordings });
     await writeJSON(path.join(stage, 'results.json'), []);
-    if (peakAnalysis) { await mkdir(path.join(stage, 'peak_analysis'), { recursive: true }); await writeJSON(path.join(stage, 'peak_analysis/results.json'), peakAnalysis.data); }
+    if (peakAnalysis) {
+      // Rebuild this generated subtree from the complete verified reference map.
+      // Historical research runs remain in experiment/, rather than accumulating in deployment.
+      await rm(inside(stage, 'peak_analysis'), { recursive: true, force: true });
+      await mkdir(path.join(stage, 'peak_analysis'), { recursive: true });
+      for (const artifact of peakAnalysis.artifacts) {
+        const target = inside(stage, 'peak_analysis/' + artifact.path);
+        await mkdir(path.dirname(target), { recursive: true }); await writeFile(target, artifact.bytes);
+      }
+      await writeJSON(path.join(stage, 'peak_analysis/results.json'), peakAnalysis.data);
+    }
+    await rm(inside(stage, 'mixture_summary'), { recursive: true, force: true });
+    if (mixtureSummary) await deliverMixtureSummary(mixtureSummary, stage);
+    if (prefilter) await deliverFixedPrefilter(prefilter, stage, { metadataOnly: Boolean(bpf) });
+    if (bpf) await deliverBpfPrefilter(bpf, stage);
     await writeJSON(path.join(stage, 'export.json'), { version: 1, mode: 'local-inputs', audio_files: files.length, metric_rows: 0, clean_recordings: 12 });
     let graphs = 0;
     if (reference) {
@@ -126,7 +154,18 @@ export async function prepareLocalDataset(root = projectRoot) {
     }
     await writeJSON(path.join(stage, 'local-inputs.json'), { version: 1, source_sha256: sourceFingerprint });
     if (oldCatalog) await rename(destination, backup);
-    try { await rename(stage, destination); } catch (error) { if (oldCatalog) await rename(backup, destination); throw error; }
+    try {
+      try { await rename(stage, destination); }
+      catch (error) {
+        if (process.platform !== 'win32' || error.code !== 'EPERM') throw error;
+        await cp(stage, destination, { recursive: true, force: true });
+      }
+    } catch (error) {
+      // Both paths are verified generated directories below publicRoot.
+      await rm(destination, { recursive: true, force: true });
+      if (oldCatalog) await rename(backup, destination);
+      throw error;
+    }
     installed = true;
     console.log('Prepared local inputs: 12 clean WAVs, 3 noises, ' + graphs + ' reference plots.');
     return { recordings: 12, noises: 3, graphs, changed: true };

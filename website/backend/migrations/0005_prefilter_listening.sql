@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS prefilter_listening_studies (id TEXT PRIMARY KEY, fingerprint TEXT NOT NULL, snapshot TEXT NOT NULL, created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS prefilter_listening_participants (id TEXT PRIMARY KEY, study_id TEXT NOT NULL REFERENCES prefilter_listening_studies(id), group_id TEXT NOT NULL, token_hash TEXT NOT NULL, order_json TEXT NOT NULL, joined_at TEXT NOT NULL, UNIQUE(study_id, token_hash));
+CREATE TABLE IF NOT EXISTS prefilter_listening_plays (id TEXT PRIMARY KEY, participant_id TEXT NOT NULL REFERENCES prefilter_listening_participants(id), trial_index INTEGER NOT NULL, recorded_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS prefilter_listening_responses (id TEXT PRIMARY KEY, participant_id TEXT NOT NULL REFERENCES prefilter_listening_participants(id), trial_index INTEGER NOT NULL, pair_index INTEGER NOT NULL, mode TEXT NOT NULL, payload TEXT NOT NULL, choice_order TEXT NOT NULL, noise INTEGER NOT NULL, naturalness INTEGER NOT NULL, key_correct INTEGER NOT NULL, recorded_at TEXT NOT NULL, UNIQUE(participant_id, trial_index));
+CREATE INDEX IF NOT EXISTS prefilter_listening_plays_trial ON prefilter_listening_plays(participant_id,trial_index);
+CREATE INDEX IF NOT EXISTS prefilter_listening_participants_group ON prefilter_listening_participants(study_id,group_id);

@@ -1,0 +1,5 @@
+* text=auto eol=lf
+*.png binary
+*.wav binary
+# Completed analysis artifacts carry byte-level SHA-256 fingerprints.
+public/dataset/** -text
