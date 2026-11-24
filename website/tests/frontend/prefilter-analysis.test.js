@@ -1,8 +1,9 @@
+import { readLegacyFixture } from '../helpers/legacy-fixture.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createPrefilterAnalysis } from '../../.sites-runtime/public/website/js/prefilter-analysis.js';
-const data=JSON.parse(await readFile(new URL('../../public/dataset/prefilter_analysis/results.json',import.meta.url)));
+const data=JSON.parse(readLegacyFixture('dataset/prefilter_analysis/results.json'));
 const walk=e=>[e,...e.children.flatMap(walk)];
 class Element {
   constructor(tag='div'){this.tagName=tag;this.children=[];this.dataset={};this.listeners={};this.attributes={};this.classList={toggle(){}};}

@@ -1,3 +1,4 @@
+import { researchPath } from './research_paths.mjs';
 // Validate and deliver completed C summaries; no signal calculations run here.
 import { readFile, realpath, mkdir, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
@@ -9,20 +10,20 @@ const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 
 export async function loadMixtureSummary(root) {
   root = await realpath(root);
-  const output = path.join(root, 'experiment/outputs/mixture_summary');
+  const output = researchPath(root, 'analysis/results/mixture_summary');
   let bytes;
   try { bytes = await readFile(path.join(output, 'results.json')); }
   catch (error) { if (error.code === 'ENOENT') return null; throw error; }
   const data = normalizeMixtureSummary(JSON.parse(bytes));
-  const analysisBytes = await readFile(path.join(root, 'experiment/outputs/peak_analysis/results.json'));
+  const analysisBytes = await readFile(researchPath(root, 'analysis/results/peak_analysis/results.json'));
   const analysis = JSON.parse(analysisBytes);
   analysis.delivery = { source_sha256: digest(analysisBytes) };
   const fingerprints = Object.fromEntries(analysis.files.map(file => [file.path, file.sha256]));
   if (!mixtureSummaryMatches(data, analysis, fingerprints)) throw Error('평균 분석과 원본 분석 회차·지문이 다릅니다.');
-  const interval = await readFile(path.join(root, 'experiment/outputs/mixture_preparation/tables/mixtures.csv'));
+  const interval = await readFile(researchPath(root, 'data/preparation/tables/mixtures.csv'));
   if (digest(interval) !== data.interval_metadata_sha256) throw Error('평균 분석의 등록 발화 구간이 변경되었습니다.');
   for (const file of data.files) {
-    const filename = path.join(root, peakSourcePath(file.path));
+    const filename = researchPath(root, peakSourcePath(file.path));
     if (await realpath(filename) !== filename) throw Error('Summary inputs must be regular project files.');
     const contents = await readFile(filename);
     if (contents.length !== file.size || digest(contents) !== file.sha256) throw Error('평균 분석 이후 입력 음원이 변경되었습니다.');
@@ -58,7 +59,7 @@ export async function loadMixtureSummary(root) {
     peakComparison = normalizePeakComparison(JSON.parse(peakBytes), data, digest(bytes));
     if (peakComparison.source_analysis_sha256 !== digest(analysisBytes)) throw Error('피크 비교와 개별 분석 출처가 다릅니다.');
     for (const [relative, expected] of Object.entries(peakComparison.detail_hashes)) {
-      const filename = path.join(root, 'experiment/outputs/peak_analysis', relative);
+      const filename = researchPath(root, 'analysis/results/peak_analysis', relative);
       if (analysis.artifacts[relative] !== expected || await realpath(filename) !== filename || digest(await readFile(filename)) !== expected) throw Error('피크 비교의 기존 추적 자료 지문이 다릅니다.');
     }
     for (const [relative, expected] of Object.entries(peakComparison.period_hashes)) {

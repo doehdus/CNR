@@ -13,6 +13,7 @@ export const frontendAssets = [
   ['collection/clean-library.js', 'website/js/clean-library.js'],
   ['collection/favicon.svg', 'favicon.svg'],
   ['comparison/audio-comparison.js', 'website/js/audio-comparison.js'],
+  ['comparison/research-phase.js', 'website/js/research-phase.js'],
   ['comparison/graphs.js', 'website/js/graphs.js'],
   ['comparison/peak-analysis.js', 'website/js/peak-analysis.js'],
   ['comparison/noise-analysis.js', 'website/js/noise-analysis.js'],

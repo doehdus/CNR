@@ -1,8 +1,9 @@
+import { readLegacyFixture } from '../helpers/legacy-fixture.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {normalizeListeningAssignment,listeningTrials,summarizeListening} from '../../shared/research/prefilter-listening-data.js';
-const data=JSON.parse(readFileSync(new URL('../../public/dataset/prefilter_listening/assignment.json',import.meta.url)));
+const data=JSON.parse(readLegacyFixture('dataset/prefilter_listening/assignment.json'));
 test('배정표는 모든 12문장을 포함한 30쌍이며 순서·Δ·음원 바꿔치기를 거부한다',()=>{
  normalizeListeningAssignment(data);const trials=listeningTrials(data.groups[0],[5,4,3,2,1,0]);assert.equal(trials.length,12);
  for(let i=0;i<12;i+=2){assert.equal(trials[i].mode,'baseline');assert.equal(trials[i+1].mode,'filtered');assert.equal(trials[i].statement,trials[i+1].statement);assert.equal(trials[i].noise,trials[i+1].noise);assert.equal(trials[i].snr,trials[i+1].snr);}

@@ -1,0 +1,108 @@
+{
+  "version": 1,
+  "id": "cnr-20261123",
+  "status": "preparing",
+  "input_registry": "data/metadata/inputs.json",
+  "mixture_metadata": "data/preparation/tables/mixtures.csv",
+  "candidate_scope": "common_across_all_noises_and_snrs",
+  "candidates": {
+    "butterworth": {
+      "ids": [
+        "bpf01",
+        "bpf02"
+      ],
+      "parameters": {
+        "bpf01": {
+          "type": "butterworth_bandpass",
+          "sample_rate_hz": 16000,
+          "lower_hz": 75,
+          "upper_hz": 7900,
+          "prototype_order": 4,
+          "digital_order": 8,
+          "processing": "causal_single_pass_df2_transposed_zero_state_per_wav",
+          "output_gain_db": -1.7,
+          "selection_status": "user_selected",
+          "source_evidence": "user-provided-parameter-table"
+        },
+        "bpf02": {
+          "type": "butterworth_bandpass",
+          "sample_rate_hz": 16000,
+          "lower_hz": 109,
+          "upper_hz": 6000,
+          "prototype_order": 16,
+          "digital_order": 32,
+          "processing": "causal_single_pass_df2_transposed_zero_state_per_wav",
+          "output_gain_db": -1.7,
+          "selection_status": "user_selected",
+          "source_evidence": "user-provided-parameter-table"
+        }
+      }
+    },
+    "ss_fixed": {
+      "ids": [
+        "ss01",
+        "ss02"
+      ],
+      "parameters": null
+    },
+    "wiener": {
+      "ids": [
+        "wiener01",
+        "wiener02"
+      ],
+      "parameters": null
+    },
+    "logmmse": {
+      "ids": [
+        "logmmse01",
+        "logmmse02"
+      ],
+      "parameters": null
+    }
+  },
+  "processing": {
+    "prefilter": "butterworth",
+    "algorithms": [
+      "ss_fixed",
+      "wiener",
+      "logmmse"
+    ],
+    "combination_policy": "all_prefilter_and_algorithm_candidates",
+    "mixture_conditions": 144
+  },
+  "analysis_settings": {
+    "version": 1,
+    "sample_rate_hz": 16000,
+    "window": "hann_periodic",
+    "detrend": "constant_per_frame",
+    "profiles": {
+      "spectral": {
+        "nperseg": 2048,
+        "hop": 1024
+      },
+      "temporal": {
+        "nperseg": 512,
+        "hop": 256
+      }
+    },
+    "primary_interval": "registered_speech_start_end_including_internal_pauses",
+    "frame_policy": "global_zero_origin_grid_fully_inside_interval_no_padding",
+    "normalization": "same_reference_interval_rms_gain_for_all_components",
+    "averaging": "equal_recording_weight_linear_psd_before_db",
+    "noise_information_source": "mixture_only",
+    "initial_diagnostic": "cumulative_complete_frames_before_common_registered_start",
+    "candidate_selection": "balanced_top_two_common_settings_pending_numeric_criteria",
+    "planned_graphs": 24
+  },
+  "selection_evaluation_split": null,
+  "listening_selection": null,
+  "output_roots": {
+    "analysis": "experiment/analysis",
+    "candidates": "experiment/candidates",
+    "audio": "experiment/post",
+    "metrics": "experiment/evaluation",
+    "listening": "experiment/listening",
+    "report": "experiment/report",
+    "pre": "experiment/pre"
+  }
+}

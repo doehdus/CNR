@@ -1,3 +1,4 @@
+import { researchPath } from './research_paths.mjs';
 // Deliver completed C BPF audio and response; no DSP runs during export or build.
 import { readFile, realpath, mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -11,10 +12,10 @@ const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 export async function loadBpfPrefilter(root) {
   root = await realpath(root);
   let pointer;
-  try { pointer = JSON.parse(await readFile(path.join(root,'experiment/outputs/bpf_results.json'))); }
+  try { pointer = JSON.parse(await readFile(researchPath(root,'experiment/bpf_results.json'))); }
   catch(error) { if(error.code === 'ENOENT') return null; throw error; }
   const bytes = await checked(root,pointer.manifest,pointer.sha256), data = normalizeBpfPrefilter(JSON.parse(bytes));
-  const config = await checked(root,'experiment/config/prefilter_bpf.json',data.config_sha256);
+  const config = await checked(root,'code/config/prefilter_bpf.json',data.config_sha256);
   if (JSON.stringify(JSON.parse(config)) !== JSON.stringify(data.settings)) throw Error('BPF audio configuration changed.');
   const designBytes = await checked(root,data.design_manifest,data.design_manifest_sha256), design = JSON.parse(designBytes);
   if (design.config_sha256 !== data.config_sha256) throw Error('BPF design configuration mismatch.');
@@ -25,9 +26,9 @@ export async function loadBpfPrefilter(root) {
   }
   const files = [];
   for(const r of data.conditions) for(const [logical,sha,physical] of [
-    [r.input_path,r.input_sha256,'experiment/mixtures/'+r.input_path.slice('data/mixed/'.length)],
-    [r.comparison_input_path,r.comparison_input_sha256,'experiment/outputs/enhanced/'+r.comparison_input_path.slice('outputs/'.length)],
-    [r.output_path,r.output_sha256,'experiment/outputs/enhanced/'+r.output_path.slice('outputs/'.length)]
+    [r.input_path,r.input_sha256,'data/mixtures/'+r.input_path.slice('data/mixed/'.length)],
+    [r.comparison_input_path,r.comparison_input_sha256,'experiment/post/'+r.comparison_input_path.slice('outputs/'.length)],
+    [r.output_path,r.output_sha256,'experiment/post/'+r.output_path.slice('outputs/'.length)]
   ]) {
     let bytes;
     try { bytes = await checked(root,physical,sha); }

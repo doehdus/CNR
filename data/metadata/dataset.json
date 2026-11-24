@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "samples": [],
+  "noise_sources": [
+    {
+      "id": "noise_single",
+      "path": "data/noise/single.wav"
+    },
+    {
+      "id": "noise_complex",
+      "path": "data/noise/complex.wav"
+    },
+    {
+      "id": "noise_changing",
+      "path": "data/noise/changing.wav"
+    }
+  ],
+  "research": {
+    "id": "cnr-20261123",
+    "status": "preparing"
+  }
+}

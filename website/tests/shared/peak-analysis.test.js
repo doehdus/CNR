@@ -1,8 +1,9 @@
+import { readLegacyFixture } from '../helpers/legacy-fixture.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { normalizePeakAnalysis, normalizePeakDetails, peakDetailsForWeb, peakInputsMatch, peakSourcePath, peakArtifactPath } from '../../shared/research/peak-analysis-data.js';
-const measured = JSON.parse(await readFile(new URL('../../../experiment/outputs/peak_analysis/results.json', import.meta.url)));
+const measured = JSON.parse(readLegacyFixture('experiment/outputs/peak_analysis/results.json'));
 test('12개 원음·3종 소음·144조건의 측정 분석과 입력 지문을 대응한다', () => {
   const d = normalizePeakAnalysis(measured);
   assert.equal(d.conditions.length, 144); assert.equal(d.files.length, 171);
@@ -18,8 +19,8 @@ test('잘못된 SNR·중복 조건·손상된 스펙트럼을 표시하지 않�
   }
 });
 test('원본·대응 기준음·합성 경로를 구분하고 외부 경로를 거부한다', () => {
-  assert.equal(peakSourcePath('data/reference/instruction01.wav'), 'experiment/data/reference/instruction01.wav');
-  assert.equal(peakSourcePath('data/mixed/single/snr00/warning06.wav'), 'experiment/mixtures/single/snr00/warning06.wav');
+  assert.equal(peakSourcePath('data/reference/instruction01.wav'), 'data/reference/instruction01.wav');
+  assert.equal(peakSourcePath('data/mixed/single/snr00/warning06.wav'), 'data/mixtures/single/snr00/warning06.wav');
   for (const p of ['../private.wav', 'data/clean/../../private.wav', 'https://example.com/a.wav']) assert.throws(() => peakSourcePath(p));
 });
 
@@ -37,7 +38,7 @@ test('완료된 C 계산의 회차·파일 지문·추적 구조를 검증한다
   assert.equal(measured.engine.language, 'C');
   assert.equal(measured.engine.tool_version, 'cnr-frequency-analysis/1');
   const path = measured.sources[0].details;
-  const detail = JSON.parse(await readFile(new URL('../../../experiment/outputs/peak_analysis/' + path, import.meta.url)));
+  const detail = JSON.parse(readLegacyFixture('experiment/outputs/peak_analysis/' + path));
   assert.equal(normalizePeakDetails(detail, measured.engine.run_id).signal.frame_count, detail.signal.times_sec.length);
   for (const mutate of [d => { d.signal.tracking.tracks[0].points[0][0] = -1; }, d => { d.signal.tracking.tracks[0].std_hz = NaN; }, d => { d.engine.run_id = 'other'; }]) {
     const broken = structuredClone(detail); mutate(broken); assert.throws(() => normalizePeakDetails(broken, measured.engine.run_id));
@@ -47,7 +48,7 @@ test('완료된 C 계산의 회차·파일 지문·추적 구조를 검증한다
 });
 
 test('웹 전달은 전체 C 기록을 보존하고 모든 궤적 통계값을 정확히 복원한다', async () => {
-  const content = await readFile(new URL('../../../experiment/outputs/peak_analysis/' + measured.sources[0].details, import.meta.url));
+  const content = readLegacyFixture('experiment/outputs/peak_analysis/' + measured.sources[0].details);
   const original = JSON.parse(content);
   const compact = peakDetailsForWeb(original, 'a'.repeat(64));
   assert.equal(compact.signal.tracking.tracks.length, original.signal.tracking.tracks.length);

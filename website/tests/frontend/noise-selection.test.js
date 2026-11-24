@@ -1,10 +1,11 @@
+import { readLegacyFixture } from '../helpers/legacy-fixture.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createNoiseAnalysis } from '../../.sites-runtime/public/website/js/noise-analysis.js';
 
 // Exercise the controller with the same completed snapshot used by the build.
-const measured = JSON.parse(await readFile(new URL('../../.sites-runtime/public/dataset/peak_analysis/results.json', import.meta.url)));
+const measured = JSON.parse(readLegacyFixture('dataset/peak_analysis/results.json'));
 class Element {
   constructor(tag = 'div', text = '') {
     this.tagName = tag; this.textContent = text; this.children = []; this.dataset = {};

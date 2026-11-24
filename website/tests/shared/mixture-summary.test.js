@@ -1,13 +1,14 @@
+import { readLegacyFixture } from '../helpers/legacy-fixture.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { normalizeMixtureSummary, mixtureSummaryMatches, normalizeSNRComparison, normalizePeakComparison } from '../../shared/research/mixture-summary-data.js';
 
-const data = JSON.parse(await readFile(new URL('../../public/dataset/mixture_summary/results.json', import.meta.url)));
-const analysis = JSON.parse(await readFile(new URL('../../public/dataset/peak_analysis/results.json', import.meta.url)));
+const data = JSON.parse(readLegacyFixture('dataset/mixture_summary/results.json'));
+const analysis = JSON.parse(readLegacyFixture('dataset/peak_analysis/results.json'));
 const fingerprints = Object.fromEntries(data.files.map(file => [file.path, file.sha256]));
-const comparison = JSON.parse(await readFile(new URL('../../public/dataset/mixture_summary/snr_comparison.json', import.meta.url)));
-const peakComparison = JSON.parse(await readFile(new URL('../../public/dataset/mixture_summary/peak_comparison.json', import.meta.url)));
+const comparison = JSON.parse(readLegacyFixture('dataset/mixture_summary/snr_comparison.json'));
+const peakComparison = JSON.parse(readLegacyFixture('dataset/mixture_summary/peak_comparison.json'));
 
 test('9개 피크 비교와 20개 구간 집계의 출처·유효 수·정규화·미검출 규칙을 검증한다', () => {
   assert.equal(normalizePeakComparison(peakComparison, data), peakComparison);

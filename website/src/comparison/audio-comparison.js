@@ -12,6 +12,7 @@ import { createCleanLibrary } from './clean-library.js';
 import { createBpfPrefilter as createFixedPrefilter } from './butterworth-prefilter.js';
 import { createPrefilterAnalysis } from './prefilter-analysis.js';
 import { createPrefilterListening } from './prefilter-listening.js';
+import { renderResearchPhase } from './research-phase.js';
 
 const $ = selector => document.querySelector(selector);
 const node = (tag, className = '', text = '') => { const result = document.createElement(tag); result.className = className; result.textContent = text; return result; };
@@ -24,6 +25,7 @@ let revision = 0, storageReady = false, saving = false;
 let surveyResponses = [];
 let qrSessions = [], qrListRevision = 0, qrListReady = false;
 let refreshingResults = false;
+let researchPreparing = true;
 let state = { version: 1, paths: {}, noise_paths: {}, metrics: [], ratings: [] }, serverPaths = {}, serverNoisePaths = {}, serverMetrics = [], availablePaths = new Set(), inputFingerprints = {}, scanError = '', selectedObjective = 'stoi', storageError = '', noticeTimer;
 const noiseAnalysisPage = createNoiseAnalysis({ fingerprints: () => inputFingerprints, stopAudio });
 const cleanLibrary = createCleanLibrary({ fingerprints: () => inputFingerprints, stopAudio });
@@ -69,9 +71,11 @@ function setSurveyRatings(rows = []) {
   return changed;
 }
 function allRatings() {
+  if (researchPreparing) return [];
   return [...new Map([...state.ratings, ...surveyResponses].map(row => [ratingKey(row), row])).values()];
 }
 function allMetrics() {
+  if (researchPreparing) return [];
   const paths = Object.fromEntries(SAMPLES.map(sample => [sample.id, pathFor(sample)]));
   return mergeMetrics(state.metrics, serverMetrics).filter(metric => metricMatchesInputs(metric, paths, inputFingerprints));
 }
@@ -352,7 +356,7 @@ function renderSettings() {
   $('#storage-status').textContent = storageError || `클라우드 DB에 청음 응답 ${allRatings().length}개 · 가져온 지표 ${state.metrics.length}개 저장 · 자료 버전 ${revision}. 로컬 폴더의 음원은 배포할 때 반영됩니다.`;
   $('#storage-status').classList.toggle('error', Boolean(storageError));
 }
-function renderAll() { renderStats(); cleanLibrary.render(); renderComparison(); renderNoiseAnalysis(); renderPrefilter(); prefilterAnalysis.render(); prefilterListening.render(); renderEvaluation(); renderMatrices(); renderObjective(); renderGraphs(); renderAnalysis(); renderSettings(); }
+function renderAll() { renderStats(); cleanLibrary.render(); renderComparison(); renderNoiseAnalysis(); renderPrefilter(); prefilterAnalysis.render(); prefilterListening.render(); renderEvaluation(); renderMatrices(); renderObjective(); renderGraphs(); renderAnalysis(); renderSettings(); renderResearchPhase(document, researchPreparing); }
 async function scanFiles(render = true) {
   const previousCatalog = JSON.stringify([...[...availablePaths].sort(), inputFingerprints]);
   $('#refresh-files').disabled = true;
@@ -480,7 +484,7 @@ function openRatingForm() {
 async function refreshServerData() {
   try { await readCloudState(); } catch (error) { storageError = error.message; notify(storageError, true); }
   const loads = await Promise.allSettled([readServerJSON('dataset/manifest.json'), readServerJSON('dataset/results.json'), noiseAnalysisPage.load(), cleanLibrary.load(), fixedPrefilter.load(), prefilterAnalysis.load(), prefilterListening.load()]);
-  try { if (loads[0].status === 'fulfilled' && loads[0].value) { serverPaths = normalizeManifest(loads[0].value); serverNoisePaths = normalizeNoiseSources(loads[0].value.noise_sources || []); } else throw new Error('기본 경로 설정을 확인하지 못했습니다.'); }
+  try { if (loads[0].status === 'fulfilled' && loads[0].value) { serverPaths = normalizeManifest(loads[0].value); serverNoisePaths = normalizeNoiseSources(loads[0].value.noise_sources || []); researchPreparing=loads[0].value.research?.status==='preparing'; const phase=$('#research-phase');if(phase)phase.hidden=!researchPreparing; } else throw new Error('기본 경로 설정을 확인하지 못했습니다.'); }
   catch (error) { notify(error.message, true); }
   serverMetrics = [];
   try { if (loads[1].status === 'rejected') throw new Error('결과 파일을 읽지 못했습니다.'); if (loads[1].value) serverMetrics = normalizeMetrics(Array.isArray(loads[1].value) ? loads[1].value : loads[1].value.metrics); }

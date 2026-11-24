@@ -12,7 +12,7 @@ export function projectPath(root, relative) {
 }
 
 export async function loadProjectLayout(root) {
-  const layout = JSON.parse((await readFile(projectPath(root, 'experiment/config/paths.json'), 'utf8')).replace(/^\uFEFF/, ''));
+  const layout = JSON.parse((await readFile(projectPath(root, 'export/paths.json'), 'utf8')).replace(/^\uFEFF/, ''));
   if (layout.version !== 1 || !Array.isArray(layout.audio_roots) || !layout.audio_roots.length) throw new Error('연구 경로 설정 version 1이 필요합니다.');
   projectPath(root, layout.manifest);
   projectPath(root, layout.metric_results);

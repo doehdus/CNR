@@ -1,8 +1,9 @@
+import { readLegacyFixture } from '../helpers/legacy-fixture.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createFixedPrefilter } from '../../.sites-runtime/public/website/js/prefilter.js';
-const measured = JSON.parse(await readFile(new URL('../../public/dataset/prefilter/results.json', import.meta.url)));
+const measured = JSON.parse(readLegacyFixture('dataset/prefilter/results.json'));
 class Element {
   constructor(tag = 'div') { this.tagName = tag; this.children = []; this.listeners = {}; this.dataset = {}; this.value = ''; this.classList = { toggle() {} }; }
   append(...values) { this.children.push(...values); }

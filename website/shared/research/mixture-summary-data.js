@@ -20,7 +20,7 @@ export function normalizeMixtureSummary(data) {
       !['prominence_db', 'minimum_distance_bins', 'matching_minimum_bins', 'matching_width_fraction'].every(key => finite(method[key]) && method[key] > 0)) fail();
   if (!Array.isArray(data.frequency_hz) || data.frequency_hz.length !== 1025 || data.frequency_hz.some((value, i) => value !== i * 16000 / 2048)) fail();
   if (!Array.isArray(data.files) || data.files.length !== 171 || new Set(data.files.map(file => file.path)).size !== 171) fail();
-  for (const file of data.files) if (peakSourcePath(file.path) !== file.source || !hash(file.sha256) || !Number.isSafeInteger(file.size) || file.size < 44) fail();
+  for (const file of data.files) if (![peakSourcePath(file.path), file.path.startsWith('data/mixed/') ? 'experiment/mixtures/' + file.path.slice('data/mixed/'.length) : 'experiment/' + file.path].includes(file.source) || !hash(file.sha256) || !Number.isSafeInteger(file.size) || file.size < 44) fail();
   const vector = values => { if (!Array.isArray(values) || values.length !== 1025 || !values.every(finite)) fail(); };
   if (!Array.isArray(data.groups) || data.groups.length !== 12 || !data.artifacts || Array.isArray(data.artifacts)) fail();
   const keys = new Set(), references = new Set();

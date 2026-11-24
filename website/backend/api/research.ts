@@ -63,7 +63,7 @@ async function packagedAudio(request: Request, assets: Fetcher, file: AudioFile)
   return new Response(asset.body, { headers });
 }
 
-export async function researchRequest(request: Request, env: Cloudflare.Env, catalog: AudioCatalog = audioCatalog): Promise<Response | null> {
+export async function researchRequest(request: Request, env: Cloudflare.Env, catalog: AudioCatalog = audioCatalog, listeningAssignment?: unknown): Promise<Response | null> {
   const url = new URL(request.url), pathname = url.pathname;
   const api = pathname.startsWith('/api/');
   const audioPath = /^\/(data\/(clean|noise|mixed)|outputs)\//.test(pathname);
@@ -75,7 +75,7 @@ export async function researchRequest(request: Request, env: Cloudflare.Env, cat
     if (!['GET', 'HEAD'].includes(request.method)) {
       if ((request.headers.get('Origin') && request.headers.get('Origin') !== url.origin) || request.headers.get('Sec-Fetch-Site') === 'cross-site') return json({ error: '같은 사이트에서 요청하세요.' }, 403);
     }
-    if (pathname.startsWith('/api/prefilter-listening')) return await prefilterListeningRequest(request, env.DB!, () => availableAudio(env, catalog));
+    if (pathname.startsWith('/api/prefilter-listening')) return await prefilterListeningRequest(request, env.DB!, () => availableAudio(env, catalog), listeningAssignment);
     if (pathname.startsWith('/api/survey-sessions')) return await surveyRequest(request, env.DB!, () => availableAudio(env, catalog));
     if (pathname === '/api/backup') return await backupRequest(request, env.DB!);
     if (pathname === '/api/study' && request.method === 'GET') return json({ ...(await load(env.DB!)), survey_ratings: await surveyRatings(env.DB!) });

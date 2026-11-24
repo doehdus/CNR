@@ -1,3 +1,7 @@
+import sys
+from pathlib import Path
+sys.path.insert(0,str(Path(__file__).resolve().parents[2] / 'code'))
+from tests.legacy import archive_path
 import copy
 import hashlib
 import importlib.util
@@ -17,10 +21,10 @@ class InitialPrefilterExportTests(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name).resolve()
-        self.target = self.root / 'experiment/config/prefilter_initial.json'
+        self.target = self.root / 'code/config/prefilter_initial.json'
         self.target.parent.mkdir(parents=True)
-        self.settings = json.loads((ROOT / 'experiment/config/prefilter_initial.json').read_text(encoding='utf-8'))
-        contents = (ROOT / 'experiment/outputs/peak_analysis/results.json').read_bytes()
+        self.settings = json.loads(archive_path('experiment/config/prefilter_initial.json').read_text(encoding='utf-8'))
+        contents = archive_path('experiment/outputs/peak_analysis/results.json').read_bytes()
         self.analysis, self.hash = json.loads(contents), hashlib.sha256(contents).hexdigest()
 
     def write(self, data):

@@ -1,12 +1,13 @@
+import { readLegacyFixture } from '../helpers/legacy-fixture.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { normalizePrefilterInitial, prefilterMatchesAnalysis } from '../../shared/research/prefilter-data.js';
 
-const bytes = await readFile(new URL('../../../experiment/outputs/peak_analysis/results.json', import.meta.url));
+const bytes = readLegacyFixture('experiment/outputs/peak_analysis/results.json');
 const analysis = JSON.parse(bytes), hash = createHash('sha256').update(bytes).digest('hex');
-const settings = JSON.parse(await readFile(new URL('../../../experiment/config/prefilter_initial.json', import.meta.url)));
+const settings = JSON.parse(readLegacyFixture('experiment/config/prefilter_initial.json'));
 
 test('초기 EQ 세 설정은 원래 분석의 회차·지문·피크에 대응한다', () => {
   const normalized = normalizePrefilterInitial(settings);

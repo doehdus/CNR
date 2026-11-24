@@ -13,15 +13,31 @@ spec.loader.exec_module(exporter)
 
 
 class ExportTests(unittest.TestCase):
+    def test_registered_reference_is_delivered_without_analysis_and_replacement_is_rejected(self):
+        relative='data/reference/instruction01.wav'
+        source=self.root/relative;source.parent.mkdir(parents=True)
+        with wave.open(str(source),'wb') as stream:
+            stream.setparams((1,2,16000,0,'NONE','not compressed'));stream.writeframes(b'\0\0'*3200)
+        content=source.read_bytes()
+        self.put_json('data/metadata/inputs.json',{'version':1,'expected_count':1,'files':[
+            {'path':relative,'source':relative,'size':len(content),'sha256':hashlib.sha256(content).hexdigest()}]})
+        stage=self.root/'stage';stage.mkdir();files=[]
+        exporter.copy_registered_inputs(self.root,stage,files)
+        self.assertEqual(len(files),1);self.assertEqual((stage/'audio'/relative).read_bytes(),content)
+        source.write_bytes(content[:-1]+b'\1')
+        with self.assertRaisesRegex(ValueError,'Registered input changed'):
+            exporter.copy_registered_inputs(self.root,stage,[])
+        self.assertEqual((stage/'audio'/relative).read_bytes(),content)
+
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory(prefix='cnr-export-test-')
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name).resolve()
-        self.layout = {'version': 1, 'manifest': 'experiment/data/metadata/dataset.json', 'metric_results': 'experiment/outputs/metrics.json', 'audio_roots': [
-            {'public': 'data/clean', 'source': 'experiment/data/clean'},
-            {'public': 'data/noise', 'source': 'experiment/data/noise'},
-            {'public': 'data/mixed', 'source': 'experiment/data/mixtures'},
-            {'public': 'outputs', 'source': 'experiment/outputs/enhanced'},
+        self.layout = {'version': 1, 'manifest': 'data/metadata/dataset.json', 'metric_results': 'experiment/evaluation/metrics.json', 'audio_roots': [
+            {'public': 'data/clean', 'source': 'data/clean'},
+            {'public': 'data/noise', 'source': 'data/noise'},
+            {'public': 'data/mixed', 'source': 'data/mixtures'},
+            {'public': 'outputs', 'source': 'experiment/post'},
         ]}
         self.manifest = {'version': 1, 'samples': [
             {'id': 'clean_instruction_01', 'kind': 'clean', 'statement': 'instruction_01', 'path': 'data/clean/instruction_01.wav'},
@@ -29,7 +45,7 @@ class ExportTests(unittest.TestCase):
             {'id': 'single_snr20_instruction_01_ss_fixed', 'kind': 'processed', 'statement': 'instruction_01', 'path': 'outputs/ss_fixed/single/snr20/instruction_01.wav'},
         ], 'noise_sources': []}
         self.put_json(self.layout['manifest'], self.manifest)
-        self.put_json('experiment/config/paths.json', self.layout)
+        self.put_json('export/paths.json', self.layout)
         for entry in self.manifest['samples'][:2]:
             target = exporter.audio_path(self.root, entry['path'], self.layout)
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -49,7 +65,7 @@ class ExportTests(unittest.TestCase):
         filename.write_text(json.dumps(value), encoding='utf-8')
 
     def test_completed_results_and_existing_audio_only_are_exported(self):
-        for relative in ['experiment/data/noise_train/private.wav', 'experiment/data/noise_test/private.wav', 'before261116/old.wav']:
+        for relative in ['data/noise_train/private.wav', 'data/noise_test/private.wav', 'before261116/old.wav']:
             target = self.root / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(b'RIFFtestWAVEprivate')
@@ -95,8 +111,8 @@ class ExportTests(unittest.TestCase):
         for name in ['noise_train', 'noise_test']:
             with self.subTest(name=name):
                 layout = copy.deepcopy(self.layout)
-                layout['audio_roots'][1]['source'] = 'experiment/data/' + name
-                self.put_json('experiment/config/paths.json', layout)
+                layout['audio_roots'][1]['source'] = 'data/' + name
+                self.put_json('export/paths.json', layout)
                 with self.assertRaisesRegex(ValueError, 'not public'):
                     exporter.export_results(self.root)
         self.assertFalse(self.destination.exists())
@@ -118,7 +134,7 @@ class ExportTests(unittest.TestCase):
         source = exporter.audio_path(self.root, noise['path'], self.layout)
         source.parent.mkdir(parents=True, exist_ok=True)
         source.write_bytes(b'RIFFtestWAVEsource noise')
-        graph = self.root / 'experiment/outputs/graphs/noise_analysis/fixture/single.png'
+        graph = self.root / 'analysis/graphs/noise_analysis/fixture/single.png'
         graph.parent.mkdir(parents=True, exist_ok=True)
         graph.write_bytes(b'\x89PNG\r\n\x1a\nfixture image')
         image = 'graphs/fixture/single.png'
@@ -128,7 +144,7 @@ class ExportTests(unittest.TestCase):
                          'window_function': 'hann_periodic', 'magnitude_reference': 'fixture dBFS', 'peak_rule': 'pending'},
             'spectrum_image': image, 'peaks': None, 'candidates': [],
         }], 'mixtures': [], 'overview': None, 'artifacts': {image: hashlib.sha256(graph.read_bytes()).hexdigest()}}
-        self.put_json('experiment/outputs/noise_analysis/results.json', data)
+        self.put_json('analysis/results/noise_analysis/results.json', data)
         return data, graph
 
     def test_completed_analysis_graphs_are_copied_and_pending_peaks_remain_null(self):
@@ -160,14 +176,14 @@ class ExportTests(unittest.TestCase):
             for number in range(1, 7):
                 identity = category + f'{number:02}'
                 records.append({'id': identity, 'category': category, 'speaker': '유채원' if number <= 3 else '김도연', 'text': 'fixture ' + identity})
-                path = self.root / 'experiment/data/clean' / (identity + '.wav')
+                path = self.root / 'data/clean' / (identity + '.wav')
                 path.parent.mkdir(parents=True, exist_ok=True)
                 with wave.open(str(path), 'wb') as audio:
                     audio.setnchannels(1)
                     audio.setsampwidth(2)
                     audio.setframerate(16000 if number <= 3 else 48000)
                     audio.writeframes(b'\x01\x00' * (160 + number))
-        self.put_json('experiment/config/collection.json', {'version': 1, 'source_root': 'experiment/data/clean', 'recordings': records})
+        self.put_json('data/metadata/collection.json', {'version': 1, 'source_root': 'data/clean', 'recordings': records})
 
     def test_new_twelve_clean_files_are_exported_without_replacing_legacy_results_or_analysis(self):
         self.prepare_noise_analysis()
@@ -184,7 +200,7 @@ class ExportTests(unittest.TestCase):
         self.assertEqual(len(recordings), 12)
         self.assertEqual({row['sample_rate_hz'] for row in recordings}, {16000, 48000})
         for row in recordings:
-            original = (self.root / 'experiment/data/clean' / (row['id'] + '.wav')).read_bytes()
+            original = (self.root / 'data/clean' / (row['id'] + '.wav')).read_bytes()
             self.assertEqual((self.destination / 'audio' / row['path']).read_bytes(), original)
             self.assertEqual(row['sha256'], hashlib.sha256(original).hexdigest())
         exporter.export_collection_only(self.root)
@@ -196,7 +212,7 @@ class ExportTests(unittest.TestCase):
         exporter.export_collection_only(self.root)
         previous = (self.destination / 'collection.json').read_bytes()
         previous_catalog = (self.destination / 'audio/catalog.json').read_bytes()
-        (self.root / 'experiment/data/clean/warning06.wav').unlink()
+        (self.root / 'data/clean/warning06.wav').unlink()
         with self.assertRaises(FileNotFoundError):
             exporter.export_collection_only(self.root)
         self.assertEqual((self.destination / 'collection.json').read_bytes(), previous)
@@ -215,12 +231,12 @@ class ExportTests(unittest.TestCase):
         ]:
             invalid = copy.deepcopy(data)
             mutate(invalid)
-            self.put_json('experiment/outputs/noise_analysis/results.json', invalid)
+            self.put_json('analysis/results/noise_analysis/results.json', invalid)
             with self.assertRaises(ValueError):
                 exporter.export_results(self.root)
             self.assertEqual((self.destination / 'noise_analysis/results.json').read_bytes(), previous)
             self.assertEqual((self.destination / 'noise_analysis' / data['sources'][0]['spectrum_image']).read_bytes(), previous_graph)
-        self.put_json('experiment/outputs/noise_analysis/results.json', data)
+        self.put_json('analysis/results/noise_analysis/results.json', data)
         graph.unlink()
         with self.assertRaises(FileNotFoundError):
             exporter.export_results(self.root)

@@ -1,3 +1,4 @@
+import { readLegacyFixture } from '../helpers/legacy-fixture.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -5,12 +6,21 @@ import {researchRequest} from '../../backend/api/research.ts';
 import {PREFILTER_QUESTIONS} from '../../backend/surveys/prefilter-questions.ts';
 import {hashToken} from '../../backend/surveys/model.ts';
 import {sqliteD1} from '../helpers/sqlite-d1.mjs';
-const assignment=JSON.parse(readFileSync(new URL('../../public/dataset/prefilter_listening/assignment.json',import.meta.url)));
+const assignment=JSON.parse(readLegacyFixture('dataset/prefilter_listening/assignment.json'));
 const catalog={version:1,files:assignment.groups.flatMap(g=>g.conditions.flatMap(r=>['input','output'].map(k=>({path:r[k+'_path'],sha256:r[k+'_sha256'],size:100}))))};
+test('새 배정표가 없으면 이전 응답을 보존하고 참여와 집계를 준비 상태로 응답한다',async t=>{
+ const f=fixture();t.after(f.close);const person=await f.join();await f.answer(person);
+ const before=f.sqlite.prepare('SELECT * FROM prefilter_listening_responses').all();
+ for(const endpoint of ['summary','groups/1/join']){
+  const response=await researchRequest(new Request('https://study.test/api/prefilter-listening/'+endpoint),{DB:f.DB},catalog,null);
+  assert.equal(response.status,503);assert.match((await response.json()).error,/준비/);
+ }
+ assert.deepEqual(f.sqlite.prepare('SELECT * FROM prefilter_listening_responses').all(),before);
+});
 function fixture(){
  const store=sqliteD1(),env={DB:store.DB,ASSETS:{fetch:async()=>new Response('RIFFfixture')}};
  async function call(path,method='GET',body,token,files=catalog){
-  const response=await researchRequest(new Request('https://study.test/api/prefilter-listening/'+path,{method,headers:token?{Authorization:'Bearer '+token}:{},...(body?{body:JSON.stringify(body)}:{})}),env,files);
+  const response=await researchRequest(new Request('https://study.test/api/prefilter-listening/'+path,{method,headers:token?{Authorization:'Bearer '+token}:{},...(body?{body:JSON.stringify(body)}:{})}),env,files,assignment);
   return {status:response.status,data:await response.json()};
  }
  async function join(group='1',token=crypto.randomUUID().replaceAll('-','')+crypto.randomUUID().replaceAll('-','')){

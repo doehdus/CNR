@@ -28,8 +28,8 @@ test('웹 빌드는 실험 원본 없이 내보낸 음원 스냅샷만 검증한
   const { root, catalog, audio, relative } = await snapshot(t);
   assert.deepEqual(await prepareAudio(root), catalog);
   assert.equal(await readFile(path.join(audio, relative), 'utf8'), 'RIFFtestWAVEaudio');
-  await mkdir(path.join(root, 'experiment/data/noise_train'), { recursive: true });
-  await writeFile(path.join(root, 'experiment/data/noise_train/private.wav'), 'private');
+  await mkdir(path.join(root, 'data/noise_train'), { recursive: true });
+  await writeFile(path.join(root, 'data/noise_train/private.wav'), 'private');
   assert.deepEqual(await prepareAudio(root), catalog);
 });
 

@@ -5,16 +5,16 @@ import path from 'node:path';
 export async function writeTestLayout(root) {
   const layout = {
     version: 1,
-    manifest: 'experiment/data/metadata/dataset.json',
-    metric_results: 'experiment/outputs/metrics.json',
+    manifest: 'data/metadata/dataset.json',
+    metric_results: 'experiment/evaluation/metrics.json',
     audio_roots: [
-      { public: 'data/clean', source: 'experiment/data/clean' },
-      { public: 'data/noise', source: 'experiment/data/noise' },
-      { public: 'data/mixed', source: 'experiment/data/mixtures' },
-      { public: 'outputs', source: 'experiment/outputs/enhanced' },
+      { public: 'data/clean', source: 'data/clean' },
+      { public: 'data/noise', source: 'data/noise' },
+      { public: 'data/mixed', source: 'data/mixtures' },
+      { public: 'outputs', source: 'experiment/post' },
     ],
   };
-  await mkdir(path.join(root, 'experiment/config'), { recursive: true });
-  await writeFile(path.join(root, 'experiment/config/paths.json'), JSON.stringify(layout));
+  await mkdir(path.join(root, 'export'), { recursive: true });
+  await writeFile(path.join(root, 'export/paths.json'), JSON.stringify(layout));
   return layout;
 }

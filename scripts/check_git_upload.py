@@ -33,7 +33,7 @@ SECRET_MARKERS = {
 
 
 def file_limit(name):
-    return RESEARCH_LIMIT if name.startswith((b"experiment/data/", b"experiment/mixtures/", b"experiment/outputs/")) else SOURCE_LIMIT
+    return RESEARCH_LIMIT if name.startswith((b"data/", b"analysis/results/", b"analysis/graphs/", b"experiment/")) else SOURCE_LIMIT
 
 
 def git(root, *args, data=None, allowed=(0,)):

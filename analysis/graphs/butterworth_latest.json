@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "source_candidate_run": {
+    "version": 1,
+    "run_id": "20261123T142501Z-f9b806ab",
+    "manifest": "analysis/results/candidates/butterworth/20261123T142501Z-f9b806ab/manifest.json",
+    "sha256": "8225cc2ef8847fcdd015bde6fbe456b4fb72f614ef5942265abfba34e4809773"
+  },
+  "graphs": [
+    {
+      "id": "B1_tradeoff",
+      "folder": "09_Butterworth_음성보존_소음감소_비교",
+      "path": "analysis/graphs/09_Butterworth_음성보존_소음감소_비교/20261123T142501Z-f9b806ab/B1_tradeoff.png",
+      "sha256": "cb320737f2f3e907e55a1705cf7d4a966dda631b9b7aedaec1a186c081845768",
+      "size": 241436
+    },
+    {
+      "id": "B2_response",
+      "folder": "10_Butterworth_후보_주파수응답",
+      "path": "analysis/graphs/10_Butterworth_후보_주파수응답/20261123T142501Z-f9b806ab/B2_response.png",
+      "sha256": "9e4f9fbb2d6fc3fd7ba7358fde08660f44a89c324834440d1f647e19bec40da0",
+      "size": 183285
+    },
+    {
+      "id": "B3_effect",
+      "folder": "11_Butterworth_소음별_예상_SNR_변화",
+      "path": "analysis/graphs/11_Butterworth_소음별_예상_SNR_변화/20261123T142501Z-f9b806ab/B3_effect.png",
+      "sha256": "2f7e068a836a30a2b7a1cd31eb26300063f1fe14899b4f8bc8f63821ee238644",
+      "size": 113001
+    }
+  ]
+}

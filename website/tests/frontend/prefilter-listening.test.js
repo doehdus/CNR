@@ -23,6 +23,11 @@ test('5개 참여 링크와 QR은 같은 그룹 주소이며 완료 평균·대�
  assert(walk(get('#prefilter-listening-means')).some(e=>e.textContent==='—'));assert.match(get('#prefilter-listening-empty').textContent,/5개 그룹/);
  ready=true;await app.load();const texts=walk(get('#prefilter-listening-means')).map(e=>e.textContent);assert(texts.includes('50.00%'));assert(texts.includes('75.00%'));assert(texts.includes('+25.00%p'));assert(texts.includes('4.00점'));
  await get('#prefilter-listening-group').listeners.change[0]({target:{value:'2'}});assert.match(get('#prefilter-listening-empty').textContent,/완료한 참가자/);
+ t.mock.method(globalThis,'fetch',async()=>Response.json({error:'새 실험의 청취평가를 준비 중입니다.'},{status:503}));
+ await app.load();assert.equal(get('#prefilter-listening-links').hidden,true);
+ assert.equal(get('#prefilter-listening-counts').children.length,0);
+ assert(!walk(get('#prefilter-listening-means')).some(e=>e.textContent==='75.00%'));
+ assert.match(get('#prefilter-listening-empty').textContent,/객관 지표 계산 후/);
 });
 test('새 메뉴 위치와 참여 화면은 확정된 문항·척도·개별 재생으로 연결된다',async()=>{
  const html=await readFile(new URL('../../src/collection/index.html',import.meta.url),'utf8');

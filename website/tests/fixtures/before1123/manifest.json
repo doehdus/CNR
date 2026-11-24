@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "purpose": "Frozen metadata regression fixtures; no audio or participant responses.",
+  "files": {
+    "dataset/peak_analysis/results.json": "d9f2d0252dd531a742928a14b4a250ad61a4e1aa01e9b2f97fccd63140256b30",
+    "dataset/mixture_summary/results.json": "71ac43d0b1671d3f1b074711413d02689051cec41d8231ae5325ff18e332c0e7",
+    "dataset/mixture_summary/snr_comparison.json": "a74bd487d4922f6a6a8acd64766abd3d496a364832e38723eeec0adb80d36cf6",
+    "dataset/mixture_summary/peak_comparison.json": "31b2dbdc0be33cb5b521f7208b8be942525e8585e144cade765007bca3230182",
+    "dataset/prefilter/results.json": "3f99f99213ecbf4da7871302abd88fcd8bb65eb6579ed482e5795b14f723fd94",
+    "dataset/prefilter_bpf/results.json": "637eb2979f5d51290d96a5a4c2ac894404b42faeb48a089e7facfc25b9d7340f",
+    "dataset/prefilter_analysis/results.json": "f68e8f5bcb9b08e0fca2ac4a575d1dc5fc8fa8ba8d22db7bafc11a94042084d2",
+    "dataset/prefilter_listening/assignment.json": "9f6276c579fcad1bafe6aa836fc44a3d352219271bc6b4c5a1b979ba39363f38",
+    "experiment/outputs/peak_analysis/results.json": "fe95da6e4fa02fd9b692dd523ceb3deede8a28cfa3c42aeede316cdd751edc2c",
+    "experiment/config/prefilter_initial.json": "64b009636bb05acadf5eeb9194fcd4f4359e86d845610bc19d502afbd490eefd",
+    "experiment/outputs/peak_analysis/runs/20261120T052542Z-31f3a759/details/single.json": "3bfbcc13d26cdb7b1361da255dbb83d73600f74f6462af17e79dc0dc55cd12f9"
+  }
+}

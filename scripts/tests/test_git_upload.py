@@ -41,7 +41,7 @@ class UploadCheckTests(unittest.TestCase):
 
     def test_large_research_data_is_allowed_but_identical_source_blob_remains_limited(self):
         content=b'1,2,3\n'*(SOURCE_LIMIT//6+1)
-        self.stage('experiment/outputs/active/responses.csv',content)
+        self.stage('experiment/active/responses.csv',content)
         self.assertEqual(self.run_check()[0],0)
         self.stage('src/oversized.py',content)
         code,output=self.run_check();self.assertEqual(code,1);self.assertIn('10 MiB source-file limit',output)

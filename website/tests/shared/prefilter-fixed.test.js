@@ -1,8 +1,9 @@
+import { readLegacyFixture } from '../helpers/legacy-fixture.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { normalizeFixedPrefilter, fixedPrefilterInputsMatch } from '../../shared/research/prefilter-fixed-data.js';
-const data = JSON.parse(await readFile(new URL('../../public/dataset/prefilter/results.json', import.meta.url)));
+const data = JSON.parse(readLegacyFixture('dataset/prefilter/results.json'));
 test('고정 EQ 144조건은 원본과 처리 결과 모두 지문이 맞아야 재생 가능하다', () => {
   normalizeFixedPrefilter(data);
   const hashes = Object.fromEntries(data.conditions.flatMap(row => [[row.input_path, row.input_sha256], [row.output_path, row.output_sha256]]));

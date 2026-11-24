@@ -1,0 +1,23 @@
+{
+    "version":  1,
+    "manifest":  "data/metadata/dataset.json",
+    "metric_results":  "experiment/evaluation/metrics.json",
+    "audio_roots":  [
+                        {
+                            "public":  "data/clean",
+                            "source":  "data/clean"
+                        },
+                        {
+                            "public":  "data/noise",
+                            "source":  "data/noise"
+                        },
+                        {
+                            "public":  "data/mixed",
+                            "source":  "data/mixtures"
+                        },
+                        {
+                            "public":  "outputs",
+                            "source":  "experiment/post"
+                        }
+                    ]
+}

@@ -1,0 +1,202 @@
+{
+  "version": 2,
+  "run_id": "20261123T112950Z-54e19287",
+  "source_manifest": "analysis/results/signals/20261123T112950Z-54e19287/manifest.json",
+  "source_manifest_sha256": "8c2fd7c7dfb86af202a126d86c638013a9e111e5daba2cda562874444fb50446",
+  "writer_sha256": "78cd6c97b1fdc55f1e360eced843fcb3e9bd61c7b099a07a469aab98487c5be4",
+  "graph_count": 24,
+  "graphs": [
+    {
+      "id": "C1_instruction01",
+      "kind": "clean",
+      "role": "waveform",
+      "path": "analysis/graphs/01_음성_파형_RMS_스펙트로그램/20261123T112950Z-54e19287/C1_instruction01.png",
+      "sha256": "039649e7d422571e143805f09a746ac2ec840d68a1a37601977a35e3be486937",
+      "size": 496806
+    },
+    {
+      "id": "C1_instruction02",
+      "kind": "clean",
+      "role": "waveform",
+      "path": "analysis/graphs/01_음성_파형_RMS_스펙트로그램/20261123T112950Z-54e19287/C1_instruction02.png",
+      "sha256": "01b42f5296a4d1204d52d45488b1f9208e3eaa1ccd409ab317c3a5c384ba1a70",
+      "size": 490079
+    },
+    {
+      "id": "C1_instruction03",
+      "kind": "clean",
+      "role": "waveform",
+      "path": "analysis/graphs/01_음성_파형_RMS_스펙트로그램/20261123T112950Z-54e19287/C1_instruction03.png",
+      "sha256": "6ccd42f32204166096c09d82c3f850dfb5668a73caacac8cfc2978c27ec1ec4d",
+      "size": 500543
+    },
+    {
+      "id": "C1_instruction04",
+      "kind": "clean",
+      "role": "waveform",
+      "path": "analysis/graphs/01_음성_파형_RMS_스펙트로그램/20261123T112950Z-54e19287/C1_instruction04.png",
+      "sha256": "3259dd5a1b2111af08412f42ffa543edc255768a3b4855dbdcf23d974be3f94c",
+      "size": 503695
+    },
+    {
+      "id": "C1_instruction05",
+      "kind": "clean",
+      "role": "waveform",
+      "path": "analysis/graphs/01_음성_파형_RMS_스펙트로그램/20261123T112950Z-54e19287/C1_instruction05.png",
+      "sha256": "0d0073ff67fddc24a470be546c676b65c3186206505fc149b844ccf9dde01ad6",
+      "size": 482712
+    },
+    {
+      "id": "C1_instruction06",
+      "kind": "clean",
+      "role": "waveform",
+      "path": "analysis/graphs/01_음성_파형_RMS_스펙트로그램/20261123T112950Z-54e19287/C1_instruction06.png",
+      "sha256": "f6fbd895d0374949d2de0dbd809ac22a61175cd62f8dc32f149a7d4aa54cda5b",
+      "size": 518209
+    },
+    {
+      "id": "C1_warning01",
+      "kind": "clean",
+      "role": "waveform",
+      "path": "analysis/graphs/01_음성_파형_RMS_스펙트로그램/20261123T112950Z-54e19287/C1_warning01.png",
+      "sha256": "3cc94c10b281414d19bd731ed5724c13196f30bfa5625558b2bca94011534f1c",
+      "size": 485110
+    },
+    {
+      "id": "C1_warning02",
+      "kind": "clean",
+      "role": "waveform",
+      "path": "analysis/graphs/01_음성_파형_RMS_스펙트로그램/20261123T112950Z-54e19287/C1_warning02.png",
+      "sha256": "bafe7eb11c0749c1a5b53c05d08f806ec9f5cab374129c35e39adf475772e0cb",
+      "size": 490737
+    },
+    {
+      "id": "C1_warning03",
+      "kind": "clean",
+      "role": "waveform",
+      "path": "analysis/graphs/01_음성_파형_RMS_스펙트로그램/20261123T112950Z-54e19287/C1_warning03.png",
+      "sha256": "841465b6dee1758344a86990705b6f9be028ed383fa54facb5c73ff3d060eb66",
+      "size": 526200
+    },
+    {
+      "id": "C1_warning04",
+      "kind": "clean",
+      "role": "waveform",
+      "path": "analysis/graphs/01_음성_파형_RMS_스펙트로그램/20261123T112950Z-54e19287/C1_warning04.png",
+      "sha256": "ab016a1dce3a6a4461fa189a1bd5321065f309ca996fea2a4c56849246177a54",
+      "size": 482889
+    },
+    {
+      "id": "C1_warning05",
+      "kind": "clean",
+      "role": "waveform",
+      "path": "analysis/graphs/01_음성_파형_RMS_스펙트로그램/20261123T112950Z-54e19287/C1_warning05.png",
+      "sha256": "aaf6d3778b5c89fba7e4e2e95ec74134139a66081324f921eaebc25d3b04467c",
+      "size": 509098
+    },
+    {
+      "id": "C1_warning06",
+      "kind": "clean",
+      "role": "waveform",
+      "path": "analysis/graphs/01_음성_파형_RMS_스펙트로그램/20261123T112950Z-54e19287/C1_warning06.png",
+      "sha256": "d195fa3b0e6f3dcba46f7717d2686e884f74e8215de16e823c22bb8605a710cd",
+      "size": 501935
+    },
+    {
+      "id": "C2_speaker1",
+      "kind": "clean",
+      "role": "spectrum",
+      "path": "analysis/graphs/02_화자별_음성_PSD_누적전력/20261123T112950Z-54e19287/C2_speaker1.png",
+      "sha256": "7ae488d3f3718d45b6cc5a4dc9b37ce05965258f8e940cbc5e71c8a86613c067",
+      "size": 409472
+    },
+    {
+      "id": "C2_speaker2",
+      "kind": "clean",
+      "role": "spectrum",
+      "path": "analysis/graphs/02_화자별_음성_PSD_누적전력/20261123T112950Z-54e19287/C2_speaker2.png",
+      "sha256": "f2e98daa1bc7cc9b3060e088864db20f21b749bd5e475617029a25b50692f08b",
+      "size": 418156
+    },
+    {
+      "id": "N1_single",
+      "kind": "noise",
+      "role": "source",
+      "path": "analysis/graphs/03_소음_PSD_누적전력_스펙트로그램/20261123T112950Z-54e19287/N1_single.png",
+      "sha256": "c914dd11b02d5f0256c865390b44cc82e66c6d5fece5d2ad35c4ae08883654e8",
+      "size": 478329
+    },
+    {
+      "id": "N1_complex",
+      "kind": "noise",
+      "role": "source",
+      "path": "analysis/graphs/03_소음_PSD_누적전력_스펙트로그램/20261123T112950Z-54e19287/N1_complex.png",
+      "sha256": "fdc6a0641bf3b0f4e67b9347a40d657d565861a00762b120602d13d8d6fccc6c",
+      "size": 480239
+    },
+    {
+      "id": "N1_changing",
+      "kind": "noise",
+      "role": "source",
+      "path": "analysis/graphs/03_소음_PSD_누적전력_스펙트로그램/20261123T112950Z-54e19287/N1_changing.png",
+      "sha256": "c20c99a45d22acaeda626b30add44a511d606048a0d3625f95a0d03f97dde2eb",
+      "size": 485114
+    },
+    {
+      "id": "N2_changing",
+      "kind": "noise",
+      "role": "change",
+      "path": "analysis/graphs/04_변화소음_전후_PSD_비교/20261123T112950Z-54e19287/N2_changing.png",
+      "sha256": "26057bf7f50b41fcc20fa1de0bd88704d025924558d448b38dcb9c890a7c435a",
+      "size": 273726
+    },
+    {
+      "id": "M1_mean_psd",
+      "kind": "mixture",
+      "role": "mean_psd",
+      "path": "analysis/graphs/05_합성음_SNR별_평균_PSD/20261123T112950Z-54e19287/M1_mean_psd.png",
+      "sha256": "7828b1a6dcac2fe5534177036e06ca4ea7580e58c02eab89ae90015c1481d193",
+      "size": 810760
+    },
+    {
+      "id": "M2_overlap",
+      "kind": "mixture",
+      "role": "overlap",
+      "path": "analysis/graphs/06_음성대소음_주파수별_전력비/20261123T112950Z-54e19287/M2_overlap.png",
+      "sha256": "7a169ce5f925dac38aba17910c3567a9b6c1087c9b018d855da979bac6832884",
+      "size": 680630
+    },
+    {
+      "id": "M3_short_snr",
+      "kind": "mixture",
+      "role": "time_snr",
+      "path": "analysis/graphs/07_합성음_단시간_SNR_중앙값_비교/20261123T112950Z-54e19287/M3_short_snr.png",
+      "sha256": "88c29d4fe5e485add275f847c2130f4ebcb4eecd733c481e03daea14863c3aa1",
+      "size": 104297
+    },
+    {
+      "id": "E1_single",
+      "kind": "estimation",
+      "role": "initial_noise",
+      "path": "analysis/graphs/08_초기_소음추정_오차/20261123T112950Z-54e19287/E1_single.png",
+      "sha256": "3e21cad1e47cf7426d41e277991428ea72189285786e2c6f2c1c236dd3061316",
+      "size": 199108
+    },
+    {
+      "id": "E1_complex",
+      "kind": "estimation",
+      "role": "initial_noise",
+      "path": "analysis/graphs/08_초기_소음추정_오차/20261123T112950Z-54e19287/E1_complex.png",
+      "sha256": "7762639b122448ccad693fdfb6b1261f49b6c80417d52a31a753f70b54ecae09",
+      "size": 210767
+    },
+    {
+      "id": "E1_changing",
+      "kind": "estimation",
+      "role": "initial_noise",
+      "path": "analysis/graphs/08_초기_소음추정_오차/20261123T112950Z-54e19287/E1_changing.png",
+      "sha256": "d7d0ffa7700108a2dcc6fb4d32ebb41953d3b8cf871b56b6f10ed5443dca90bc",
+      "size": 235526
+    }
+  ]
+}

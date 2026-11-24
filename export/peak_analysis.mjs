@@ -1,3 +1,4 @@
+import { researchPath } from './research_paths.mjs';
 // Only completed measured analysis is delivered. No DSP runs during web preparation.
 import { readFile, realpath } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
@@ -7,11 +8,11 @@ import { normalizePrefilterInitial, prefilterMatchesAnalysis } from '../website/
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 export async function loadPeakAnalysis(root) {
   let bytes;
-  try { bytes = await readFile(path.join(root, 'experiment/outputs/peak_analysis/results.json')); }
+  try { bytes = await readFile(researchPath(root, 'analysis/results/peak_analysis/results.json')); }
   catch (error) { if (error.code === 'ENOENT') return null; throw error; }
   const data = normalizePeakAnalysis(JSON.parse(bytes));
   let initialBytes = Buffer.alloc(0);
-  try { initialBytes = await readFile(path.join(root, 'experiment/config/prefilter_initial.json')); }
+  try { initialBytes = await readFile(researchPath(root, 'code/config/prefilter_initial.json')); }
   catch (error) { if (error.code !== 'ENOENT') throw error; }
   if (initialBytes.length) {
     const initial = normalizePrefilterInitial(JSON.parse(initialBytes));
@@ -19,7 +20,7 @@ export async function loadPeakAnalysis(root) {
   }
   const files = [];
   for (const file of data.files) {
-    const filename = path.join(root, peakSourcePath(file.path));
+    const filename = researchPath(root, peakSourcePath(file.path));
     if (await realpath(filename) !== filename) throw new Error('Analysis inputs must not be symlinks.');
     const content = await readFile(filename);
     if (digest(content) !== file.sha256 || content.length !== file.size) throw new Error('피크 분석 이후 음원이 변경되었습니다: ' + file.path);
@@ -28,7 +29,7 @@ export async function loadPeakAnalysis(root) {
   const artifacts = [];
   for (const [relative, expected] of Object.entries(data.artifacts || {})) {
     peakArtifactPath(relative);
-    const filename = path.join(root, 'experiment/outputs/peak_analysis', relative);
+    const filename = researchPath(root, 'analysis/results/peak_analysis', relative);
     if (await realpath(filename) !== filename) throw new Error('Completed analysis artifacts must not be symlinks.');
     let content = await readFile(filename);
     if (digest(content) !== expected) throw new Error('완료된 C 분석 파일이 변경되었습니다: ' + relative);

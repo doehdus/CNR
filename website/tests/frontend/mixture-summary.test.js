@@ -1,12 +1,13 @@
+import { readLegacyFixture } from '../helpers/legacy-fixture.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createNoiseAnalysis } from '../../.sites-runtime/public/website/js/noise-analysis.js';
 
-const summary = JSON.parse(await readFile(new URL('../../public/dataset/mixture_summary/results.json', import.meta.url)));
-const comparison = JSON.parse(await readFile(new URL('../../public/dataset/mixture_summary/snr_comparison.json', import.meta.url)));
-const peakComparison = JSON.parse(await readFile(new URL('../../public/dataset/mixture_summary/peak_comparison.json', import.meta.url)));
-const analysis = JSON.parse(await readFile(new URL('../../public/dataset/peak_analysis/results.json', import.meta.url)));
+const summary = JSON.parse(readLegacyFixture('dataset/mixture_summary/results.json'));
+const comparison = JSON.parse(readLegacyFixture('dataset/mixture_summary/snr_comparison.json'));
+const peakComparison = JSON.parse(readLegacyFixture('dataset/mixture_summary/peak_comparison.json'));
+const analysis = JSON.parse(readLegacyFixture('dataset/peak_analysis/results.json'));
 class Element {
   constructor(tag = 'div', text = '') { this.tagName = tag; this.textContent = text; this.children = []; this.dataset = {}; this.value = ''; this.listeners = {}; this.attributes = {}; this.classList = { toggle() {} }; }
   append(...items) { this.children.push(...items); }

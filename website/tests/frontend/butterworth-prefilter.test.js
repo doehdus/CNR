@@ -1,8 +1,9 @@
+import { readLegacyFixture } from '../helpers/legacy-fixture.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createBpfPrefilter } from '../../.sites-runtime/public/website/js/butterworth-prefilter.js';
-const data = JSON.parse(await readFile(new URL('../../public/dataset/prefilter_bpf/results.json', import.meta.url)));
+const data = JSON.parse(readLegacyFixture('dataset/prefilter_bpf/results.json'));
 const walk = e => [e, ...e.children.flatMap(walk)];
 class Element {
   constructor(tag = 'div') { this.tagName = tag; this.children = []; this.listeners = {}; this.dataset = {}; this.attributes = {}; this.value = ''; this.paused = true; this.classes = new Set(); this.classList = { toggle: (key, value) => value ? this.classes.add(key) : this.classes.delete(key) }; }

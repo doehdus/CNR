@@ -116,9 +116,46 @@ def write_json(filename, value):
     filename.write_text(json.dumps(value, ensure_ascii=False, allow_nan=False, indent=2) + "\n", encoding="utf-8")
 
 
+def copy_registered_inputs(root, stage, files):
+    """Deliver retained inputs even when the new analysis has not run yet."""
+    registry_path = project_path(root, 'data/metadata/inputs.json')
+    if not registry_path.is_file():
+        return
+    registry = load_json(registry_path)
+    if registry.get('version') != 1 or not isinstance(registry.get('files'), list) or len(registry['files']) != registry.get('expected_count'):
+        raise ValueError('Registered input count differs.')
+    catalog = {entry['path']: entry for entry in files}
+    seen = set()
+    for entry in registry['files']:
+        relative = entry['path']
+        match = re.fullmatch(r'data/(clean|reference|noise|mixed)/(.+\.wav)', relative)
+        if not match or relative in seen:
+            raise ValueError('Registered input path is invalid or duplicated.')
+        seen.add(relative)
+        kind, suffix = match.groups()
+        source_relative = ('data/mixtures/' if kind == 'mixed' else 'data/' + kind + '/') + suffix
+        if entry['source'] != source_relative:
+            raise ValueError('Registered input source differs.')
+        content = project_path(root, source_relative).read_bytes()
+        if len(content) != entry['size'] or hashlib.sha256(content).hexdigest() != entry['sha256']:
+            raise ValueError('Registered input changed: ' + relative)
+        with wave.open(io.BytesIO(content), 'rb') as stream:
+            if stream.getnchannels() != 1 or stream.getsampwidth() != 2:
+                raise ValueError('Registered inputs must be mono PCM16 WAVs.')
+        if relative in catalog and catalog[relative]['sha256'] != entry['sha256']:
+            raise ValueError('Registered input conflicts with an exported file.')
+        target = project_path(stage, 'audio/' + relative)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(content)
+        catalog[relative] = {key: entry[key] for key in ('path', 'size', 'sha256')}
+    if len(catalog) != registry['expected_count']:
+        raise ValueError('Registered inputs do not cover the current collection.')
+    files[:] = sorted(catalog.values(), key=lambda entry: entry['path'])
+
+
 def export_noise_analysis(root, stage, manifest, catalog):
     """Copy completed graphs with matching source and artifact hashes; never run analysis."""
-    source = project_path(root, "experiment/outputs/noise_analysis/results.json")
+    source = project_path(root, "analysis/results/noise_analysis/results.json")
     if not source.exists():
         return {"sources": 0, "graphs": 0}
     data = load_json(source)
@@ -162,7 +199,7 @@ def export_noise_analysis(root, stage, manifest, catalog):
     destination = stage / "noise_analysis"
     destination.mkdir()
     for image in sorted(images):
-        source_graph = project_path(root, "experiment/outputs/graphs/noise_analysis/" + image.removeprefix("graphs/"))
+        source_graph = project_path(root, "analysis/graphs/noise_analysis/" + image.removeprefix("graphs/"))
         contents = source_graph.read_bytes()
         if hashlib.sha256(contents).hexdigest() != artifacts[image]:
             raise ValueError("Noise analysis graph changed since plotting.")
@@ -197,7 +234,7 @@ def peak_details_for_web(data, source_hash, observations):
 
 def prefilter_initial_for_analysis(root, analysis, source_hash):
     """Deliver a validated initial design only with its original measured analysis."""
-    path = project_path(root, "experiment/config/prefilter_initial.json")
+    path = project_path(root, "code/config/prefilter_initial.json")
     if not path.is_file():
         return None
     data = load_json(path)
@@ -233,7 +270,7 @@ def prefilter_initial_for_analysis(root, analysis, source_hash):
 
 
 def export_peak_analysis(root, stage, files):
-    source = project_path(root, "experiment/outputs/peak_analysis/results.json")
+    source = project_path(root, "analysis/results/peak_analysis/results.json")
     if not source.is_file():
         return 0
     data = load_json(source)
@@ -249,7 +286,7 @@ def export_peak_analysis(root, stage, files):
         if relative in seen:
             raise ValueError("Duplicate peak-analysis input.")
         seen.add(relative)
-        expected = "experiment/mixtures/" + relative.removeprefix("data/mixed/") if relative.startswith("data/mixed/") else "experiment/" + relative
+        expected = "data/mixtures/" + relative.removeprefix("data/mixed/") if relative.startswith("data/mixed/") else relative
         if entry.get("source") != expected or not relative.startswith(("data/clean/", "data/reference/", "data/noise/", "data/mixed/")):
             raise ValueError("Invalid peak-analysis source path.")
         contents = project_path(root, expected).read_bytes()
@@ -268,7 +305,7 @@ def export_peak_analysis(root, stage, files):
     for relative, expected_hash in data.get("artifacts", {}).items():
         if not re.fullmatch(r"runs/[0-9]{8}T[0-9]{6}Z-[0-9a-f]{8}/(?:graphs/[a-z0-9_]+\.png|details/[a-z0-9_]+\.json)", relative):
             raise ValueError("Invalid C analysis artifact path.")
-        artifact = project_path(root, "experiment/outputs/peak_analysis/" + relative)
+        artifact = project_path(root, "analysis/results/peak_analysis/" + relative)
         contents = artifact.read_bytes()
         if hashlib.sha256(contents).hexdigest() != expected_hash:
             raise ValueError("Completed C analysis artifact changed after calculation.")
@@ -293,7 +330,7 @@ def export_peak_analysis(root, stage, files):
 
 def export_mixture_summary(root, stage):
     """Use the shared schema validator to deliver completed C summary artifacts."""
-    if not project_path(root, 'experiment/outputs/mixture_summary/results.json').is_file():
+    if not project_path(root, 'analysis/results/mixture_summary/results.json').is_file():
         return 0
     node = PROJECT_ROOT / '.tools/node-v22.23.4-win-x64/node.exe' if sys.platform == 'win32' else shutil.which('node')
     if not node:
@@ -309,13 +346,13 @@ def export_mixture_summary(root, stage):
 
 def export_fixed_prefilter(root, stage, files, bpf=False):
     """Validate completed fixed-EQ WAVs through the same Node delivery path as local preparation."""
-    if not project_path(root, 'experiment/outputs/bpf_results.json' if bpf else 'experiment/outputs/prefilter_results.json').is_file():
+    if not project_path(root, 'experiment/bpf_results.json' if bpf else 'experiment/prefilter_results.json').is_file():
         return 0
     node = PROJECT_ROOT / '.tools/node-v22.23.4-win-x64/node.exe' if sys.platform == 'win32' else shutil.which('node')
     environment = dict(os.environ)
     environment['PATH'] = str(Path(node).parent) + os.pathsep + environment.get('PATH', '')
     arguments = [str(node), str(Path(__file__).with_name('bpf.mjs' if bpf else 'prefilter.mjs')), '--root', str(root), '--destination', str(stage)]
-    if not bpf and project_path(root, 'experiment/outputs/bpf_results.json').is_file():
+    if not bpf and project_path(root, 'experiment/bpf_results.json').is_file():
         arguments.append('--metadata-only')
     completed = subprocess.run(arguments, capture_output=True, text=True, env=environment)
     if completed.returncode:
@@ -331,7 +368,7 @@ def export_fixed_prefilter(root, stage, files, bpf=False):
 
 
 def copy_clean_collection(root, stage, files):
-    definition = project_path(root, "experiment/config/collection.json")
+    definition = project_path(root, "data/metadata/collection.json")
     if not definition.exists():
         return 0
     config = load_json(definition)
@@ -339,7 +376,7 @@ def copy_clean_collection(root, stage, files):
     records = config.get("recordings")
     if config.get("version") != 1 or not isinstance(records, list) or len(records) != 12 or {row.get("id") for row in records} != expected:
         raise ValueError("The twelve confirmed clean recording IDs are required.")
-    if config.get("source_root") not in {"experiment/data/clean", "experiment/clean"}:
+    if config.get("source_root") not in {"data/clean", "experiment/clean"}:
         raise ValueError("Clean recordings must come from the experiment clean folder.")
     catalog = {entry["path"]: entry for entry in files}
     exported = []
@@ -377,7 +414,7 @@ def copy_clean_collection(root, stage, files):
 
 def export_results(root=PROJECT_ROOT):
     root = Path(root).resolve()
-    layout = load_json(root / "experiment/config/paths.json")
+    layout = load_json(root / "export/paths.json")
     if not isinstance(layout, dict) or layout.get("version") != 1 or not isinstance(layout.get("audio_roots"), list):
         raise ValueError("A version 1 research path configuration is required.")
     prefixes = set()
@@ -386,8 +423,8 @@ def export_results(root=PROJECT_ROOT):
             raise ValueError("Public audio roots must be unique approved prefixes.")
         prefixes.add(entry["public"])
         source = project_path(root, entry.get("source"))
-        if not source.is_relative_to(root / "experiment"):
-            raise ValueError("Audio sources must belong to experiment/.")
+        if not any(source.is_relative_to(root / allowed) for allowed in ('data', 'experiment')):
+            raise ValueError("Audio sources must belong to data/ or experiment/.")
         if any(part in {"noise_train", "noise_test"} for part in source.relative_to(root).parts):
             raise ValueError("Pattern registration and evaluation source noises are not public audio roots.")
     manifest = load_json(project_path(root, layout.get("manifest")))
@@ -430,6 +467,7 @@ def export_results(root=PROJECT_ROOT):
         validate_metrics(rows, samples, fingerprints)
         analysis = export_noise_analysis(root, stage, manifest, fingerprints)
         clean_recordings = copy_clean_collection(root, stage, files)
+        copy_registered_inputs(root, stage, files)
         peak_comparisons = export_peak_analysis(root, stage, files)
         export_mixture_summary(root, stage)
         export_fixed_prefilter(root, stage, files)
@@ -457,7 +495,7 @@ def export_results(root=PROJECT_ROOT):
 def verified_snapshot(root):
     root = Path(root).resolve()
     destination = project_path(root, "website/public/dataset")
-    layout = load_json(root / "experiment/config/paths.json")
+    layout = load_json(root / "export/paths.json")
     manifest = load_json(destination / "manifest.json")
     samples, _ = validate_manifest(manifest, root, layout)
     catalog = load_json(destination / "audio/catalog.json")
@@ -481,7 +519,7 @@ def verified_snapshot(root):
 def export_collection_only(root=PROJECT_ROOT):
     """Add current clean recordings while preserving completed experiment outputs."""
     root = Path(root).resolve()
-    if not project_path(root, "experiment/config/collection.json").is_file():
+    if not project_path(root, "data/metadata/collection.json").is_file():
         raise ValueError("A confirmed clean collection definition is required.")
     destination, _, catalog, _, rows = verified_snapshot(root)
     for path in destination.rglob("*"):
@@ -513,7 +551,7 @@ def export_collection_only(root=PROJECT_ROOT):
 def export_analysis_only(root=PROJECT_ROOT):
     """Update analysis against the existing snapshot without replacing its audio or metrics."""
     root = Path(root).resolve()
-    if not project_path(root, "experiment/outputs/noise_analysis/results.json").is_file():
+    if not project_path(root, "analysis/results/noise_analysis/results.json").is_file():
         raise ValueError("Complete the C analysis and Python plotting steps first.")
     destination, manifest, _, fingerprints, rows = verified_snapshot(root)
     stage = Path(tempfile.mkdtemp(prefix=".noise-analysis-stage-", dir=destination.parent))

@@ -15,9 +15,9 @@ const ddl=[
  'CREATE INDEX IF NOT EXISTS prefilter_listening_plays_trial ON prefilter_listening_plays(participant_id,trial_index)',
  'CREATE INDEX IF NOT EXISTS prefilter_listening_participants_group ON prefilter_listening_participants(study_id,group_id)',
 ];
-async function setup(db:D1Database) {
- if(!snapshot)throw new SurveyError(503,'확정된 청음평가 음원 배정표가 없습니다.');
- const assignment=normalizeListeningAssignment(snapshot);
+async function setup(db:D1Database,assignmentSnapshot:unknown) {
+ if(!assignmentSnapshot)throw new SurveyError(503,'새 실험의 청취평가를 준비 중입니다.');
+ const assignment=normalizeListeningAssignment(assignmentSnapshot);
  const content=JSON.stringify({assignment,question_version:PREFILTER_QUESTION_VERSION,questions:PREFILTER_QUESTIONS,scale:'likert-1-5-v1'});
  const fingerprint=await hashToken(content);
  await db.batch([...ddl.map(sql=>db.prepare(sql)),db.prepare('INSERT OR IGNORE INTO prefilter_listening_studies (id,fingerprint,snapshot,created_at) VALUES (?,?,?,?)').bind(LISTENING_STUDY,fingerprint,content,new Date().toISOString())]);
@@ -73,9 +73,9 @@ async function summary(db:D1Database) {
  const overall=ready.length===5?Object.fromEntries(['baseline','filtered','delta'].map(mode=>[mode,Object.fromEntries(['noise','naturalness','key_rate'].map(k=>[k,groups.reduce((s,g)=>s+(g as any)[mode][k],0)/5]))])):null;
  return {study_id:LISTENING_STUDY,groups,overall,ready_groups:ready.length,participants:groups.reduce((s,g)=>s+g.participants,0),completed:groups.reduce((s,g)=>s+g.completed,0),responses:groups.reduce((s,g)=>s+g.responses,0)};
 }
-export async function prefilterListeningRequest(request:Request,db:D1Database,available:()=>Promise<AvailableAudio>):Promise<Response> {
+export async function prefilterListeningRequest(request:Request,db:D1Database,available:()=>Promise<AvailableAudio>,assignmentSnapshot:unknown=snapshot):Promise<Response> {
  try {
-  const assignment=await setup(db),url=new URL(request.url),path=url.pathname;
+  const assignment=await setup(db,assignmentSnapshot),url=new URL(request.url),path=url.pathname;
   if(path==='/api/prefilter-listening/summary'&&request.method==='GET')return json(await summary(db));
   const match=path.match(/^\/api\/prefilter-listening\/groups\/([1-5])\/(join|state|play|response)$/);
   if(!match)throw new SurveyError(404,'그룹 참여 링크를 확인하세요.');

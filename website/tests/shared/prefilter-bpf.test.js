@@ -1,8 +1,9 @@
+import { readLegacyFixture } from '../helpers/legacy-fixture.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { normalizeBpfPrefilter, bpfPrefilterInputsMatch } from '../../shared/research/prefilter-bpf-data.js';
-const data=JSON.parse(await readFile(new URL('../../public/dataset/prefilter_bpf/results.json',import.meta.url)));
+const data=JSON.parse(readLegacyFixture('dataset/prefilter_bpf/results.json'));
 test('BPF 144조건의 원본·공통 레벨 기준음·처리음 지문이 모두 대응한다',()=>{
   normalizeBpfPrefilter(data);
   const hashes=Object.fromEntries(data.conditions.flatMap(r=>[[r.input_path,r.input_sha256],[r.comparison_input_path,r.comparison_input_sha256],[r.output_path,r.output_sha256]]));

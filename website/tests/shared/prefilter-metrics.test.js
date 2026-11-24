@@ -1,9 +1,10 @@
+import { readLegacyFixture } from '../helpers/legacy-fixture.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { normalizePrefilterMetrics,prefilterMetricInputsMatch,prefilterMetricBpfMatches } from '../../shared/research/prefilter-metrics-data.js';
-const data=JSON.parse(await readFile(new URL('../../public/dataset/prefilter_analysis/results.json',import.meta.url)));
-const bpf=JSON.parse(await readFile(new URL('../../public/dataset/prefilter_bpf/results.json',import.meta.url)));
+const data=JSON.parse(readLegacyFixture('dataset/prefilter_analysis/results.json'));
+const bpf=JSON.parse(readLegacyFixture('dataset/prefilter_bpf/results.json'));
 test('144쌍 실제 지표는 원본·처리·Clean과 현재 BPF 회차에 모두 대응한다',()=>{
   normalizePrefilterMetrics(data);assert(prefilterMetricBpfMatches(data,bpf));
   const hashes=Object.fromEntries(data.conditions.flatMap(r=>['input','output','reference'].map(k=>[r[k+'_path'],r[k+'_sha256']])));

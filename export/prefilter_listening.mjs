@@ -1,9 +1,10 @@
+import { researchPath } from './research_paths.mjs';
 import {readFile,mkdir,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {normalizeListeningAssignment} from '../website/shared/research/prefilter-listening-data.js';
 export async function loadListeningAssignment(root,metrics) {
-  let bytes;try{bytes=await readFile(path.join(root,'experiment/config/prefilter_listening.json'));}catch(e){if(e.code==='ENOENT')return null;throw e;}
+  let bytes;try{bytes=await readFile(researchPath(root,'code/config/prefilter_listening.json'));}catch(e){if(e.code==='ENOENT')return null;throw e;}
   const data=normalizeListeningAssignment(JSON.parse(bytes));
   if(!metrics||data.source.sha256!==metrics.sha256)throw Error('Listening selection needs its exact completed metric run.');
   for(const group of data.groups)for(const r of group.conditions){

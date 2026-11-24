@@ -8,8 +8,8 @@ export function peakArtifactPath(path) {
   return path;
 }
 export function peakSourcePath(path) {
-  if (/^data\/(clean|reference)\/(instruction|warning)0[1-6]\.wav$/.test(path) || /^data\/noise\/(single|complex|changing)\.wav$/.test(path)) return 'experiment/' + path;
-  if (/^data\/mixed\/(single|complex|changing)\/snr(00|05|10|20)\/(instruction|warning)0[1-6]\.wav$/.test(path)) return 'experiment/mixtures/' + path.slice('data/mixed/'.length);
+  if (/^data\/(clean|reference)\/(instruction|warning)0[1-6]\.wav$/.test(path) || /^data\/noise\/(single|complex|changing)\.wav$/.test(path)) return path;
+  if (/^data\/mixed\/(single|complex|changing)\/snr(00|05|10|20)\/(instruction|warning)0[1-6]\.wav$/.test(path)) return 'data/mixtures/' + path.slice('data/mixed/'.length);
   fail();
 }
 export function normalizePeakAnalysis(data) {
@@ -21,7 +21,7 @@ export function normalizePeakAnalysis(data) {
   if (!Array.isArray(data.recordings) || data.recordings.length !== 12 || new Set(data.recordings.map(r => r.id)).size !== 12 || data.recordings.some(r => !ids.includes(r.id) || typeof r.text !== 'string' || typeof r.speaker !== 'string')) fail();
   if (!data.method || data.method.name !== 'Welch PSD' || data.method.sample_rate_hz !== 16000 || data.method.nperseg !== 2048 || data.method.noverlap !== 1024 || data.method.unit !== 'dBFS/Hz' || !finite(data.method.prominence_db) || data.method.prominence_db <= 0) fail();
   if (!Array.isArray(data.files) || data.files.length !== 171 || new Set(data.files.map(r => r.path)).size !== 171) fail();
-  for (const file of data.files) if (peakSourcePath(file.path) !== file.source || !/^[a-f0-9]{64}$/.test(file.sha256) || !Number.isSafeInteger(file.size) || file.size < 44) fail();
+  for (const file of data.files) if (![peakSourcePath(file.path), file.path.startsWith('data/mixed/') ? 'experiment/mixtures/' + file.path.slice('data/mixed/'.length) : 'experiment/' + file.path].includes(file.source) || !/^[a-f0-9]{64}$/.test(file.sha256) || !Number.isSafeInteger(file.size) || file.size < 44) fail();
   const files = new Set(data.files.map(file => file.path));
   for (const id of ids) for (const type of ['clean', 'reference']) if (!files.has(`data/${type}/${id}.wav`)) fail();
   if (!Array.isArray(data.sources) || data.sources.length !== 3 || new Set(data.sources.map(r => r.noise)).size !== 3) fail();

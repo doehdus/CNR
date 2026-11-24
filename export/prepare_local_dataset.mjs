@@ -9,6 +9,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { normalizeCleanCollection } from '../website/shared/research/collection-data.js';
 import { normalizeNoiseAnalysis, noiseAnalysisImages } from '../website/shared/research/noise-analysis-data.js';
+import { peakSourcePath } from '../website/shared/research/peak-analysis-data.js';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -47,8 +48,8 @@ export function waveMetadata(bytes) {
 
 export async function prepareLocalDataset(root = projectRoot) {
   root = await realpath(root);
-  const definition = await json(inside(root, 'experiment/config/collection.json'));
-  const manifest = await json(inside(root, 'experiment/data/metadata/dataset.json'));
+  const definition = await json(inside(root, 'data/metadata/collection.json'));
+  const manifest = await json(inside(root, 'data/metadata/dataset.json'));
   const inputFiles = new Map(), recordings = [];
   async function input(relative, logical) {
     const source = inside(root, relative);
@@ -66,8 +67,22 @@ export async function prepareLocalDataset(root = projectRoot) {
     recordings.push({ ...row, path: logical, sha256: fingerprint, size, ...metadata });
   }
   normalizeCleanCollection({ version: 1, recordings });
-  for (const noise of manifest.noise_sources) await input('experiment/' + noise.path, noise.path);
+  for (const noise of manifest.noise_sources) await input(noise.path, noise.path);
   if (inputFiles.size !== 15) throw new Error('Expected twelve shared clean recordings and three noises.');
+  // Retained inputs are independent of previous analysis and processing outputs.
+  const registry = await optionalJSON(inside(root, 'data/metadata/inputs.json'));
+  if (registry) {
+    if (registry.version !== 1 || !Array.isArray(registry.files) || registry.files.length !== registry.expected_count) throw new Error('Registered input count differs.');
+    const seen = new Set();
+    for (const file of registry.files) {
+      if (seen.has(file.path) || peakSourcePath(file.path) !== file.source) throw new Error('Registered input source differs or is duplicated.');
+      seen.add(file.path);
+      await input(file.source, file.path);
+      const actual = inputFiles.get(file.path);
+      if (actual.sha256 !== file.sha256 || actual.size !== file.size) throw new Error('Registered input changed: ' + file.path);
+    }
+    if (inputFiles.size !== registry.expected_count) throw new Error('Input registry does not cover the current collection.');
+  }
   const peakAnalysis = await loadPeakAnalysis(root);
   const mixtureSummary = await loadMixtureSummary(root);
   const bpf = await loadBpfPrefilter(root);
@@ -84,7 +99,7 @@ export async function prepareLocalDataset(root = projectRoot) {
     if (inputFiles.has(logical) && inputFiles.get(logical).sha256 !== sha256) throw new Error('Peak analysis input conflict.');
     inputFiles.set(logical, { bytes, path: logical, sha256, size });
   }
-  const referenceRoot = inside(root, 'experiment/outputs/noise_analysis');
+  const referenceRoot = inside(root, 'analysis/results/noise_analysis');
   const reference = await optionalJSON(path.join(referenceRoot, 'results.json'));
   const sourceFingerprint = sha256(JSON.stringify([definition, manifest, [...inputFiles.values()].map(({ path, sha256 }) => [path, sha256]), reference, peakAnalysis?.sha256 || null, mixtureSummary?.sha256 || null, prefilter?.sha256 || null, bpf?.sha256 || null, bpf?.metrics?.sha256 || null, bpf?.listening?.sha256 || null]));
   const publicRoot = inside(root, 'website/public');
@@ -139,7 +154,7 @@ export async function prepareLocalDataset(root = projectRoot) {
       }));
       if (inputsMatch) {
         for (const image of noiseAnalysisImages(normalized)) {
-          const source = inside(root, 'experiment/outputs/graphs/noise_analysis/' + image.slice('graphs/'.length));
+          const source = inside(root, 'analysis/graphs/noise_analysis/' + image.slice('graphs/'.length));
           if (await realpath(source) !== source) throw new Error('Reference plots must not be symlinks.');
           const bytes = await readFile(source);
           if (sha256(bytes) !== reference.artifacts[image]) throw new Error('A reference plot changed since calculation.');

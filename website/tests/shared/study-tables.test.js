@@ -59,7 +59,7 @@ test('파일 목록의 지문은 실제 바이트를 반영하며 음원 변경 
   const base = await realpath(tmpdir()), root = await mkdtemp(path.join(base,'cnr-catalog-test-'));
   try {
     const layout = await writeTestLayout(root);
-    await mkdir(path.join(root,'experiment/data/clean'),{recursive:true}); await mkdir(path.join(root,'experiment/outputs/metrics'),{recursive:true});
+    await mkdir(path.join(root,'data/clean'),{recursive:true}); await mkdir(path.join(root,'experiment/evaluation/metrics'),{recursive:true});
     const relative = 'data/clean/reference.wav', bytes = Buffer.from('RIFFtestWAVEfixture-only');
     await writeFile(sourceAudioPath(root,relative,layout),bytes);
     await writeFile(path.join(root,layout.metric_results),JSON.stringify([{reference_path:relative,compared_path:relative}]));

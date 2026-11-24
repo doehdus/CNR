@@ -1,0 +1,1 @@
+candidate_id,type,lower_hz,upper_hz,prototype_order,digital_order,clean_mean_percent,clean_min_percent,clean_max_percent,clean_2_4k_min_percent,clean_4_8k_min_percent,noise_mean_db,snr_mean_db,snr_min_db,snr_max_db,single_snr_db,complex_snr_db,changing_snr_db,whole_snr_mean_db
