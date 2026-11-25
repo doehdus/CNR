@@ -1,3 +1,4 @@
+import { loadSSFixed, deliverSSFixed } from './ss_fixed.mjs';
 import { loadPeakAnalysis } from './peak_analysis.mjs';
 import { loadFixedPrefilter, deliverFixedPrefilter } from './prefilter.mjs';
 import { loadBpfPrefilter, deliverBpfPrefilter } from './bpf.mjs';
@@ -71,6 +72,7 @@ export async function prepareLocalDataset(root = projectRoot) {
   const peakAnalysis = await loadPeakAnalysis(root);
   const mixtureSummary = await loadMixtureSummary(root);
   const bpf = await loadBpfPrefilter(root);
+  const ssFixed = await loadSSFixed(root);
   const prefilter = await loadFixedPrefilter(root, { metadataOnly: Boolean(bpf) });
   if (prefilter && !bpf) for (const file of prefilter.files) {
     if (inputFiles.has(file.path) && inputFiles.get(file.path).sha256 !== file.sha256) throw new Error('Prefilter input fingerprint conflict.');
@@ -84,9 +86,13 @@ export async function prepareLocalDataset(root = projectRoot) {
     if (inputFiles.has(logical) && inputFiles.get(logical).sha256 !== sha256) throw new Error('Peak analysis input conflict.');
     inputFiles.set(logical, { bytes, path: logical, sha256, size });
   }
+  if (ssFixed) for (const file of ssFixed.files) {
+    if (inputFiles.has(file.path) && inputFiles.get(file.path).sha256 !== file.sha256) throw Error('SS input fingerprint conflict.');
+    inputFiles.set(file.path, file);
+  }
   const referenceRoot = inside(root, 'experiment/outputs/noise_analysis');
   const reference = await optionalJSON(path.join(referenceRoot, 'results.json'));
-  const sourceFingerprint = sha256(JSON.stringify([definition, manifest, [...inputFiles.values()].map(({ path, sha256 }) => [path, sha256]), reference, peakAnalysis?.sha256 || null, mixtureSummary?.sha256 || null, prefilter?.sha256 || null, bpf?.sha256 || null, bpf?.metrics?.sha256 || null, bpf?.listening?.sha256 || null]));
+  const sourceFingerprint = sha256(JSON.stringify([definition, manifest, [...inputFiles.values()].map(({ path, sha256 }) => [path, sha256]), reference, peakAnalysis?.sha256 || null, mixtureSummary?.sha256 || null, prefilter?.sha256 || null, bpf?.sha256 || null, bpf?.metrics?.sha256 || null, bpf?.listening?.sha256 || null, ssFixed?.sha256 || null]));
   const publicRoot = inside(root, 'website/public');
   const destination = path.join(publicRoot, 'dataset');
   await mkdir(publicRoot, { recursive: true });
@@ -129,6 +135,7 @@ export async function prepareLocalDataset(root = projectRoot) {
     if (mixtureSummary) await deliverMixtureSummary(mixtureSummary, stage);
     if (prefilter) await deliverFixedPrefilter(prefilter, stage, { metadataOnly: Boolean(bpf) });
     if (bpf) await deliverBpfPrefilter(bpf, stage);
+    if (ssFixed) await deliverSSFixed(ssFixed, stage);
     await writeJSON(path.join(stage, 'export.json'), { version: 1, mode: 'local-inputs', audio_files: files.length, metric_rows: 0, clean_recordings: 12 });
     let graphs = 0;
     if (reference) {

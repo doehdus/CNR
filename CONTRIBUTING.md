@@ -2,7 +2,7 @@
 
 ## 필터링 청음평가 실행
 
-공개 음원 수는 315개이며 로컬 전체 dataset 459개는 보존한다. 배포용 카탈로그와 정적 파일 복사는 `prepareAudio()`의 활성 목록을 사용한다. 미사용 비교 복사본·Peaking EQ 보관 원본을 삭제해 수량을 맞추지 않는다. [공개 음원 정리 기준](PROJECT_CONTEXT.md#2026-11-22-공개-음원-정리--실제-사용-315개만-배포)을 따른다.
+기존 필터 청취평가 활성 음원은 315개이며, 새 SS 비교에 입력 288개·출력 576개를 추가해 현재 활성 스냅샷은 1,179개다. 과거 청취용 보관본 144개는 별도로 보존한다. 배포용 카탈로그와 정적 파일 복사는 `prepareAudio()`의 활성 목록을 사용한다. 미사용 비교 복사본·Peaking EQ 보관 원본을 삭제해 수량을 맞추지 않는다. [공개 음원 정리 기준](PROJECT_CONTEXT.md#2026-11-22-공개-음원-정리--실제-사용-315개만-배포)을 따른다.
 
 현재 새 필터 비교는 `#prefilter-listening`에서 그룹별 링크 또는 QR로 접속한다. 참여 주소는 `/website/prefilter-survey.html?group=1`~`group=5`다. 새 응답은 `/api/prefilter-listening/`과 별도 D1 테이블로 저장·집계하며, 기존 진행자 제어 QR·척도·백업과 혼합하지 않는다. 배정·문항·집계·해석 기준은 [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md#2026-11-22-필터링-청음평가--5개-참여-링크와-실제-응답-집계-연결)을 따른다.
 
@@ -344,3 +344,10 @@ Noise·Mixture 분석은 각각 3개 세부 화면을 제공한다. 현재 사�
 연구용 전체 프레임·궤적 기록은 `experiment/outputs/peak_analysis/`에 보존한다. 웹 전달은 PNG와 모든 혼합음 궤적의 C 통계 요약을 사용하며, 실제 추가 소음은 비교에 필요한 대표 궤적 통계만 전달한다. 전달기는 통계값을 재계산하지 않고 배열로 직렬화하며, 원래 결과의 SHA-256을 `delivery.source_sha256`에 기록한다. 웹은 이를 검증한 뒤 표의 필드로 복원한다.
 
 전달 검사는 `node --test export/tests/peak-analysis.test.mjs export/tests/local-dataset.test.mjs`, 웹 검증은 `website/`의 `npm run build`다. 이전 QR 규격·객관 평가 ID는 이 작업에서 변경하지 않는다.
+
+
+## 고정형 SS 비교 화면
+
+`#ss-fixed`에서 Butterworth 2종 이후 감산1·5의 576개 처리 WAV와 STOI·ESTOI를 비교한다. 확정 설정·평가자료 관계는 PROJECT_CONTEXT의 2026-11-25 기록, 수치 원본은 `experiment/outputs/ss_fixed.json` 포인터가 가리키는 완료 회차를 따른다.
+
+`npm run dev`의 로컬 준비와 `export/export_results.py` 모두 `export/ss_fixed.mjs`의 같은 검증·전달 경로를 사용한다. 원본 연구 회차를 수정하지 않으며 웹 빌드에서 필터나 지표 계산을 실행하지 않는다. 웹 화면 소스는 `website/src/comparison/ss-fixed.js`·`.css`, 자료 검증은 `website/shared/research/ss-fixed-data.js`다. 웹 검증·빌드는 기존 `website/`의 `npm run build`를 사용한다. 데이터 누락·지문 불일치 시 임의 점수나 대체 음원을 표시하지 않는다.

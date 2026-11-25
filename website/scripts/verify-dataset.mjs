@@ -149,3 +149,21 @@ try {
  for(const group of listening.groups)for(const row of group.conditions)for(const kind of ['input','output'])if(fingerprints[row[kind+'_path']]!==row[kind+'_sha256'])throw Error('Listening assignment WAV fingerprint mismatch.');
  console.log('Verified prefilter listening: 5 groups, 30 paired conditions, 60 existing WAVs.');
 }catch(e){if(e.code!=='ENOENT')throw e;}
+
+// New SS comparisons are separate from historical evaluation catalogs and responses.
+const { normalizeSSFixed, SS_METHODS } = await import('../shared/research/ss-fixed-data.js');
+let ssFixed = null;
+try { ssFixed = JSON.parse(await readFile(new URL('../public/dataset/ss_fixed/results.json', import.meta.url), 'utf8')); }
+catch (error) { if (error.code !== 'ENOENT') throw error; }
+if (ssFixed) {
+  normalizeSSFixed(ssFixed);
+  for (const row of ssFixed.conditions) for (const method of SS_METHODS) {
+    const item = row.methods[method];
+    if (fingerprints[item.path] !== item.sha256) throw Error('SS scores do not match exported audio.');
+  }
+  for (const [name, sha] of Object.entries(ssFixed.artifacts)) {
+    const bytes = await readFile(new URL('../public/dataset/ss_fixed/' + name, import.meta.url));
+    if (createHash('sha256').update(bytes).digest('hex') !== sha) throw Error('SS comparison CSV changed.');
+  }
+  console.log('Verified fixed SS: 288 matched triples, 576 processed WAVs and paired STOI/ESTOI.');
+}
