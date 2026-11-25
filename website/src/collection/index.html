@@ -9,6 +9,7 @@
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/prefilter-listening.css">
+  <link rel="stylesheet" href="css/ss-fixed.css">
   <script type="module" src="js/audio-comparison.js"></script>
 </head>
 <body>
@@ -23,6 +24,7 @@
     <a class="nav-link" href="#prefilter" title="사전 필터링"><span aria-hidden="true">⊖</span><span class="nav-label">사전 필터링</span><span class="nav-number">03</span></a>
     <a class="nav-link" href="#prefilter-analysis" title="필터링 결과 분석"><span aria-hidden="true">▦</span><span class="nav-label">필터링 결과 분석</span></a>
     <a class="nav-link" href="#prefilter-listening" title="필터링 청음평가"><span aria-hidden="true">♫</span><span class="nav-label">필터링 청음평가</span></a>
+    <a class="nav-link" href="#ss-fixed" title="고정형 SS 비교"><span aria-hidden="true">≍</span><span class="nav-label">고정형 SS 비교</span></a>
     <a class="nav-link" href="#demo" title="음성 처리 결과"><span aria-hidden="true">▶</span><span class="nav-label">음성 처리 결과</span><span class="nav-number">04</span></a>
     <a class="nav-link" href="#metrics" title="객관 성능 평가"><span aria-hidden="true">▤</span><span class="nav-label">객관 성능 평가</span><span class="nav-number">05</span></a>
     <a class="nav-link" href="#listening-test" title="청음평가"><span aria-hidden="true">♪</span><span class="nav-label">청음평가</span><span class="nav-number">06</span></a>
@@ -167,6 +169,28 @@
     </div>
     <div class="panel"><div class="panel-heading"><h2>그룹별 참여 현황</h2></div><div id="prefilter-listening-counts" class="table-scroll"></div></div>
     <details class="panel"><summary>평가 구성과 해석 기준</summary><p class="prefilter-listening-help">문장 12개를 고르게 사용한 30조건을 5그룹에 배정했습니다. 참가자는 같은 문장·소음·SNR의 무처리 다음 처리음을 듣습니다. 두 번째 청취에는 문장 기억과 순서의 영향이 포함될 수 있습니다. 현재 자료는 필터 선정에도 사용한 자료이며, 이 결과를 독립 최종 평가 또는 144조건 전체의 결과로 일반화하지 않습니다.</p></details>
+  </section>
+  <section id="ss-fixed" class="page-section acoustic-page" hidden>
+    <div class="page-intro compact"><div><div class="eyebrow accent">FIXED SPECTRAL SUBTRACTION</div><h1>고정형 SS 비교</h1><p>Butterworth 사전필터를 거친 음원에 감산 강도 1과 5를 적용했습니다.<br>같은 조건의 음원과 STOI·ESTOI를 한 화면에서 비교합니다.</p></div><span id="ss-status" class="status-tag" role="status">비교 자료 불러오는 중</span></div>
+    <p id="ss-error" class="info-banner" role="status" hidden></p>
+    <div class="ss-flow" aria-label="처리 과정"><span>합성음 144조건</span><span>Butterworth 2종</span><span>고정형 SS 감산 1 · 5</span><span class="ss-flow-result">576개 처리 음원</span></div>
+    <div class="ss-candidate-grid"><article class="ss-candidate"><h2>후보 A · 기본 감산</h2><strong class="ss-alpha">α = 1</strong><p>초기에 추정한 소음 전력을 1배 감산합니다.</p></article><article class="ss-candidate"><h2>후보 B · 강화 감산</h2><strong class="ss-alpha">α = 5</strong><p>같은 추정 소음 전력을 5배 감산합니다.</p></article></div>
+    <div id="ss-content" hidden>
+      <div class="panel"><div class="panel-heading"><h2>네 처리 조합의 전체 평균</h2><span>각 144조건</span></div><p id="ss-summary-text"></p><div id="ss-overall" class="table-scroll ss-table" tabindex="0" role="region" aria-label="고정형 SS 전체 평균 및 상승 하락 조건 수"></div><p class="ss-help">Δ = SS 적용 후 − 해당 Butterworth 단독 처리. 모든 문장·소음·입력 SNR 조건에 같은 가중치를 주었습니다. 상승·하락 수는 각 조합의 144조건 기준입니다.</p></div>
+      <div class="panel"><div class="panel-heading"><h2>같은 조건으로 직접 듣기</h2></div>
+        <div class="ss-controls"><label>사전필터<select id="ss-bpf"><option value="butterworth1">버터워스 1 · 75~7,900Hz</option><option value="butterworth2" selected>버터워스 2 · 109~6,000Hz</option></select></label><label>소음 종류<select id="ss-noise"><option value="single">단일 소음</option><option value="complex">복합 소음</option><option value="changing">변화 소음</option></select></label><label>입력 SNR<select id="ss-snr"><option value="20">20dB</option><option value="10">10dB</option><option value="5">5dB</option><option value="0" selected>0dB</option></select></label><label>문장 · 화자<select id="ss-statement"></select></label></div>
+        <p class="ss-selected"><strong id="ss-selected-text"></strong><br><span id="ss-selected-speaker" class="ss-help"></span></p><div id="ss-audio-cards" class="ss-audio-grid"></div>
+        <p class="ss-help">평가에 사용한 음량 보정 전 WAV입니다. Butterworth 입력의 −1.7dB 외에 별도의 음량 정규화는 적용하지 않았습니다. 소음 억제와 함께 말소리의 선명함·자연스러움도 확인해 주세요.</p>
+      </div>
+      <div class="panel"><div class="panel-heading"><h2 id="ss-group-title">문장별 지표 비교</h2></div><div id="ss-group-metrics" class="table-scroll ss-table" tabindex="0" role="region" aria-label="선택한 조건의 12문장별 STOI ESTOI 비교"></div><p class="ss-help">STOI·ESTOI는 명료도 예측 지표이며, 실제 정답률이나 음질 점수가 아닙니다.</p></div>
+      <details class="panel ss-parameters"><summary>처리 설정·선정 근거·계산 기준</summary>
+        <p>예비 청취에서 차이가 느껴진 감산 1과 5를 선정해 기본 감산과 강한 감산의 소음 억제·음성 보존 차이를 비교했습니다. 두 후보의 나머지 설정은 같습니다.</p>
+        <div class="table-scroll"><table><tbody><tr><th scope="row">버터워스 1</th><td>75~7,900Hz · 원형 차수 4 / 디지털 대역통과 차수 8</td></tr><tr><th scope="row">버터워스 2</th><td>109~6,000Hz · 원형 차수 16 / 디지털 대역통과 차수 32</td></tr><tr><th scope="row">소음 추정</th><td>각 필터링 음원의 0.05~0.45초, 24프레임 평균 전력 · 이후 고정</td></tr><tr><th scope="row">감산·바닥값</th><td>전력 감산 α = 1 또는 5 · 바닥값 β = 0.02</td></tr><tr><th scope="row">프레임</th><td>16kHz · Hann 512샘플(32ms) / 이동 256샘플(16ms)</td></tr><tr><th scope="row">공통 평활화</th><td>주파수 가중치 0.25·0.5·0.25 / 시간: 이전 0.6 + 현재 0.4 · 진폭 이득 상한 1</td></tr><tr><th scope="row">산출물</th><td>모노 PCM16 WAV · 음원 576개 · 클리핑 0개</td></tr></tbody></table></div>
+        <p>각 조합을 동일한 원본 Clean 기준음과 비교했습니다. Butterworth와 Clean의 교차상관으로 찾은 고정 지연(탐색 ±0.5초)을 감산 1·5에도 공통 적용하고, 같은 겹침 구간에서 pystoi 0.4.1로 계산했습니다. 청취용 음량 보정 전 WAV를 사용했습니다.</p>
+        <p>이번 SS 처리와 평활화는 Python·SciPy로 생성한 완료 결과입니다. 후보 탐색에 사용한 12문장·144조건에서의 비교이며, 별도의 SS 청취평가 응답은 아직 포함하지 않았습니다.</p>
+      </details>
+      <div class="ss-links"><a class="button secondary" href="/dataset/ss_fixed/metrics_576.csv" download="고정형SS_전체576개_지표.csv">전체 조건별 지표 CSV</a><a class="button secondary" href="/dataset/ss_fixed/summary_noise_snr.csv" download="고정형SS_소음_SNR별_평균.csv">소음·SNR별 평균 CSV</a></div>
+    </div>
   </section>
   <section id="demo" class="page-section" hidden>
     <div class="page-intro compact"><div><div class="eyebrow accent">04 / SPEECH ENHANCEMENT</div><h1>음성 처리 결과</h1><p>전처리 유무를 먼저 선택한 뒤 알고리즘과 입력 조건을 좁혀 비교합니다. 무처리 입력은 두 분류에서 공통 기준으로 사용합니다.</p></div></div>

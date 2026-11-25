@@ -375,6 +375,21 @@ def copy_clean_collection(root, stage, files):
     return len(exported)
 
 
+def export_ss_fixed(root, stage, files):
+    """Deliver the completed SS snapshot without recalculating audio or scores."""
+    if not (root / "experiment/outputs/ss_fixed.json").exists():
+        return
+    node = PROJECT_ROOT / '.tools/node-v22.23.4-win-x64/node.exe' if sys.platform == 'win32' else shutil.which('node')
+    if not node:
+        raise ValueError('Prepare Node.js before exporting fixed SS results.')
+    completed = subprocess.run([str(node), str(Path(__file__).with_name('ss_fixed.mjs')), '--root', str(root), '--destination', str(stage)], check=True, capture_output=True, text=True)
+    delivered = json.loads(completed.stdout)
+    existing = {file['path'] for file in files}
+    if any(file['path'] in existing for file in delivered):
+        raise ValueError('Duplicate SS audio path.')
+    files.extend(delivered)
+
+
 def export_results(root=PROJECT_ROOT):
     root = Path(root).resolve()
     layout = load_json(root / "experiment/config/paths.json")
@@ -434,6 +449,7 @@ def export_results(root=PROJECT_ROOT):
         export_mixture_summary(root, stage)
         export_fixed_prefilter(root, stage, files)
         export_fixed_prefilter(root, stage, files, bpf=True)
+        export_ss_fixed(root, stage, files)
         write_json(stage / "audio/catalog.json", {"version": 1, "files": files})
         write_json(stage / "manifest.json", manifest)
         write_json(stage / "results.json", rows)

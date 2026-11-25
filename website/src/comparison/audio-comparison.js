@@ -1,3 +1,4 @@
+import { createSSFixed } from './ss-fixed.js';
 import { STATEMENTS, NOISES, NOISE_SOURCES, SNRS, PROCESSORS, ALGORITHMS, LEGACY_METHODS, ALL_METHODS, CURRENT_EVALUATION_SAMPLES, methodsForPrefilter, processingMethod, matchesFilters, algorithmLabel, SAMPLES, SAMPLE_INDEX, SCORE_LEVELS, conditionId, normalizeManifest, normalizeNoiseSources, parseRecords, csvText } from './dataset.js';
 import { normalizeMetrics, mergeMetrics, metricMap, improvement } from './metrics.js';
 import { RATING_FIELDS, previewRating, normalizeRatings, mergeRatings, aggregateRatings, ratingKey, normalizeBackup } from './evaluation.js';
@@ -30,6 +31,7 @@ const cleanLibrary = createCleanLibrary({ fingerprints: () => inputFingerprints,
 const fixedPrefilter = createFixedPrefilter({ fingerprints: () => inputFingerprints, stopAudio });
 const prefilterAnalysis = createPrefilterAnalysis({ fingerprints: () => inputFingerprints });
 const prefilterListening = createPrefilterListening();
+const ssFixed = createSSFixed();
 
 function notify(message, error = false) {
   const target = $('#notice'); target.textContent = message; target.classList.toggle('error', error); target.hidden = false;
@@ -379,7 +381,7 @@ function bindEvents() {
   document.querySelectorAll('[data-open-processing]').forEach(button => button.addEventListener('click', () => { setProcessingScope(button.dataset.openProcessing === 'on'); location.hash = 'demo'; }));
   document.querySelectorAll('[data-objective-view]').forEach(button => button.addEventListener('click', () => { history.replaceState(null, '', button.dataset.objectiveView === 'trends' ? '#graphs' : '#metrics'); navigate(); }));
   document.querySelectorAll('[data-listening-view]').forEach(button => button.addEventListener('click', () => { history.replaceState(null, '', button.dataset.listeningView === 'results' ? '#listening' : '#listening-test'); navigate(); }));
-  noiseAnalysisPage.initialize(); fixedPrefilter.initialize(); prefilterAnalysis.initialize(); prefilterListening.initialize();
+  noiseAnalysisPage.initialize(); fixedPrefilter.initialize(); prefilterAnalysis.initialize(); prefilterListening.initialize(); ssFixed.initialize();
   $('#rating-table-prefilter').addEventListener('change', renderMatrices);
   $('#objective-prev').addEventListener('click', () => { objectivePage--; renderObjective(); });
   $('#objective-next').addEventListener('click', () => { objectivePage++; renderObjective(); });
@@ -456,7 +458,7 @@ function navigate() {
   const objectiveView = requested === 'graphs' ? 'trends' : 'table', listeningView = requested === 'listening' ? 'results' : 'input';
   if (requested === 'graphs') requested = 'metrics';
   if (requested === 'listening') requested = 'listening-test';
-  const valid = ['collection', 'noise-analysis', 'mixture-analysis', 'prefilter', 'prefilter-analysis', 'prefilter-listening', 'demo', 'metrics', 'listening-test', 'analysis', 'settings'], page = valid.includes(requested) ? requested : 'collection';
+  const valid = ['collection', 'noise-analysis', 'mixture-analysis', 'prefilter', 'prefilter-analysis', 'prefilter-listening', 'ss-fixed', 'demo', 'metrics', 'listening-test', 'analysis', 'settings'], page = valid.includes(requested) ? requested : 'collection';
   stopAudio();
   document.querySelectorAll('.page-section').forEach(section => { section.hidden = section.id !== page; });
   document.querySelectorAll('.nav-link').forEach(link => { const active = link.hash === '#' + page; link.classList.toggle('active', active); if (active) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current'); });
@@ -464,12 +466,13 @@ function navigate() {
     document.querySelectorAll('[data-' + type + '-panel]').forEach(panel => { panel.hidden = panel.dataset[type + 'Panel'] !== value; });
     document.querySelectorAll('[data-' + type + '-view]').forEach(button => { const active = button.dataset[type + 'View'] === value; button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active)); });
   }
-  $('#page-name').textContent = { collection: '실험 자료', 'noise-analysis': 'Noise 분석', 'mixture-analysis': 'Mixture 분석', prefilter: '사전 필터링', 'prefilter-analysis': '필터링 결과 분석', 'prefilter-listening': '필터링 청음평가', demo: '음성 처리 결과', metrics: '객관 성능 평가', 'listening-test': '청음평가', analysis: '종합 비교·보고서', settings: '데이터 설정 · 백업' }[page];
+  $('#page-name').textContent = { collection: '실험 자료', 'noise-analysis': 'Noise 분석', 'mixture-analysis': 'Mixture 분석', prefilter: '사전 필터링', 'prefilter-analysis': '필터링 결과 분석', 'prefilter-listening': '필터링 청음평가', 'ss-fixed': '고정형 SS 비교', demo: '음성 처리 결과', metrics: '객관 성능 평가', 'listening-test': '청음평가', analysis: '종합 비교·보고서', settings: '데이터 설정 · 백업' }[page];
   noiseAnalysisPage.navigate(page, analysisView);
   document.querySelector('.nav-link.active')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   window.scrollTo(0, 0);
   if (storageReady && ['listening-test', 'analysis'].includes(page)) refreshListeningResults();
   if (page === 'prefilter-listening') prefilterListening.load();
+  if (page === 'ss-fixed') ssFixed.load();
 }
 function openRatingForm() {
   if (location.hash !== '#listening-test') history.pushState(null, '', '#listening-test');

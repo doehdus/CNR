@@ -5,13 +5,15 @@ import { prepareSurvey } from './prepare-survey.mjs';
 import { prepareAudio } from './prepare-audio.mjs';
 
 const siteRoot = fileURLToPath(new URL('../', import.meta.url));
-const sharedModules = ['dataset.js', 'evaluation.js', 'metrics.js', 'correlation.js', 'report.js', 'study-tables.js', 'noise-analysis-data.js', 'peak-analysis-data.js', 'mixture-summary-data.js', 'prefilter-data.js', 'prefilter-fixed-data.js', 'prefilter-bpf-data.js', 'prefilter-metrics-data.js', 'prefilter-listening-data.js', 'collection-data.js'];
+const sharedModules = ['dataset.js', 'evaluation.js', 'metrics.js', 'correlation.js', 'report.js', 'study-tables.js', 'noise-analysis-data.js', 'peak-analysis-data.js', 'mixture-summary-data.js', 'prefilter-data.js', 'prefilter-fixed-data.js', 'prefilter-bpf-data.js', 'prefilter-metrics-data.js', 'prefilter-listening-data.js', 'collection-data.js', 'ss-fixed-data.js'];
 export const frontendAssets = [
   ['collection/index.html', 'website/index.html'],
   ['collection/style.css', 'website/css/style.css'],
   ['collection/files.js', 'website/js/files.js'],
   ['collection/clean-library.js', 'website/js/clean-library.js'],
   ['collection/favicon.svg', 'favicon.svg'],
+  ['comparison/ss-fixed.js', 'website/js/ss-fixed.js'],
+  ['comparison/ss-fixed.css', 'website/css/ss-fixed.css'],
   ['comparison/audio-comparison.js', 'website/js/audio-comparison.js'],
   ['comparison/graphs.js', 'website/js/graphs.js'],
   ['comparison/peak-analysis.js', 'website/js/peak-analysis.js'],
